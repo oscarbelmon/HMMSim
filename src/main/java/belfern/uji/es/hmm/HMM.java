@@ -26,7 +26,9 @@ public class HMM {
         return new Node(id, emitter);
     }
 
-    public Edge instanceEdge(Node start, Node end, ProbabilityDensityFunction pdf) {
-        return new Edge(start, end, pdf);
+    public Edge instanceEdge(Node start, Node end, ProbabilityDensityFunction pdf, double ratio) {
+        Edge edge =new Edge(start, end, pdf);
+        start.addEdge(edge, ratio);
+        return edge;
     }
 }
