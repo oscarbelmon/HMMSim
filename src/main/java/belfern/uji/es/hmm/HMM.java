@@ -5,15 +5,19 @@ import java.util.Map;
 
 public class HMM {
     Map<String, Node> nodes;
-    Edge initialEdge;
+    Node initialNode;
 
     public HMM() {
         nodes = new HashMap<>();
     }
 
-    public void setInitialEdge(Edge initialEdge) {
-        if(initialEdge == null) throw new IllegalArgumentException("Initial edge can not be null");
-        this.initialEdge = initialEdge;
+    public void setInitialNode(Node initialNode) {
+        if(initialNode == null) throw new IllegalArgumentException("Initial node can not be null");
+        this.initialNode = initialNode;
+    }
+
+    public Node instanceInitialNode(String id, Emitter emitter) {
+        return initialNode = instanceNode(id, emitter);
     }
 
     public Node instanceNode(String id, Emitter emitter) {

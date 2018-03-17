@@ -52,7 +52,7 @@ public class HMMTest {
     @Test
     public void initialEdgeNotNullExceptionTest() {
         try {
-            hmm.setInitialEdge(null);
+            hmm.setInitialNode(null);
         } catch (Exception e) {
             // Nothing
         }
