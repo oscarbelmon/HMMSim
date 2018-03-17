@@ -1,20 +1,22 @@
 package belfern.uji.es.hmm;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Node<T> {
     String id;
     List<Edge> edges;
-    Emmiter<T> emmiter;
+    Emitter<T> emitter;
 
-    Node(String id, Emmiter emmiter) {
+    Node(String id, Emitter emitter) {
+        if(emitter == null) throw new IllegalArgumentException("Emitter can not be null");
         this.id = id;
-        this.emmiter = emmiter;
+        this.emitter = emitter;
         edges = new ArrayList<>();
     }
 
     public T emmit() {
-        return emmiter.emmit();
+        return emitter.emmit();
     }
 }

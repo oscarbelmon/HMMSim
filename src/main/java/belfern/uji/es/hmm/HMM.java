@@ -10,8 +10,8 @@ public class HMM {
         nodes = new HashMap<>();
     }
 
-    public Node instanceNode(String id, Emmiter emmiter) {
-        return new Node(id, emmiter);
+    public Node instanceNode(String id, Emitter emitter) {
+        return new Node(id, emitter);
     }
 
     public Edge instanceEdge(Node start, Node end) {
