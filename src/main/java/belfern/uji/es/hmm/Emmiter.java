@@ -1,4 +1,5 @@
 package belfern.uji.es.hmm;
 
-public class Emmiter {
+public interface Emmiter<T> {
+    T emmit();
 }
