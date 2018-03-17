@@ -1,12 +1,22 @@
 package belfern.uji.es.hmm;
 
+import belfern.uji.es.statistics.ProbabilityDensityFunction;
+
 public class Edge {
     Node start;
     Node end;
+    ProbabilityDensityFunction pdf;
 
-    Edge(Node start, Node end) {
-        if(start == null || end == null) throw new IllegalArgumentException("Nodes can not be null.");
+    Edge(Node start, Node end, ProbabilityDensityFunction pdf) {
+        if(start == null ||
+                end == null ||
+                pdf == null) throw new IllegalArgumentException("Nodes can not be null.");
         this.start = start;
         this.end = end;
+        this.pdf = pdf;
+    }
+
+    double density() {
+        return pdf.density();
     }
 }

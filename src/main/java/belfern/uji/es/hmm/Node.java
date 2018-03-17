@@ -19,4 +19,9 @@ public class Node<T> {
     public T emmit() {
         return emitter.emmit();
     }
+
+//    Node nextNode() {
+//        edges.stream()
+//                .map(e -> e.)
+//    }
 }

@@ -1,5 +1,6 @@
 package belfern.uji.es.hmm;
 
+import belfern.uji.es.statistics.ProbabilityDensityFunction;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,7 @@ public class HMMTest {
     @Test
     public void edgeWithNullNodesExceptionTest() {
         try {
-            hmm.instanceEdge(null, null);
+            hmm.instanceEdge(null, null, null);
             fail("You should not see this.");
         } catch (Exception e) {
             // Nothing
@@ -45,7 +46,7 @@ public class HMMTest {
     public void instanceEdgeNoNullTest() {
         Node start = hmm.instanceNode("start", () -> 0);
         Node end = hmm.instanceNode("end", () -> 1);
-        Edge edge = hmm.instanceEdge(start, end);
+        Edge edge = hmm.instanceEdge(start, end, ProbabilityDensityFunction.CONSTANT_PROBABILITY);
         assertThat(edge, notNullValue());
     }
 

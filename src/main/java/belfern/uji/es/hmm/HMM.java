@@ -1,5 +1,7 @@
 package belfern.uji.es.hmm;
 
+import belfern.uji.es.statistics.ProbabilityDensityFunction;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +26,7 @@ public class HMM {
         return new Node(id, emitter);
     }
 
-    public Edge instanceEdge(Node start, Node end) {
-        return new Edge(start, end);
+    public Edge instanceEdge(Node start, Node end, ProbabilityDensityFunction pdf) {
+        return new Edge(start, end, pdf);
     }
 }
