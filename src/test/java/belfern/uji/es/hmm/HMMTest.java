@@ -15,8 +15,14 @@ public class HMMTest {
     }
 
     @Test
-    public void instantiateNodeTest() {
+    public void instanceNodeNotNullTest() {
         Node node = hmm.instanceNode("Primero", () -> 1.0);
         assertThat(node, notNullValue());
+    }
+
+    @Test
+    public void instanceEdgeNoNullTest() {
+        Edge edge = hmm.instanceEdge(null, null);
+        assertThat(edge, notNullValue());
     }
 }

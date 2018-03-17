@@ -13,4 +13,8 @@ public class HMM {
     public Node instanceNode(String id, Emmiter emmiter) {
         return new Node(id, emmiter);
     }
+
+    public Edge instanceEdge(Node start, Node end) {
+        return new Edge(start, end);
+    }
 }
