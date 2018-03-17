@@ -43,7 +43,18 @@ public class HMMTest {
 
     @Test
     public void instanceEdgeNoNullTest() {
-        Edge edge = hmm.instanceEdge(null, null);
+        Node start = hmm.instanceNode("start", () -> 0);
+        Node end = hmm.instanceNode("end", () -> 1);
+        Edge edge = hmm.instanceEdge(start, end);
         assertThat(edge, notNullValue());
+    }
+
+    @Test
+    public void initialEdgeNotNullExceptionTest() {
+        try {
+            hmm.setInitialEdge(null);
+        } catch (Exception e) {
+            // Nothing
+        }
     }
 }
