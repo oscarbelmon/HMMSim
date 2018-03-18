@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class Node<T> {
     String id;
@@ -27,8 +30,10 @@ public class Node<T> {
         edges.put(edge, ratio);
     }
 
-//    Node nextNode() {
-//        edges.entrySet().stream()
-//                .map(e -> e.)
-//    }
+    Node nextNode() {
+        Map.Entry<Edge, Double> maxEntry = edges.entrySet().stream()
+                .max(Map.Entry.comparingByValue()).get();
+
+        return maxEntry.getKey().end;
+    }
 }

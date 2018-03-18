@@ -58,4 +58,14 @@ public class HMMTest {
             // Nothing
         }
     }
+
+    @Test
+    public void nextTest() {
+        Node<String> uno = hmm.instanceNode("Uno", () -> "Uno");
+        Node<String > dos = hmm.instanceNode("Dos", () -> "Dos");
+        Node<String> tres = hmm.instanceNode("Tres", () -> "Tres");
+        hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.4);
+        hmm.instanceEdge(uno, tres, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.6);
+        assertThat(uno.nextNode(), is(tres));
+    }
 }
