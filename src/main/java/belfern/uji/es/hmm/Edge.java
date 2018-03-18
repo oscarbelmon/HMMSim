@@ -16,8 +16,6 @@ public class Edge {
         this.pdf = pdf;
     }
 
-    // todo Constructor with node's identifier.
-
     double density() {
         return pdf.density();
     }

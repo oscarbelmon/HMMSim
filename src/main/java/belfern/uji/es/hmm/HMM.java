@@ -27,8 +27,15 @@ public class HMM {
     }
 
     public Edge instanceEdge(Node start, Node end, ProbabilityDensityFunction pdf, double ratio) {
-        Edge edge =new Edge(start, end, pdf);
+        Edge edge = new Edge(start, end, pdf);
         start.addEdge(edge, ratio);
         return edge;
     }
+
+    public Edge instanceEdge(String idStart, String idEnd, ProbabilityDensityFunction pdf, double ratio) {
+        Node start = nodes.get(idStart);
+        Node end = nodes.get(idEnd);
+        return instanceEdge(start, end, pdf, ratio);
+    }
+
 }
