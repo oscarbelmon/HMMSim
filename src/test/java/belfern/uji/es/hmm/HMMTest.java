@@ -66,7 +66,7 @@ public class HMMTest {
         Node<String> tres = hmm.instanceNode("Tres", () -> "Tres");
         hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.4);
         hmm.instanceEdge(uno, tres, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.6);
-        assertThat(uno.nextNode(), is(tres));
+        assertThat(uno.nextNode(0.5), is(tres));
     }
 
     @Test
@@ -76,6 +76,30 @@ public class HMMTest {
         hmm.instanceNode("Tres", () -> "Tres");
         hmm.instanceEdge("Uno", "Dos", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.4);
         hmm.instanceEdge("Uno", "Tres", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.6);
-        assertThat(uno.nextNode(), is(hmm.nodes.get("Tres")));
+        assertThat(uno.nextNode(0.05), is(hmm.nodes.get("Tres")));
+    }
+
+    @Test
+    public void accumulateProbabilitiesTest() {
+        Node<String> uno = hmm.instanceNode("Uno", () -> "Uno");
+        Node<String> dos = hmm.instanceNode("Dos", () -> "Dos");
+        Node<String> tres = hmm.instanceNode("Tres", () -> "Tres");
+        Node<String> cuatro = hmm.instanceNode("Cuatro", () -> "Cuatro");
+        hmm.instanceEdge("Uno", "Uno", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.1);
+        hmm.instanceEdge("Uno", "Dos", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.2);
+        hmm.instanceEdge("Uno", "Tres", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.3);
+        hmm.instanceEdge("Uno", "Cuatro", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.4);
+
+        Node res = uno.nextNode(0.05);
+        assertThat(res, is(uno));
+
+        res = uno.nextNode(0.15);
+        assertThat(res, is(dos));
+
+        res = uno.nextNode(0.35);
+        assertThat(res, is(tres));
+
+        res = uno.nextNode(0.95);
+        assertThat(res, is(cuatro));
     }
 }

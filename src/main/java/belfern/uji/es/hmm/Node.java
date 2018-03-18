@@ -1,10 +1,8 @@
 package belfern.uji.es.hmm;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -30,10 +28,30 @@ public class Node<T> {
         edges.put(edge, ratio);
     }
 
-    Node nextNode() {
-        Map.Entry<Edge, Double> maxEntry = edges.entrySet().stream()
-                .max(Map.Entry.comparingByValue()).get();
+    Node nextNode(double probability) {
+        Map.Entry<Edge, Double> entry = accumulatedProbabilities().entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .filter(e -> e.getValue() > probability)
+                .findFirst()
+                .get();
 
-        return maxEntry.getKey().end;
+        return entry.getKey().end;
     }
+
+    Map<Edge, Double> accumulatedProbabilities() {
+        double acc = 0;
+        Map<Edge, Double> tmp = new HashMap<>();
+
+        Map<Edge, Double> sorted = edges.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
+        for(Map.Entry<Edge, Double> edge: sorted.entrySet()) {
+            tmp.put(edge.getKey(), edge.getValue() + acc);
+            acc += edge.getValue();
+        }
+
+        return tmp;
+    }
+
 }
