@@ -29,7 +29,7 @@ public class HMMTest {
     @Test
     public void edgeWithNullNodesExceptionTest() {
         try {
-            hmm.instanceEdge(null, null, null, 1);
+            hmm.instanceEdge(null, "", null, 1);
             fail("You should not see this.");
         } catch (Exception e) {
             // Nothing
@@ -67,5 +67,15 @@ public class HMMTest {
         hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.4);
         hmm.instanceEdge(uno, tres, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.6);
         assertThat(uno.nextNode(), is(tres));
+    }
+
+    @Test
+    public void nextWithIdsTest() {
+        Node<String> uno = hmm.instanceNode("Uno", () -> "Uno");
+        hmm.instanceNode("Dos", () -> "Dos");
+        hmm.instanceNode("Tres", () -> "Tres");
+        hmm.instanceEdge("Uno", "Dos", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.4);
+        hmm.instanceEdge("Uno", "Tres", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.6);
+        assertThat(uno.nextNode(), is(hmm.nodes.get("Tres")));
     }
 }

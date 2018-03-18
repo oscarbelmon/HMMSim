@@ -19,11 +19,15 @@ public class HMM {
     }
 
     public Node instanceInitialNode(String id, Emitter emitter) {
-        return initialNode = instanceNode(id, emitter);
+        initialNode = instanceNode(id, emitter);
+        nodes.put(id, initialNode);
+        return initialNode;
     }
 
     public Node instanceNode(String id, Emitter emitter) {
-        return new Node(id, emitter);
+        Node node = new Node(id, emitter);
+        nodes.put(id, node);
+        return node;
     }
 
     public Edge instanceEdge(Node start, Node end, ProbabilityDensityFunction pdf, double ratio) {
