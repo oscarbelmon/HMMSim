@@ -48,13 +48,24 @@ public class Node<T> {
 //                .sorted(Map.Entry.comparingByValue())
 //                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
-//        for(Map.Entry<Edge, Double> edge: sorted.entrySet()) {
+//        for(Map.Entry<Edge, Double> edge: edges.entrySet()) {
+//            acc += edge.getValue();
+//            tmp.put(edge.getKey(), acc);
+//        }
+
         for(Map.Entry<Edge, Double> edge: edges.entrySet()) {
-            tmp.put(edge.getKey(), edge.getValue() + acc);
-            acc += edge.getValue();
+            acc += edge.getValue() * edge.getKey().density();
+            tmp.put(edge.getKey(), acc);
         }
 
-        return tmp;
+        Map<Edge, Double> tmpNormalized = new LinkedHashMap<>();
+
+        for (Map.Entry<Edge, Double> edge: tmp.entrySet()) {
+            tmpNormalized.put(edge.getKey(), tmp.get(edge.getKey())/acc);
+        }
+
+//        return tmp;
+        return tmpNormalized;
     }
 
 }
