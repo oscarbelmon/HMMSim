@@ -16,7 +16,8 @@ public class Node<T> {
         if(emitter == null) throw new IllegalArgumentException("Emitter can not be null");
         this.id = id;
         this.emitter = emitter;
-        edges = new HashMap<>();
+//        edges = new HashMap<>();
+        edges = new LinkedHashMap<>();
     }
 
     public T emmit() {
@@ -30,7 +31,7 @@ public class Node<T> {
 
     Node nextNode(double probability) {
         Map.Entry<Edge, Double> entry = accumulatedProbabilities().entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
+//                .sorted(Map.Entry.comparingByValue())
                 .filter(e -> e.getValue() > probability)
                 .findFirst()
                 .get();
@@ -40,13 +41,15 @@ public class Node<T> {
 
     Map<Edge, Double> accumulatedProbabilities() {
         double acc = 0;
-        Map<Edge, Double> tmp = new HashMap<>();
+//        Map<Edge, Double> tmp = new HashMap<>();
+        Map<Edge, Double> tmp = new LinkedHashMap<>();
 
-        Map<Edge, Double> sorted = edges.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+//        Map<Edge, Double> sorted = edges.entrySet().stream()
+//                .sorted(Map.Entry.comparingByValue())
+//                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
-        for(Map.Entry<Edge, Double> edge: sorted.entrySet()) {
+//        for(Map.Entry<Edge, Double> edge: sorted.entrySet()) {
+        for(Map.Entry<Edge, Double> edge: edges.entrySet()) {
             tmp.put(edge.getKey(), edge.getValue() + acc);
             acc += edge.getValue();
         }
