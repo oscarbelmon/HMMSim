@@ -50,7 +50,7 @@ public class HMM<T> {
 
         for(long i = 0; i < items; i++) {
             sequence.add(currentNode.emmit());
-            currentNode = currentNode.nextNode(Math.random());
+            currentNode = currentNode.nextNode();
         }
 
         return sequence;

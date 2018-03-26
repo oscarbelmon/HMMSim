@@ -29,6 +29,7 @@ public class Node<T> {
         edges.put(edge, ratio);
     }
 
+    // todo This is maintained for testing purposes only
     Node nextNode(double probability) {
         Map.Entry<Edge, Double> entry = accumulatedProbabilities().entrySet().stream()
 //                .sorted(Map.Entry.comparingByValue())
@@ -37,6 +38,10 @@ public class Node<T> {
                 .get();
 
         return entry.getKey().end;
+    }
+
+    Node nextNode() {
+        return nextNode(Math.random());
     }
 
     Map<Edge, Double> accumulatedProbabilities() {
