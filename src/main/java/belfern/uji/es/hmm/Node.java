@@ -7,12 +7,12 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-public class Node<T> {
-    String id;
+public class Node<T, U> {
+    U id;
     Map<Edge, Double> edges;
     Emitter<T> emitter;
 
-    Node(String id, Emitter emitter) {
+    Node(U id, Emitter emitter) {
         if(emitter == null) throw new IllegalArgumentException("Emitter can not be null");
         this.id = id;
         this.emitter = emitter;
