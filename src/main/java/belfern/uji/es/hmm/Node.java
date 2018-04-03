@@ -8,11 +8,11 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class Node<T, U> {
-    U id;
+    T id;
     Map<Edge, Double> edges;
-    Emitter<T> emitter;
+    Emitter<U> emitter;
 
-    Node(U id, Emitter emitter) {
+    Node(T id, Emitter<U> emitter) {
         if(emitter == null) throw new IllegalArgumentException("Emitter can not be null");
         this.id = id;
         this.emitter = emitter;
@@ -20,11 +20,11 @@ public class Node<T, U> {
         edges = new LinkedHashMap<>();
     }
 
-    public T emmit() {
+    public U emmit() {
         return emitter.emmit();
     }
 
-    void addEdge(Edge edge, double ratio) {
+    void addEdge(Edge<T, U> edge, double ratio) {
         if(ratio < 0 || ratio > 1.0) throw new IllegalArgumentException("Edge's ratio can be between 0.0 and 1.0");
         edges.put(edge, ratio);
     }

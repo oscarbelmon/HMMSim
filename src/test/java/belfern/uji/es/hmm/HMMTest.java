@@ -126,9 +126,9 @@ public class HMMTest {
         double zero_zero = 1- zero_uno;
         double expectedRatio = zero_uno/(uno_zero + zero_uno);
         
-        HMM<Integer, String> hmmInt = new HMM<>();
-        Node<Integer, String> uno = hmmInt.instanceInitialNode("uno", () -> 1);
-        Node<Integer, String> zero = hmmInt.instanceNode("zero", () -> 0);
+        HMM<String, Integer> hmmInt = new HMM<>();
+        Node<String, Integer> uno = hmmInt.instanceInitialNode("uno", () -> 1);
+        Node<String, Integer> zero = hmmInt.instanceNode("zero", () -> 0);
         hmmInt.instanceEdge(uno, zero, ProbabilityDensityFunction.CONSTANT_PROBABILITY, uno_zero);
         hmmInt.instanceEdge(uno, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, uno_uno);
         hmmInt.instanceEdge(zero, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, zero_uno);

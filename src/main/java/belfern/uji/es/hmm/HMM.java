@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HMM<T, U> {
-    Map<U, Node<T, U>> nodes;
+    Map<T, Node<T, U>> nodes;
     Node<T, U> initialNode;
 
     public HMM() {
@@ -20,13 +20,13 @@ public class HMM<T, U> {
         this.initialNode = initialNode;
     }
 
-    public Node<T, U> instanceInitialNode(U id, Emitter<T> emitter) {
+    public Node<T, U> instanceInitialNode(T id, Emitter<U> emitter) {
         initialNode = instanceNode(id, emitter);
         nodes.put(id, initialNode);
         return initialNode;
     }
 
-    public Node<T, U> instanceNode(U id, Emitter<T> emitter) {
+    public Node<T, U> instanceNode(T id, Emitter<U> emitter) {
         Node<T, U> node = new Node<T, U>(id, emitter);
         nodes.put(id, node);
         return node;
@@ -44,8 +44,8 @@ public class HMM<T, U> {
         return instanceEdge(start, end, pdf, ratio);
     }
 
-    public List<T> generateSequence(long items) {
-        List<T> sequence = new ArrayList<>();
+    public List<U> generateSequence(long items) {
+        List<U> sequence = new ArrayList<>();
         Node<T, U> currentNode = initialNode;
 
         for(long i = 0; i < items; i++) {
