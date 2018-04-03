@@ -3,11 +3,11 @@ package belfern.uji.es.hmm;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConstantProbabilityEmitter<T> implements Emitter<T> {
+public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
     private List<Probability<T>> probabilities = new ArrayList<>();
     private double accumulatedProbability = 0;
 
-    public ConstantProbabilityEmitter() {
+    public TabulatedProbabilityEmitter() {
     }
 
     @Override

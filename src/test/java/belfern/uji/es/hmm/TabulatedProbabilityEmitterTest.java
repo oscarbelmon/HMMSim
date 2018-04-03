@@ -1,17 +1,14 @@
 package belfern.uji.es.hmm;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.hamcrest.core.Is.*;
-import static org.hamcrest.MatcherAssert.*;
 
-class ConstantProbabilityEmitterTest {
+class TabulatedProbabilityEmitterTest {
 
     @Test
     void emmit() {
-        ConstantProbabilityEmitter<Integer> cpe = new ConstantProbabilityEmitter<>();
+        TabulatedProbabilityEmitter<Integer> cpe = new TabulatedProbabilityEmitter<>();
         cpe.addEmission(0, 50);
         cpe.addEmission(1, 50);
 

@@ -143,4 +143,34 @@ public class HMMTest {
 
         assertEquals(expectedRatio, ratio, 0.001);
     }
+
+    @Test
+    public void sequenceTabulatedTest() {
+        double uno_zero = 0.6;
+        double uno_uno = 1 - uno_zero;
+        double zero_uno = 0.8;
+        double zero_zero = 1- zero_uno;
+        double expectedRatio = zero_uno/(uno_zero + zero_uno);
+
+        HMM<String, Integer> hmmInt = new HMM<>();
+        TabulatedProbabilityEmitter<Integer> emitterOne = new TabulatedProbabilityEmitter<>();
+        emitterOne.addEmission(1,100);
+        TabulatedProbabilityEmitter<Integer> emitterZero = new TabulatedProbabilityEmitter<>();
+        emitterZero.addEmission(0, 100);
+        Node<String, Integer> uno = hmmInt.instanceInitialNode("uno", emitterOne);
+        Node<String, Integer> zero = hmmInt.instanceNode("zero", emitterZero);
+        hmmInt.instanceEdge(uno, zero, ProbabilityDensityFunction.CONSTANT_PROBABILITY, uno_zero);
+        hmmInt.instanceEdge(uno, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, uno_uno);
+        hmmInt.instanceEdge(zero, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, zero_uno);
+        hmmInt.instanceEdge(zero, zero, ProbabilityDensityFunction.CONSTANT_PROBABILITY, zero_zero);
+
+        List<Integer> sequence = hmmInt.generateSequence(1000000);
+
+        double ratio = sequence.stream()
+                .mapToInt(s -> s)
+                .average()
+                .getAsDouble();
+
+        assertEquals(expectedRatio, ratio, 0.001);
+    }
 }
