@@ -58,7 +58,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>util.StartServer</mainClass>
+                    <mainClass>main.Main</mainClass>
                 </configuration>
             </plugin>
         </plugins>
