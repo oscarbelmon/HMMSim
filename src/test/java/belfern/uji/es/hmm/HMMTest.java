@@ -235,8 +235,6 @@ public class HMMTest {
 
     @Test
     public void terminationTest() {
-        HMM<String, Integer> hmmInt = new HMM<>();
-
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
         emitterOne.addEmission("One",100);
         emitterOne.addEmission("Two", 0);
@@ -261,5 +259,38 @@ public class HMMTest {
         probability = hmm.termination();
 
         assertEquals(0.0, probability, 0.01);
+    }
+
+    @Test
+    public void forwardTest() {
+        TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
+        emitterOne.addEmission("One",50);
+        emitterOne.addEmission("Two", 50);
+        TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
+        emitterTwo.addEmission("One", 50);
+        emitterTwo.addEmission("Two", 50);
+
+        Node<String, String> uno = hmm.instanceNode("One", emitterOne);
+        Node<String, String> dos = hmm.instanceNode("Two", emitterTwo);
+        hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.instanceEdge(dos, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.setInitialNode(uno);
+
+        System.out.println(hmm.generateSequence(5));
+
+        hmm.initialization("One");
+        hmm.recursion(Arrays.asList("One", "Two"));
+        double probability = hmm.termination();
+        System.out.println(probability);
+
+//        assertEquals(1.0, probability, 0.01);
+
+        hmm.initialization("One");
+        hmm.recursion(Arrays.asList("One", "Two", "One", "Two", "One", "One"));
+        probability = hmm.termination();
+
+//        assertEquals(0.0, probability, 0.01);
+        System.out.println(probability);
+
     }
 }

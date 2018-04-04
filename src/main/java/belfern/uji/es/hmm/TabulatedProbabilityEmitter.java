@@ -39,7 +39,7 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
         Probability(T symbol, double probability, double accumulatedProbability) {
             this.symbol = symbol;
             this.probability = probability;
-            this.accumulatedProbability = probability;
+            this.accumulatedProbability = accumulatedProbability;
         }
 
         boolean lessThan(double random) {
