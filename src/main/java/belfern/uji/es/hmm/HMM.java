@@ -69,21 +69,15 @@ public class HMM<T, U> {
 //        return start.getProbabilityToNode(end);
 //    }
 
-//    public double forward(List<T> simbols) {
-//        if(forward == null) {
-//            numNodes = this.nodes.size();
-//            numObservations = simbols.size();
-//            forward = new double[numNodes + 2][numObservations];
-//        }
-//    }
-//
+    public double forward(List<U> symbols) {
+        initialization(symbols.get(0));
+        recursion(symbols);
+        return termination();
+    }
+
     void initialization(U symbol) {
-//        for(Node<T, U> node: nodes.values()) {
-//            node.getProbabilityForSymbol(symbol);
-//        }
-//        for(Node<T, U> node: nodes.values()) {
-//            node.stepForward();
-//        }
+        nodes.values().stream()
+                .forEach(node -> node.alfaPrevious = 0);
 
         initialNode.alfaPrevious = 1;
 
@@ -100,7 +94,9 @@ public class HMM<T, U> {
         }
     }
 
-    private void termination(U symbol) {
-        //todo Please fill it!!!
+    double termination() {
+        return nodes.values().stream()
+                .mapToDouble(node -> node.alfa)
+                .sum();
     }
 }
