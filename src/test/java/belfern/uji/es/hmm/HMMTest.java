@@ -185,8 +185,51 @@ public class HMMTest {
 
         hmm.initialization("Uno");
 
+        assertThat(uno, is(uno));
+        assertEquals(uno, uno);
+
+        double result = hmm.nodes.values().stream()
+                .filter(node -> uno.equals(node))
+                .mapToDouble(node -> node.alfa)
+                .findFirst()
+                .getAsDouble();
+
+        assertEquals(result, 1.0, 0.1);
+
+        result = hmm.nodes.values().stream()
+                .filter(node -> dos.equals(node))
+                .mapToDouble(node -> node.alfa)
+                .findFirst()
+                .getAsDouble();
+
+        assertEquals(result, 0.0, 0.1);
+    }
+
+    @Test
+    public void recursionTest() {
+        HMM<String, Integer> hmmInt = new HMM<>();
+
+        TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
+        emitterOne.addEmission("One",100);
+        emitterOne.addEmission("Two", 0);
+        TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
+        emitterTwo.addEmission("One", 0);
+        emitterTwo.addEmission("Two", 100);
+
+        Node<String, String> uno = hmm.instanceNode("One", emitterOne);
+        Node<String, String> dos = hmm.instanceNode("Two", emitterTwo);
+        hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.instanceEdge(dos, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.setInitialNode(uno);
+
+        System.out.println(hmm.generateSequence(3));
+
+        hmm.initialization("One");
+        hmm.recursion(Arrays.asList("One", "Two", "One", "Two", "One", "Two"));
+
         hmm.nodes.values().stream()
                 .mapToDouble(node -> node.alfa)
                 .forEach(System.out::println);
+
     }
 }

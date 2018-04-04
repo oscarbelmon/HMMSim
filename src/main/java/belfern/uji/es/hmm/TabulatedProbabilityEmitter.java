@@ -21,7 +21,7 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
 
     @Override
     public double getSymbolProbability(T symbol) {
-        return probabilities.get(symbol).probability;
+        return probabilities.get(symbol).probability / 100.0;
     }
 
     public void addEmission(T symbol, double probability) throws IllegalArgumentException{

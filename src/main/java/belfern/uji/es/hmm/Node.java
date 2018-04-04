@@ -91,9 +91,7 @@ public class Node<T, U> {
     double getProbabilityForSymbol(U symbol) {
         double result = 0;
         double symbolPorbability = emitter.getSymbolProbability(symbol);
-//        for(double transitionProbability: incomingEdges.values())
-//            result += symbolPorbability * transitionProbability;
-//        Node<T,U> origin;
+
         for(Edge<T,U> edge: incomingEdges.keySet()) {
             result += edge.start.alfaPrevious * symbolPorbability * incomingEdges.get(edge);
         }

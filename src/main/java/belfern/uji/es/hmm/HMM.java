@@ -21,14 +21,14 @@ public class HMM<T, U> {
     public void setInitialNode(Node<T, U> initialNode) {
         if(initialNode == null) throw new IllegalArgumentException("Initial node can not be null");
         this.initialNode = initialNode;
-        Edge<T,U> edge = instanceEdge(startNode, this.initialNode, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        this.initialNode.incomingEdges.put(edge, 1.0);
+//        Edge<T,U> edge = instanceEdge(startNode, this.initialNode, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+//        this.initialNode.incomingEdges.put(edge, 1.0);
     }
 
     public Node<T, U> instanceInitialNode(T id, Emitter<U> emitter) {
         initialNode = instanceNode(id, emitter);
-        Edge<T,U> edge = instanceEdge(startNode, this.initialNode, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        initialNode.incomingEdges.put(edge, 1.0);
+//        Edge<T,U> edge = instanceEdge(startNode, this.initialNode, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+//        initialNode.incomingEdges.put(edge, 1.0);
         nodes.put(id, initialNode);
         return initialNode;
     }
@@ -78,25 +78,29 @@ public class HMM<T, U> {
 //    }
 //
     void initialization(U symbol) {
-        for(Node<T, U> node: nodes.values()) {
-            node.getProbabilityForSymbol(symbol);
-        }
-        for(Node<T, U> node: nodes.values()) {
-            node.stepForward();
-        }
+//        for(Node<T, U> node: nodes.values()) {
+//            node.getProbabilityForSymbol(symbol);
+//        }
+//        for(Node<T, U> node: nodes.values()) {
+//            node.stepForward();
+//        }
 
+        initialNode.alfaPrevious = 1;
 
     }
 
     void recursion(List<U> symbols) {
-
+        for(int i = 1; i < symbols.size(); i++) {
+            for(Node<T, U> node: nodes.values()) {
+                node.getProbabilityForSymbol(symbols.get(i));
+            }
+            for(Node<T, U> node: nodes.values()) {
+                node.stepForward();
+            }
+        }
     }
-//
-//    private void recursion(double[][] forward) {
-//
-//    }
-//
-//    private void termination(double[][] forward) {
-//
-//    }
+
+    private void termination(U symbol) {
+        //todo Please fill it!!!
+    }
 }
