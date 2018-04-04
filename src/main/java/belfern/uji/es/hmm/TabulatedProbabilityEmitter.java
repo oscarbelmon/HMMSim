@@ -3,7 +3,6 @@ package belfern.uji.es.hmm;
 import java.util.*;
 
 public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
-//    private List<Probability<T>> probabilities = new ArrayList<>();
     private Map<T, Probability<T>> probabilities = new LinkedHashMap<>();
     private double accumulatedProbability = 0;
 

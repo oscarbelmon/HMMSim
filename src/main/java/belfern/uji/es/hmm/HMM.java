@@ -7,9 +7,6 @@ import java.util.*;
 public class HMM<T, U> {
     Map<T, Node<T, U>> nodes;
     Node<T, U> initialNode;
-    private double[][] forward = null;
-    private int numNodes;
-    int numObservations;
     private static final Node startNode = new Node(null, new TabulatedProbabilityEmitter());
 
 
@@ -21,14 +18,10 @@ public class HMM<T, U> {
     public void setInitialNode(Node<T, U> initialNode) {
         if(initialNode == null) throw new IllegalArgumentException("Initial node can not be null");
         this.initialNode = initialNode;
-//        Edge<T,U> edge = instanceEdge(startNode, this.initialNode, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-//        this.initialNode.incomingEdges.put(edge, 1.0);
     }
 
     public Node<T, U> instanceInitialNode(T id, Emitter<U> emitter) {
         initialNode = instanceNode(id, emitter);
-//        Edge<T,U> edge = instanceEdge(startNode, this.initialNode, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-//        initialNode.incomingEdges.put(edge, 1.0);
         nodes.put(id, initialNode);
         return initialNode;
     }
@@ -62,12 +55,6 @@ public class HMM<T, U> {
 
         return sequence;
     }
-
-//    double probabilityIJ(T idStart, T idEnd) {
-//        Node<T, U> start = nodes.get(idStart);
-//        Node<T, U> end = nodes.get(idEnd);
-//        return start.getProbabilityToNode(end);
-//    }
 
     public double forward(List<U> symbols) {
         initialization(symbols.get(0));
