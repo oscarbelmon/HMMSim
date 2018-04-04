@@ -173,4 +173,20 @@ public class HMMTest {
 
         assertEquals(expectedRatio, ratio, 0.001);
     }
+
+    @Test
+    public void initializationTest() {
+//        List<String> expected = Arrays.asList("Uno", "Dos", "Uno", "Dos", "Uno", "Dos", "Uno", "Dos", "Uno", "Dos");
+        Node<String, String> uno = hmm.instanceNode("Uno", () -> "Uno");
+        Node<String, String> dos = hmm.instanceNode("Dos", () -> "Dos");
+        hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.instanceEdge(dos, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.setInitialNode(uno);
+
+        hmm.initialization("Uno");
+
+        hmm.nodes.values().stream()
+                .mapToDouble(node -> node.alfa)
+                .forEach(System.out::println);
+    }
 }

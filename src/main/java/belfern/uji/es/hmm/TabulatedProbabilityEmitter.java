@@ -1,10 +1,10 @@
 package belfern.uji.es.hmm;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
-    private List<Probability<T>> probabilities = new ArrayList<>();
+//    private List<Probability<T>> probabilities = new ArrayList<>();
+    private Map<T, Probability<T>> probabilities = new LinkedHashMap<>();
     private double accumulatedProbability = 0;
 
     public TabulatedProbabilityEmitter() {
@@ -13,30 +13,37 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
     @Override
     public T emmit() {
         double random = Math.random() * 100;
-        for(Probability<T> probability: probabilities) {
+        for(Probability<T> probability: probabilities.values()) {
             if(probability.lessThan(random)) return probability.symbol;
         }
         return probabilities.get(0).symbol;
     }
 
+    @Override
+    public double getSymbolProbability(T symbol) {
+        return probabilities.get(symbol).probability;
+    }
+
     public void addEmission(T symbol, double probability) throws IllegalArgumentException{
-        if(probability > 100 || probability < 0) throw new IllegalArgumentException("Probability should a percentage between 0 and 100. Yours is: " + probability);
-//        pdf.put(symbol, probability);
+        if(probability > 100 || probability < 0)
+            throw new IllegalArgumentException("Probability should a percentage between 0 and 100. Yours is: " + probability);
         accumulatedProbability += probability;
-        probabilities.add(new Probability<>(symbol, accumulatedProbability));
+        probabilities.put(symbol, new Probability<>(symbol, probability, accumulatedProbability));
     }
 
     private class Probability<T> {
         T symbol;
-        double max;
+        double probability;
+        double accumulatedProbability;
 
-        Probability(T symbol, double probability) {
+        Probability(T symbol, double probability, double accumulatedProbability) {
             this.symbol = symbol;
-            this.max = probability;
+            this.probability = probability;
+            this.accumulatedProbability = probability;
         }
 
         boolean lessThan(double random) {
-            return random < max ? true : false;
+            return random < accumulatedProbability ? true : false;
         }
     }
 }
