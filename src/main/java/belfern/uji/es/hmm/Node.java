@@ -2,16 +2,13 @@ package belfern.uji.es.hmm;
 
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 public class Node<T, U> {
     T id;
     Map<Edge<T, U>, Double> edges;
     Map<Edge<T, U>, Double> incomingEdges;
     Emitter<U> emitter;
+    List<Double> alfas;
     double alfa;
     double alfaPrevious = 0;
 
@@ -21,6 +18,7 @@ public class Node<T, U> {
         this.emitter = emitter;
         edges = new LinkedHashMap<>();
         incomingEdges = new LinkedHashMap<>();
+        alfas = new ArrayList<>();
     }
 
     public U emmit() {
@@ -81,13 +79,6 @@ public class Node<T, U> {
         return tmpNormalized;
     }
 
-//    double getProbabilityToNode(Node<T, U> node) {
-//        double result = 0;
-//        Edge<T, U> edge = nodes.get(node);
-//        if(edge != null) result = edges.get(edge) * edge.density();
-//        return result;
-//    }
-
     double getProbabilityForSymbol(U symbol) {
         double result = 0;
         double symbolPorbability = emitter.getSymbolProbability(symbol);
@@ -101,5 +92,10 @@ public class Node<T, U> {
 
     void stepForward() {
         alfaPrevious = alfa;
+        alfas.add(alfa);
+    }
+
+    public List<Double> getAlfas() {
+        return alfas;
     }
 }

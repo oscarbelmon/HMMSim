@@ -6,34 +6,16 @@ import java.util.*;
 
 public class HMM<T, U> {
     Map<T, Node<T, U>> nodes;
-//    Node<T, U> initialNode;
-    private Node startNode;// = new Node(null, new TabulatedProbabilityEmitter());
     Map<Node<T,U>, Double> initialNodes;
 
     public HMM() {
         nodes = new LinkedHashMap<>();
-        startNode = new Node(null, new TabulatedProbabilityEmitter());
-        startNode.alfaPrevious = 1;
         initialNodes = new LinkedHashMap<>();
     }
 
-//    public void setInitialNode(Node<T, U> initialNode) {
-//        if(initialNode == null) throw new IllegalArgumentException("Initial node can not be null");
-//        this.initialNode = initialNode;
-//    }
-
     public void addInitialNode(Node<T,U> node, double probability) {
-//        Edge<T,U> edge = instanceEdge(startNode, node, ProbabilityDensityFunction.CONSTANT_PROBABILITY, probability);
-//        node.alfaPrevious = probability;
-//        startNode.addEdge(edge, probability);
         initialNodes.put(node, probability);
     }
-
-//    public Node<T, U> instanceInitialNode(T id, Emitter<U> emitter) {
-//        initialNode = instanceNode(id, emitter);
-//        nodes.put(id, initialNode);
-//        return initialNode;
-//    }
 
     public Node<T, U> instanceNode(T id, Emitter<U> emitter) {
         Node<T, U> node = new Node<T, U>(id, emitter);
@@ -55,8 +37,7 @@ public class HMM<T, U> {
 
     public List<U> generateSequence(long items) {
         List<U> sequence = new ArrayList<>();
-//        Node<T, U> currentNode = initialNode;
-        Node<T, U> currentNode = startNode.nextNode();
+        Node<T, U> currentNode = getInitialNode();
 
         for(long i = 0; i < items; i++) {
             sequence.add(currentNode.emmit());
@@ -80,10 +61,8 @@ public class HMM<T, U> {
                     } else {
                         node.alfa = node.alfaPrevious = 0;
                     }
+                    node.stepForward();
                 });
-
-        nodes.values().stream()
-                .forEach(node -> System.out.println(node.alfa));
     }
 
     void recursion(List<U> symbols) {
@@ -94,19 +73,38 @@ public class HMM<T, U> {
             for(Node<T, U> node: nodes.values()) {
                 node.stepForward();
             }
-            nodes.values().stream()
-                    .forEach(node -> System.out.println(node.alfa));
         }
     }
 
     double termination(U symbol) {
-//        return nodes.values().stream()
-//                .mapToDouble(node -> node.alfa * node.getProbabilityForSymbol(symbol))
-//                .sum();
+        return nodes.values().stream()
+                .mapToDouble(node -> node.alfa)
+                .max()
+                .getAsDouble();
+    }
 
-//        nodes.values().stream()
-//                .forEach(node -> System.out.println(node.alfa));// + ", " + node.getProbabilityForSymbol(symbol)));
+    private Node<T,U> getInitialNode() {
+        double acc = 0;
+        Map<Node<T,U>, Double> tmp = new LinkedHashMap<>();
 
-        return 0;
+        for(Map.Entry<Node<T,U>, Double> node: initialNodes.entrySet()) {
+            acc += node.getValue();
+            tmp.put(node.getKey(), acc);
+        }
+
+        Map<Node<T,U>, Double> tmpNormalized = new LinkedHashMap<>();
+
+        for (Map.Entry<Node<T,U>, Double> node: tmp.entrySet()) {
+            tmpNormalized.put(node.getKey(), tmp.get(node.getKey())/acc);
+        }
+
+        double probability = Math.random();
+        Map.Entry<Node<T,U>, Double> entry = tmpNormalized.entrySet().stream()
+                .filter(e -> e.getValue() > probability)
+                .findFirst()
+                .get();
+
+        return entry.getKey();
+
     }
 }
