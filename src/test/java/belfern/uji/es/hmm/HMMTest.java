@@ -2,6 +2,7 @@ package belfern.uji.es.hmm;
 
 import belfern.uji.es.statistics.ProbabilityDensityFunction;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -13,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class HMMTest {
-    private static HMM<String, String> hmm;
+    private HMM<String, String> hmm;
 
-    @BeforeAll
-    public static void start() {
+    @BeforeEach
+    public void start() {
         hmm = new HMM<>();
     }
 
@@ -54,14 +55,14 @@ public class HMMTest {
         assertThat(edge, notNullValue());
     }
 
-    @Test
-    public void initialEdgeNotNullExceptionTest() {
-        try {
-            hmm.setInitialNode(null);
-        } catch (Exception e) {
-            // Nothing
-        }
-    }
+//    @Test
+//    public void initialEdgeNotNullExceptionTest() {
+//        try {
+//            hmm.setInitialNode(null);
+//        } catch (Exception e) {
+//            // Nothing
+//        }
+//    }
 
     @Test
     public void nextTest() {
@@ -114,7 +115,19 @@ public class HMMTest {
         Node<String, String> dos = hmm.instanceNode("Dos", () -> "Dos");
         hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
         hmm.instanceEdge(dos, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        hmm.setInitialNode(uno);
+//        hmm.setInitialNode(uno);
+        hmm.addInitialNode(uno, 1);
+        assertThat(hmm.generateSequence(10), is(expected));
+    }
+
+    @Test
+    public void generateSequenceTest2() {
+        List<String> expected = Arrays.asList("Uno", "Dos", "Uno", "Dos", "Uno", "Dos", "Uno", "Dos", "Uno", "Dos");
+        Node<String, String> uno = hmm.instanceNode("Uno", () -> "Uno");
+        Node<String, String> dos = hmm.instanceNode("Dos", () -> "Dos");
+        hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.instanceEdge(dos, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.addInitialNode(uno, 1);
         assertThat(hmm.generateSequence(10), is(expected));
     }
 
@@ -127,7 +140,9 @@ public class HMMTest {
         double expectedRatio = zero_uno/(uno_zero + zero_uno);
         
         HMM<String, Integer> hmmInt = new HMM<>();
-        Node<String, Integer> uno = hmmInt.instanceInitialNode("uno", () -> 1);
+//        Node<String, Integer> uno = hmmInt.instanceInitialNode("uno", () -> 1);
+        Node<String, Integer> uno = hmmInt.instanceNode("uno", () -> 1);
+        hmmInt.addInitialNode(uno, 1);
         Node<String, Integer> zero = hmmInt.instanceNode("zero", () -> 0);
         hmmInt.instanceEdge(uno, zero, ProbabilityDensityFunction.CONSTANT_PROBABILITY, uno_zero);
         hmmInt.instanceEdge(uno, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, uno_uno);
@@ -157,7 +172,40 @@ public class HMMTest {
         emitterOne.addEmission(1,100);
         TabulatedProbabilityEmitter<Integer> emitterZero = new TabulatedProbabilityEmitter<>();
         emitterZero.addEmission(0, 100);
-        Node<String, Integer> uno = hmmInt.instanceInitialNode("uno", emitterOne);
+//        Node<String, Integer> uno = hmmInt.instanceInitialNode("uno", emitterOne);
+        Node<String, Integer> uno = hmmInt.instanceNode("uno", emitterOne);
+        hmmInt.addInitialNode(uno, 1);
+        Node<String, Integer> zero = hmmInt.instanceNode("zero", emitterZero);
+        hmmInt.instanceEdge(uno, zero, ProbabilityDensityFunction.CONSTANT_PROBABILITY, uno_zero);
+        hmmInt.instanceEdge(uno, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, uno_uno);
+        hmmInt.instanceEdge(zero, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, zero_uno);
+        hmmInt.instanceEdge(zero, zero, ProbabilityDensityFunction.CONSTANT_PROBABILITY, zero_zero);
+
+        List<Integer> sequence = hmmInt.generateSequence(1000000);
+
+        double ratio = sequence.stream()
+                .mapToInt(s -> s)
+                .average()
+                .getAsDouble();
+
+        assertEquals(expectedRatio, ratio, 0.001);
+    }
+
+    @Test
+    public void sequenceTabulatedTest2() {
+        double uno_zero = 0.6;
+        double uno_uno = 1 - uno_zero;
+        double zero_uno = 0.8;
+        double zero_zero = 1- zero_uno;
+        double expectedRatio = zero_uno/(uno_zero + zero_uno);
+
+        HMM<String, Integer> hmmInt = new HMM<>();
+        TabulatedProbabilityEmitter<Integer> emitterOne = new TabulatedProbabilityEmitter<>();
+        emitterOne.addEmission(1,100);
+        TabulatedProbabilityEmitter<Integer> emitterZero = new TabulatedProbabilityEmitter<>();
+        emitterZero.addEmission(0, 100);
+        Node<String, Integer> uno = hmmInt.instanceNode("uno", emitterOne);
+        hmmInt.addInitialNode(uno, 1);
         Node<String, Integer> zero = hmmInt.instanceNode("zero", emitterZero);
         hmmInt.instanceEdge(uno, zero, ProbabilityDensityFunction.CONSTANT_PROBABILITY, uno_zero);
         hmmInt.instanceEdge(uno, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, uno_uno);
@@ -176,12 +224,12 @@ public class HMMTest {
 
     @Test
     public void initializationTest() {
-//        List<String> expected = Arrays.asList("Uno", "Dos", "Uno", "Dos", "Uno", "Dos", "Uno", "Dos", "Uno", "Dos");
         Node<String, String> uno = hmm.instanceNode("Uno", () -> "Uno");
         Node<String, String> dos = hmm.instanceNode("Dos", () -> "Dos");
         hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
         hmm.instanceEdge(dos, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        hmm.setInitialNode(uno);
+//        hmm.setInitialNode(uno);
+        hmm.addInitialNode(uno, 1);
 
         hmm.initialization("Uno");
 
@@ -220,7 +268,8 @@ public class HMMTest {
         Node<String, String> dos = hmm.instanceNode("Two", emitterTwo);
         hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
         hmm.instanceEdge(dos, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        hmm.setInitialNode(uno);
+//        hmm.setInitialNode(uno);
+        hmm.addInitialNode(uno, 1);
 
         System.out.println(hmm.generateSequence(3));
 
@@ -246,17 +295,18 @@ public class HMMTest {
         Node<String, String> dos = hmm.instanceNode("Two", emitterTwo);
         hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
         hmm.instanceEdge(dos, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        hmm.setInitialNode(uno);
+//        hmm.setInitialNode(uno);
+        hmm.addInitialNode(uno, 1);
 
         hmm.initialization("One");
         hmm.recursion(Arrays.asList("One", "Two", "One", "Two", "One", "Two"));
-        double probability = hmm.termination();
+        double probability = hmm.termination("Two");
 
         assertEquals(1.0, probability, 0.01);
 
         hmm.initialization("One");
         hmm.recursion(Arrays.asList("One", "Two", "One", "Two", "One", "One"));
-        probability = hmm.termination();
+        probability = hmm.termination("One");
 
         assertEquals(0.0, probability, 0.01);
     }
@@ -274,20 +324,17 @@ public class HMMTest {
         Node<String, String> dos = hmm.instanceNode("Two", emitterTwo);
         hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
         hmm.instanceEdge(dos, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        hmm.setInitialNode(uno);
+//        hmm.setInitialNode(uno);
+        hmm.addInitialNode(uno, 1);
 
         System.out.println(hmm.generateSequence(5));
 
-        hmm.initialization("One");
-        hmm.recursion(Arrays.asList("One", "Two"));
-        double probability = hmm.termination();
+        double probability = hmm.forward(Arrays.asList("One", "Two"));
         System.out.println(probability);
 
 //        assertEquals(1.0, probability, 0.01);
 
-        hmm.initialization("One");
-        hmm.recursion(Arrays.asList("One", "Two", "One", "Two", "One", "One"));
-        probability = hmm.termination();
+        probability = hmm.forward(Arrays.asList("One", "Two", "One", "Two", "One", "One"));
 
 //        assertEquals(0.0, probability, 0.01);
         System.out.println(probability);

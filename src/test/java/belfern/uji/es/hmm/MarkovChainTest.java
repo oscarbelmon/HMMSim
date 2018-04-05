@@ -69,7 +69,8 @@ public class MarkovChainTest {
         Node<String, String> dos = hmm.instanceNode("Two");
         hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
         hmm.instanceEdge(dos, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        hmm.setInitialNode(uno);
+//        hmm.setInitialNode(uno);
+        hmm.addInitialNode(uno, 1);
         assertThat(hmm.generateSequence(10), is(expected));
     }
 }
