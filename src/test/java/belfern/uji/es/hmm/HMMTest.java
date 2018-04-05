@@ -314,8 +314,8 @@ public class HMMTest {
     @Test
     public void forwardTest() {
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission("One",50);
-        emitterOne.addEmission("Two", 50);
+        emitterOne.addEmission("One",40);
+        emitterOne.addEmission("Two", 60);
         TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
         emitterTwo.addEmission("One", 50);
         emitterTwo.addEmission("Two", 50);
@@ -327,17 +327,17 @@ public class HMMTest {
 //        hmm.setInitialNode(uno);
         hmm.addInitialNode(uno, 1);
 
-        System.out.println(hmm.generateSequence(5));
+//        System.out.println(hmm.generateSequence(5));
 
-        double probability = hmm.forward(Arrays.asList("One", "Two"));
-        System.out.println(probability);
+//        double probability = hmm.forward(Arrays.asList("One", "Two"));
+//        System.out.println(probability);
 
 //        assertEquals(1.0, probability, 0.01);
 
-        probability = hmm.forward(Arrays.asList("One", "Two", "One", "Two", "One", "One"));
+        double probability = hmm.forward(Arrays.asList("One","Two","One","Two","One","Two","One","One","One","Two","Two"));
 
 //        assertEquals(0.0, probability, 0.01);
-        System.out.println(probability);
+//        System.out.println(probability);
 
     }
 }

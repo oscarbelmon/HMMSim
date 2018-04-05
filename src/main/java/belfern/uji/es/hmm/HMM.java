@@ -23,9 +23,9 @@ public class HMM<T, U> {
 //    }
 
     public void addInitialNode(Node<T,U> node, double probability) {
-        Edge<T,U> edge = instanceEdge(startNode, node, ProbabilityDensityFunction.CONSTANT_PROBABILITY, probability);
+//        Edge<T,U> edge = instanceEdge(startNode, node, ProbabilityDensityFunction.CONSTANT_PROBABILITY, probability);
 //        node.alfaPrevious = probability;
-        startNode.addEdge(edge, probability);
+//        startNode.addEdge(edge, probability);
         initialNodes.put(node, probability);
     }
 
@@ -74,18 +74,16 @@ public class HMM<T, U> {
 
     void initialization(U symbol) {
         nodes.values().stream()
-//                .forEach(node -> node.alfaPrevious = 0);
                 .forEach(node -> {
                     if (initialNodes.get(node) != null) {
-                        node.alfa = node.getProbabilityForSymbol(symbol) * initialNodes.get(node);
-                        node.alfaPrevious = 0;
+                        node.alfa = node.alfaPrevious = node.emitter.getSymbolProbability(symbol) * initialNodes.get(node);
                     } else {
                         node.alfa = node.alfaPrevious = 0;
                     }
                 });
 
-//        initialNode.alfaPrevious = 1;
-
+        nodes.values().stream()
+                .forEach(node -> System.out.println(node.alfa));
     }
 
     void recursion(List<U> symbols) {
@@ -96,6 +94,8 @@ public class HMM<T, U> {
             for(Node<T, U> node: nodes.values()) {
                 node.stepForward();
             }
+            nodes.values().stream()
+                    .forEach(node -> System.out.println(node.alfa));
         }
     }
 
@@ -104,8 +104,8 @@ public class HMM<T, U> {
 //                .mapToDouble(node -> node.alfa * node.getProbabilityForSymbol(symbol))
 //                .sum();
 
-        nodes.values().stream()
-                .forEach(node -> System.out.println(node.alfa + ", " + node.getProbabilityForSymbol(symbol)));
+//        nodes.values().stream()
+//                .forEach(node -> System.out.println(node.alfa));// + ", " + node.getProbabilityForSymbol(symbol)));
 
         return 0;
     }
