@@ -5,10 +5,10 @@ import java.util.*;
 
 public class Node<T, U> {
     T id;
-    Map<Edge<T, U>, Double> edges;
-    Map<Edge<T, U>, Double> incomingEdges;
+    private Map<Edge<T, U>, Double> edges;
+    private Map<Edge<T, U>, Double> incomingEdges;
     Emitter<U> emitter;
-    List<Double> alfas;
+    private List<Double> alfas;
     double alfa;
     double alfaPrevious = 0;
     List<Viterbi> viterbiPath;
@@ -25,22 +25,22 @@ public class Node<T, U> {
         viterbiPath = new ArrayList<>();
     }
 
-    public U emmit() {
+    U emmit() {
         return emitter.emmit();
     }
 
     void addEdge(Edge<T, U> edge, double ratio) {
         if(ratio < 0 || ratio > 1.0) throw new IllegalArgumentException("Edge's ratio can be between 0.0 and 1.0");
         edges.put(edge, ratio);
-        edge.end.addIncommingEdge(edge, ratio);
+        edge.end.addIncomingEdge(edge, ratio);
     }
 
-    void addIncommingEdge(Edge<T,U> edge, double ratio) {
+    private void addIncomingEdge(Edge<T,U> edge, double ratio) {
         incomingEdges.put(edge, ratio);
     }
 
     // todo This is maintained for testing purposes only
-    Node nextNode(double probability) {
+    Node<T,U> nextNode(double probability) {
         Map.Entry<Edge, Double> entry = accumulatedProbabilities().entrySet().stream()
                 .filter(e -> e.getValue() > probability)
                 .findFirst()
@@ -49,11 +49,11 @@ public class Node<T, U> {
         return entry.getKey().end;
     }
 
-    Node nextNode() {
+    Node<T,U> nextNode() {
         return nextNode(Math.random());
     }
 
-    Map<Edge, Double> accumulatedProbabilities() {
+    private Map<Edge, Double> accumulatedProbabilities() {
         double acc = 0;
         Map<Edge<T,U>, Double> tmp = new LinkedHashMap<>();
 
@@ -73,10 +73,10 @@ public class Node<T, U> {
 
     double getProbabilityForSymbol(U symbol) {
         double result = 0;
-        double symbolPorbability = emitter.getSymbolProbability(symbol);
+        double symbolProbability = emitter.getSymbolProbability(symbol);
 
         for(Edge<T,U> edge: incomingEdges.keySet()) {
-            result += edge.start.alfaPrevious * symbolPorbability * incomingEdges.get(edge);
+            result += edge.start.alfaPrevious * symbolProbability * incomingEdges.get(edge);
         }
 
         return alfa = result;
@@ -87,16 +87,15 @@ public class Node<T, U> {
     }
 
     double viterbi(U symbol) {
-        double symbolPorbability = emitter.getSymbolProbability(symbol);
+        double symbolProbability = emitter.getSymbolProbability(symbol);
         List<Viterbi> tmp = new ArrayList<>();
 
         for(Edge<T,U> edge: incomingEdges.keySet()) {
-            double probability = edge.start.viterbiPrevious * symbolPorbability * incomingEdges.get(edge);
-            tmp.add(new Viterbi(edge.start, edge.start.viterbiPrevious * symbolPorbability * incomingEdges.get(edge)));
+            tmp.add(new Viterbi(edge.start, edge.start.viterbiPrevious * symbolProbability * incomingEdges.get(edge)));
         }
 
         Viterbi max = tmp.stream()
-                .max((a, b) -> Double.compare(a.probability, b.probability))
+                .max(Comparator.comparingDouble(a -> a.probability))
                 .get();
 
         viterbiPath.add(max);
@@ -110,17 +109,17 @@ public class Node<T, U> {
         alfas.add(alfa);
     }
 
-    public List<Double> getAlfas() {
+    List<Double> getAlfas() {
         return alfas;
     }
 
-    public void viterbiStepForward() {
+    void viterbiStepForward() {
         viterbiPrevious = viterbi;
     }
 
     class Viterbi {
-        Node<T,U> node;
-        double probability;
+        final Node<T,U> node;
+        final double probability;
 
         Viterbi(Node<T,U> node, double probability) {
             this.node = node;

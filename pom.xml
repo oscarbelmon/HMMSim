@@ -16,7 +16,7 @@
     </properties>
 
     <dependencies>
-        <!-- Las siguientes son las dependencias para JUnit 5 -->
+        <!-- Following dependencies are for JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>

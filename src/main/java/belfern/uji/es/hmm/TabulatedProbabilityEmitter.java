@@ -3,7 +3,7 @@ package belfern.uji.es.hmm;
 import java.util.*;
 
 public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
-    private Map<T, Probability<T>> probabilities = new LinkedHashMap<>();
+    private final Map<T, Probability<T>> probabilities = new LinkedHashMap<>();
     private double accumulatedProbability = 0;
 
     public TabulatedProbabilityEmitter() {
@@ -31,9 +31,9 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
     }
 
     private class Probability<T> {
-        T symbol;
-        double probability;
-        double accumulatedProbability;
+        final T symbol;
+        final double probability;
+        final double accumulatedProbability;
 
         Probability(T symbol, double probability, double accumulatedProbability) {
             this.symbol = symbol;
@@ -42,7 +42,7 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
         }
 
         boolean lessThan(double random) {
-            return random < accumulatedProbability ? true : false;
+            return random < accumulatedProbability;
         }
     }
 }

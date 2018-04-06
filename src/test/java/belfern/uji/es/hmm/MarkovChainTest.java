@@ -20,12 +20,12 @@ public class MarkovChainTest {
 
     @Test
     public void test() {
-        Node<String, String> uno = hmm.instanceNode("One");
-        Node<String, String> dos = hmm.instanceNode("Two");
-        Node<String, String> tres = hmm.instanceNode("Three");
-        hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.4);
-        hmm.instanceEdge(uno, tres, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.6);
-        assertThat(uno.nextNode(0.5), is(tres));
+        Node<String, String> one = hmm.instanceNode("One");
+        Node<String, String> two = hmm.instanceNode("Two");
+        Node<String, String> three = hmm.instanceNode("Three");
+        hmm.instanceEdge(one, two, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.4);
+        hmm.instanceEdge(one, three, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.6);
+        assertThat(one.nextNode(0.5), is(three));
     }
 
     @Test
@@ -42,8 +42,8 @@ public class MarkovChainTest {
     public void accumulateProbabilitiesTest() {
         Node<String, String> uno = hmm.instanceNode("One");
         Node<String, String> dos = hmm.instanceNode("Two");
-        Node<String, String> tres = hmm.instanceNode("Three");
-        Node<String, String> cuatro = hmm.instanceNode("Four");
+        Node<String, String> three = hmm.instanceNode("Three");
+        Node<String, String> four = hmm.instanceNode("Four");
         hmm.instanceEdge("One", "One", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.1);
         hmm.instanceEdge("One", "Two", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.2);
         hmm.instanceEdge("One", "Three", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.3);
@@ -56,10 +56,10 @@ public class MarkovChainTest {
         assertThat(res, is(dos));
 
         res = uno.nextNode(0.35);
-        assertThat(res, is(tres));
+        assertThat(res, is(three));
 
         res = uno.nextNode(0.95);
-        assertThat(res, is(cuatro));
+        assertThat(res, is(four));
     }
 
     @Test

@@ -12,11 +12,11 @@ class TabulatedProbabilityEmitterTest {
         cpe.addEmission(0, 50);
         cpe.addEmission(1, 50);
 
-        double accum = 0;
+        double accumulator = 0;
         for (int i = 0; i < 1000000; i++) {
-            accum += cpe.emmit();
+            accumulator += cpe.emmit();
         }
 
-        assertEquals(500000, accum, 1000); // Precision 0.1%
+        assertEquals(500000, accumulator, 1000); // Precision 0.1%
     }
 }

@@ -5,8 +5,8 @@ import belfern.uji.es.statistics.ProbabilityDensityFunction;
 import java.util.*;
 
 public class HMM<T, U> {
-    Map<T, Node<T, U>> nodes;
-    Map<Node<T,U>, Double> initialNodes;
+    final Map<T, Node<T, U>> nodes;
+    private final Map<Node<T,U>, Double> initialNodes;
 
     public HMM() {
         nodes = new LinkedHashMap<>();
@@ -18,24 +18,24 @@ public class HMM<T, U> {
     }
 
     public Node<T, U> instanceNode(T id, Emitter<U> emitter) {
-        Node<T, U> node = new Node<T, U>(id, emitter);
+        Node<T, U> node = new Node<>(id, emitter);
         nodes.put(id, node);
         return node;
     }
 
     public Edge<T, U> instanceEdge(Node<T, U> start, Node<T, U> end, ProbabilityDensityFunction pdf, double ratio) {
-        Edge<T, U> edge = new Edge<T, U>(start, end, pdf);
+        Edge<T, U> edge = new Edge<>(start, end, pdf);
         start.addEdge(edge, ratio);
         return edge;
     }
 
-    public Edge<T, U> instanceEdge(String idStart, String idEnd, ProbabilityDensityFunction pdf, double ratio) {
+    Edge<T, U> instanceEdge(String idStart, String idEnd, ProbabilityDensityFunction pdf, double ratio) {
         Node<T, U> start = nodes.get(idStart);
         Node<T, U> end = nodes.get(idEnd);
         return instanceEdge(start, end, pdf, ratio);
     }
 
-    public List<U> generateSequence(long items) {
+    List<U> generateSequence(long items) {
         List<U> sequence = new ArrayList<>();
         Node<T, U> currentNode = getInitialNode();
 
@@ -53,19 +53,18 @@ public class HMM<T, U> {
         return terminationViterbi();
     }
 
-    void initializationViterbi(U symbol) {
-        nodes.values().stream()
-                .forEach(node -> {
-                    if (initialNodes.get(node) != null) {
-                        node.viterbi = node.viterbiPrevious = node.emitter.getSymbolProbability(symbol) * initialNodes.get(node);
-                    } else {
-                        node.viterbi = node.viterbiPrevious = 0;
-                    }
-                    node.viterbiInit();
-                });
+    private void initializationViterbi(U symbol) {
+        for(Node<T,U> node: nodes.values()) {
+            if (initialNodes.get(node) != null) {
+                node.viterbi = node.viterbiPrevious = node.emitter.getSymbolProbability(symbol) * initialNodes.get(node);
+            } else {
+                node.viterbi = node.viterbiPrevious = 0;
+            }
+            node.viterbiInit();
+        }
     }
 
-    void recursionViterbi(List<U> symbols) {
+    private void recursionViterbi(List<U> symbols) {
         for(int i = 1; i < symbols.size(); i++) {
             for(Node<T, U> node: nodes.values()) {
                 node.viterbi(symbols.get(i));
@@ -76,9 +75,9 @@ public class HMM<T, U> {
         }
     }
 
-    List<T> terminationViterbi() {
+    private List<T> terminationViterbi() {
         Node<T,U> bestNode = nodes.values().stream()
-                .max((a, b) -> Double.compare(a.viterbi, b.viterbi))
+                .max(Comparator.comparingDouble(a -> a.viterbi))
                 .get();
 
         List<T> reverse = new ArrayList<>();
@@ -94,14 +93,14 @@ public class HMM<T, U> {
         return reverse;
     }
 
-    public double forward(List<U> symbols) {
+    double forward(List<U> symbols) {
         initialization(symbols.get(0));
         recursion(symbols);
-        return termination(symbols.get(symbols.size()-1));
+        return termination();
     }
 
     void initialization(U symbol) {
-        nodes.values().stream()
+        nodes.values()//.stream()
                 .forEach(node -> {
                     if (initialNodes.get(node) != null) {
                         node.alfa = node.alfaPrevious = node.emitter.getSymbolProbability(symbol) * initialNodes.get(node);
@@ -123,7 +122,7 @@ public class HMM<T, U> {
         }
     }
 
-    double termination(U symbol) {
+    double termination() {
         return nodes.values().stream()
                 .mapToDouble(node -> node.alfa)
                 .max()
