@@ -321,7 +321,8 @@ public class HMMTest {
         double[] expectedTwo = {0.15, 0.1120, 0.049440, 0.02187520, 0.01449062, 0.004659282, 0.004036864, 0.001068434, 0.0007313729, 0.0002294593, 0.0002030646};
         assertArrayEquals(expectedTwo, ArrayUtils.toPrimitive(dos.getAlfas().toArray(new Double[dos.getAlfas().size()])), 0.0001);
 
-        hmm.viterbi(Arrays.asList("One", "Two", "One", "Two", "Two","One","One","One","One","One"));
+        String[] expected = {"One", "Two", "One", "Two", "One", "Two", "One", "Two", "One", "Two"};
+        assertArrayEquals(expected, hmm.viterbi(Arrays.asList("One", "Two", "One", "Two", "Two","One","One","One","One","One")).toArray(new String[expected.length]));
     }
 
     @Test
@@ -342,9 +343,8 @@ public class HMMTest {
         hmm.addInitialNode(uno, 0.7);
         hmm.addInitialNode(dos, 0.3);
 
-        hmm.viterbi(Arrays.asList("One", "Two", "One", "Two", "One", "Two", "One"));
-
-//        System.out.println(hmm.generateSequence(20));
+        String[] expected = {"One", "Two", "Two", "One", "Two", "One", "Two"};
+        assertArrayEquals(expected, hmm.viterbi(Arrays.asList("One", "Two", "One", "Two", "One", "Two", "One")).toArray(new String[expected.length]));
     }
 
     @Test
@@ -365,9 +365,12 @@ public class HMMTest {
         hmm.addInitialNode(uno, 1.0);
         hmm.addInitialNode(dos, 0.0);
 
-        hmm.viterbi(Arrays.asList("One", "One", "One", "Two", "One", "Two", "One", "One"));
+//        System.out.println(hmm.viterbi(Arrays.asList("One", "One", "One", "Two", "One", "Two", "One", "One")));
 
-//        System.out.println(hmm.generateSequence(20));
+        String[] expected = {"One", "One", "One", "One", "One", "One", "One", "One"};
+        String[] real = hmm.viterbi(Arrays.asList("One", "One", "One", "Two", "One", "Two", "One", "One")).toArray(new String[expected.length]);
+
+        assertArrayEquals(expected, real);
     }
     @Test
     public void viterbiTest3() {
@@ -391,9 +394,9 @@ public class HMMTest {
         hmm.addInitialNode(h, 0.5);
         hmm.addInitialNode(l, 0.5);
 
-        hmm.viterbi(Arrays.asList("G","G","C","A","C","T","G","A","A"));
-
-//        System.out.println(hmm.generateSequence(20));
+        String[] expected = {"H", "H", "H", "L", "L", "L", "L", "L", "L"};
+        String[] real = hmm.viterbi(Arrays.asList("G","G","C","A","C","T","G","A","A")).toArray(new String[expected.length]);
+        assertArrayEquals(expected, real);
     }
 
     @Test
@@ -417,15 +420,7 @@ public class HMMTest {
         hmm.addInitialNode(helthy, 0.6);
         hmm.addInitialNode(fever, 0.4);
 
-//        hmm.viterbi(Arrays.asList("Normal", "Cold", "Dizzy"));
-        hmm.viterbi(Arrays.asList("Normal", "Dizzy", "Dizzy", "Cold", "Normal", "Normal", "Cold", "Normal", "Normal", "Cold", "Dizzy", "Normal",
-                "Cold"));
-
-//        helthy.viterbiPath.stream()
-//                .forEach(s -> System.out.print(s.node.id + ","));
-//        System.out.println("");
-//
-//        fever.viterbiPath.stream()
-//                .forEach(s -> System.out.print(s.node.id + ","));
+        String[] expected = {"Healthy", "Fever", "Fever", "Healthy", "Healthy", "Healthy", "Healthy", "Healthy", "Healthy", "Healthy", "Fever", "Healthy", "Healthy"};
+        String[] real = hmm.viterbi(Arrays.asList("Normal", "Dizzy", "Dizzy", "Cold", "Normal", "Normal", "Cold", "Normal", "Normal", "Cold", "Dizzy", "Normal", "Cold")).toArray(new String[expected.length]);
     }
 }

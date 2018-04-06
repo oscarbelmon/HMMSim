@@ -42,7 +42,6 @@ public class Node<T, U> {
     // todo This is maintained for testing purposes only
     Node nextNode(double probability) {
         Map.Entry<Edge, Double> entry = accumulatedProbabilities().entrySet().stream()
-//                .sorted(Map.Entry.comparingByValue())
                 .filter(e -> e.getValue() > probability)
                 .findFirst()
                 .get();
@@ -56,17 +55,7 @@ public class Node<T, U> {
 
     Map<Edge, Double> accumulatedProbabilities() {
         double acc = 0;
-//        Map<Edge, Double> tmp = new HashMap<>();
         Map<Edge<T,U>, Double> tmp = new LinkedHashMap<>();
-
-//        Map<Edge, Double> sorted = edges.entrySet().stream()
-//                .sorted(Map.Entry.comparingByValue())
-//                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-
-//        for(Map.Entry<Edge, Double> edge: edges.entrySet()) {
-//            acc += edge.getValue();
-//            tmp.put(edge.getKey(), acc);
-//        }
 
         for(Map.Entry<Edge<T,U>, Double> edge: edges.entrySet()) {
             acc += edge.getValue() * edge.getKey().density();
@@ -79,7 +68,6 @@ public class Node<T, U> {
             tmpNormalized.put(edge.getKey(), tmp.get(edge.getKey())/acc);
         }
 
-//        return tmp;
         return tmpNormalized;
     }
 
@@ -94,29 +82,16 @@ public class Node<T, U> {
         return alfa = result;
     }
 
-//    class Commodity {
-//        Node<T,U> node;
-//        double viterbi;
-//
-//        public Commodity(Node<T, U> node, double viterbi) {
-//            this.node = node;
-//            this.viterbi = viterbi;
-//        }
-//    }
-
     void viterbiInit() {
         viterbiPath = new ArrayList<>();
     }
 
     double viterbi(U symbol) {
         double symbolPorbability = emitter.getSymbolProbability(symbol);
-//        List<Double> tmp = new ArrayList<>();
         List<Viterbi> tmp = new ArrayList<>();
 
         for(Edge<T,U> edge: incomingEdges.keySet()) {
             double probability = edge.start.viterbiPrevious * symbolPorbability * incomingEdges.get(edge);
-            System.out.println(edge.start.viterbiPrevious + ", " + symbolPorbability + ", " + incomingEdges.get(edge) + ": " + probability);
-//            tmp.add(edge.start.viterbiPrevious * symbolPorbability * incomingEdges.get(edge));
             tmp.add(new Viterbi(edge.start, edge.start.viterbiPrevious * symbolPorbability * incomingEdges.get(edge)));
         }
 
@@ -126,8 +101,6 @@ public class Node<T, U> {
 
         viterbiPath.add(max);
         viterbi = max.probability;
-
-        System.out.println(max.node.id + ": " + viterbi + " (" + id + ")");
 
         return viterbi;
     }
