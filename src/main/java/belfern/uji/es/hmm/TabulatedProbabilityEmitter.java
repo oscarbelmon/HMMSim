@@ -11,7 +11,7 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
 
     @Override
     public T emmit() {
-        double random = Math.random() * 100;
+        double random = Math.random();
         for(Probability<T> probability: probabilities.values()) {
             if(probability.lessThan(random)) return probability.symbol;
         }
@@ -20,12 +20,12 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
 
     @Override
     public double getSymbolProbability(T symbol) {
-        return probabilities.get(symbol).probability / 100.0;
+        return probabilities.get(symbol).probability;
     }
 
     public void addEmission(T symbol, double probability) throws IllegalArgumentException{
-        if(probability > 100 || probability < 0)
-            throw new IllegalArgumentException("Probability should a percentage between 0 and 100. Yours is: " + probability);
+        if(probability > 1 || probability < 0)
+            throw new IllegalArgumentException("Probability should a percentage between 0 and 1. Yours is: " + probability);
         accumulatedProbability += probability;
         probabilities.put(symbol, new Probability<>(symbol, probability, accumulatedProbability));
     }

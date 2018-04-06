@@ -29,10 +29,22 @@ public class HMM<T, U> {
         return edge;
     }
 
+    public Edge<T, U> instanceEdge(Node<T, U> start, Node<T, U> end, double ratio) {
+        Edge<T, U> edge = new Edge<>(start, end, ProbabilityDensityFunction.CONSTANT_PROBABILITY);
+        start.addEdge(edge, ratio);
+        return edge;
+    }
+
     Edge<T, U> instanceEdge(String idStart, String idEnd, ProbabilityDensityFunction pdf, double ratio) {
         Node<T, U> start = nodes.get(idStart);
         Node<T, U> end = nodes.get(idEnd);
         return instanceEdge(start, end, pdf, ratio);
+    }
+
+    Edge<T, U> instanceEdge(String idStart, String idEnd, double ratio) {
+        Node<T, U> start = nodes.get(idStart);
+        Node<T, U> end = nodes.get(idEnd);
+        return instanceEdge(start, end, ProbabilityDensityFunction.CONSTANT_PROBABILITY, ratio);
     }
 
     List<U> generateSequence(long items) {

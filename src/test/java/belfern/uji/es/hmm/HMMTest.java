@@ -1,6 +1,5 @@
 package belfern.uji.es.hmm;
 
-import belfern.uji.es.statistics.ProbabilityDensityFunction;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +51,7 @@ public class HMMTest {
     public void instanceEdgeNoNullTest() {
         Node<String, String> start = hmm.instanceNode("start", () -> "Start");
         Node<String, String> end = hmm.instanceNode("end", () -> "End");
-        Edge<String, String> edge = hmm.instanceEdge(start, end, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1);
+        Edge<String, String> edge = hmm.instanceEdge(start, end,1);
         assertThat(edge, notNullValue());
     }
 
@@ -61,8 +60,8 @@ public class HMMTest {
         Node<String, String> one = hmm.instanceNode("One", () -> "One");
         Node<String, String> two = hmm.instanceNode("Two", () -> "Two");
         Node<String, String> three = hmm.instanceNode("Three", () -> "Three");
-        hmm.instanceEdge(one, two, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.4);
-        hmm.instanceEdge(one, three, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.6);
+        hmm.instanceEdge(one, two, 0.4);
+        hmm.instanceEdge(one, three, 0.6);
         assertThat(one.nextNode(0.5), is(three));
     }
 
@@ -71,8 +70,8 @@ public class HMMTest {
         Node<String, String> one = hmm.instanceNode("One", () -> "One");
         hmm.instanceNode("Two", () -> "Two");
         hmm.instanceNode("Three", () -> "Three");
-        hmm.instanceEdge("One", "Two", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.4);
-        hmm.instanceEdge("One", "Three", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.6);
+        hmm.instanceEdge("One", "Two", 0.4);
+        hmm.instanceEdge("One", "Three", 0.6);
         assertThat(one.nextNode(0.05), is(hmm.nodes.get("Two")));
     }
 
@@ -82,10 +81,10 @@ public class HMMTest {
         Node<String, String> two = hmm.instanceNode("Two", () -> "Two");
         Node<String, String> three = hmm.instanceNode("Three", () -> "Three");
         Node<String, String> four = hmm.instanceNode("Four", () -> "Four");
-        hmm.instanceEdge("One", "One", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.1);
-        hmm.instanceEdge("One", "Two", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.2);
-        hmm.instanceEdge("One", "Three", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.3);
-        hmm.instanceEdge("One", "Four", ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.4);
+        hmm.instanceEdge("One", "One", 0.1);
+        hmm.instanceEdge("One", "Two", 0.2);
+        hmm.instanceEdge("One", "Three", 0.3);
+        hmm.instanceEdge("One", "Four", 0.4);
 
         Node<String, String> res = one.nextNode(0.05);
         assertThat(res, is(one));
@@ -105,8 +104,8 @@ public class HMMTest {
         List<String> expected = Arrays.asList("One", "Two", "One", "Two", "One", "Two", "One", "Two", "One", "Two");
         Node<String, String> one = hmm.instanceNode("One", () -> "One");
         Node<String, String> two = hmm.instanceNode("Two", () -> "Two");
-        hmm.instanceEdge(one, two, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        hmm.instanceEdge(two, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.instanceEdge(one, two, 1.0);
+        hmm.instanceEdge(two, one, 1.0);
         hmm.addInitialNode(one, 1);
         assertThat(hmm.generateSequence(10), is(expected));
     }
@@ -116,8 +115,8 @@ public class HMMTest {
         List<String> expected = Arrays.asList("One", "Two", "One", "Two", "One", "Two", "One", "Two", "One", "Two");
         Node<String, String> one = hmm.instanceNode("One", () -> "One");
         Node<String, String> two = hmm.instanceNode("Two", () -> "Two");
-        hmm.instanceEdge(one, two, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        hmm.instanceEdge(two, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.instanceEdge(one, two, 1.0);
+        hmm.instanceEdge(two, one, 1.0);
         hmm.addInitialNode(one, 1);
         assertThat(hmm.generateSequence(10), is(expected));
     }
@@ -129,15 +128,15 @@ public class HMMTest {
         double zero_one = 0.8;
         double zero_zero = 1- zero_one;
         double expectedRatio = zero_one/(one_zero + zero_one);
-        
+
         HMM<String, Integer> hmmInt = new HMM<>();
         Node<String, Integer> one = hmmInt.instanceNode("one", () -> 1);
         hmmInt.addInitialNode(one, 1);
         Node<String, Integer> zero = hmmInt.instanceNode("zero", () -> 0);
-        hmmInt.instanceEdge(one, zero, ProbabilityDensityFunction.CONSTANT_PROBABILITY, one_zero);
-        hmmInt.instanceEdge(one, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, one_one);
-        hmmInt.instanceEdge(zero, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, zero_one);
-        hmmInt.instanceEdge(zero, zero, ProbabilityDensityFunction.CONSTANT_PROBABILITY, zero_zero);
+        hmmInt.instanceEdge(one, zero, one_zero);
+        hmmInt.instanceEdge(one, one, one_one);
+        hmmInt.instanceEdge(zero, one, zero_one);
+        hmmInt.instanceEdge(zero, zero, zero_zero);
 
         List<Integer> sequence = hmmInt.generateSequence(1000000);
 
@@ -159,16 +158,16 @@ public class HMMTest {
 
         HMM<String, Integer> hmmInt = new HMM<>();
         TabulatedProbabilityEmitter<Integer> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission(1,100);
+        emitterOne.addEmission(1,1);
         TabulatedProbabilityEmitter<Integer> emitterZero = new TabulatedProbabilityEmitter<>();
-        emitterZero.addEmission(0, 100);
+        emitterZero.addEmission(0, 1);
         Node<String, Integer> one = hmmInt.instanceNode("one", emitterOne);
         hmmInt.addInitialNode(one, 1);
         Node<String, Integer> zero = hmmInt.instanceNode("zero", emitterZero);
-        hmmInt.instanceEdge(one, zero, ProbabilityDensityFunction.CONSTANT_PROBABILITY, one_zero);
-        hmmInt.instanceEdge(one, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, one_one);
-        hmmInt.instanceEdge(zero, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, zero_one);
-        hmmInt.instanceEdge(zero, zero, ProbabilityDensityFunction.CONSTANT_PROBABILITY, zero_zero);
+        hmmInt.instanceEdge(one, zero, one_zero);
+        hmmInt.instanceEdge(one, one, one_one);
+        hmmInt.instanceEdge(zero, one, zero_one);
+        hmmInt.instanceEdge(zero, zero, zero_zero);
 
         List<Integer> sequence = hmmInt.generateSequence(1000000);
 
@@ -190,33 +189,33 @@ public class HMMTest {
 
         HMM<String, Integer> hmmInt = new HMM<>();
         TabulatedProbabilityEmitter<Integer> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission(1,100);
+        emitterOne.addEmission(1,1);
         TabulatedProbabilityEmitter<Integer> emitterZero = new TabulatedProbabilityEmitter<>();
-        emitterZero.addEmission(0, 100);
+        emitterZero.addEmission(0, 1);
         Node<String, Integer> one = hmmInt.instanceNode("one", emitterOne);
         hmmInt.addInitialNode(one, 1);
         Node<String, Integer> zero = hmmInt.instanceNode("zero", emitterZero);
-        hmmInt.instanceEdge(one, zero, ProbabilityDensityFunction.CONSTANT_PROBABILITY, one_zero);
-        hmmInt.instanceEdge(one, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, one_one);
-        hmmInt.instanceEdge(zero, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, zero_one);
-        hmmInt.instanceEdge(zero, zero, ProbabilityDensityFunction.CONSTANT_PROBABILITY, zero_zero);
+        hmmInt.instanceEdge(one, zero, one_zero);
+        hmmInt.instanceEdge(one, one, one_one);
+        hmmInt.instanceEdge(zero, one, zero_one);
+        hmmInt.instanceEdge(zero, zero, zero_zero);
 
-        List<Integer> sequence = hmmInt.generateSequence(1000000);
+        List<Integer> sequence = hmmInt.generateSequence(100000);
 
         double ratio = sequence.stream()
                 .mapToInt(s -> s)
                 .average()
                 .getAsDouble();
 
-        assertEquals(expectedRatio, ratio, 0.001);
+        assertEquals(expectedRatio, ratio, 0.01);
     }
 
     @Test
     public void initializationTest() {
         Node<String, String> one = hmm.instanceNode("One", () -> "One");
         Node<String, String> two = hmm.instanceNode("Two", () -> "Two");
-        hmm.instanceEdge(one, two, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        hmm.instanceEdge(two, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.instanceEdge(one, two, 1.0);
+        hmm.instanceEdge(two, one, 1.0);
         hmm.addInitialNode(one, 1);
 
         hmm.initialization("One");
@@ -247,16 +246,16 @@ public class HMMTest {
 //        HMM<String, Integer> hmmInt = new HMM<>();
 
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission("One",100);
+        emitterOne.addEmission("One",1);
         emitterOne.addEmission("Two", 0);
         TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
         emitterTwo.addEmission("One", 0);
-        emitterTwo.addEmission("Two", 100);
+        emitterTwo.addEmission("Two", 1);
 
         Node<String, String> one = hmm.instanceNode("One", emitterOne);
         Node<String, String> two = hmm.instanceNode("Two", emitterTwo);
-        hmm.instanceEdge(one, two, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        hmm.instanceEdge(two, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.instanceEdge(one, two, 1.0);
+        hmm.instanceEdge(two, one, 1.0);
         hmm.addInitialNode(one, 1);
 
         hmm.initialization("One");
@@ -271,23 +270,23 @@ public class HMMTest {
     @Test
     public void terminationTest() {
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission("One",100);
+        emitterOne.addEmission("One",1);
         emitterOne.addEmission("Two", 0);
         TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
         emitterTwo.addEmission("One", 0);
-        emitterTwo.addEmission("Two", 100);
+        emitterTwo.addEmission("Two", 1);
 
         Node<String, String> one = hmm.instanceNode("One", emitterOne);
         Node<String, String> two = hmm.instanceNode("Two", emitterTwo);
-        hmm.instanceEdge(one, two, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        hmm.instanceEdge(two, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.instanceEdge(one, two, 1.0);
+        hmm.instanceEdge(two, one, 1.0);
         hmm.addInitialNode(one, 1);
 
         hmm.initialization("One");
         hmm.recursion(Arrays.asList("One", "Two", "One", "Two", "One", "Two"));
         double probability = hmm.termination();
 
-        assertEquals(1.0, probability, 0.01);
+        assertEquals(1.0, probability, 0.0001);
 
         hmm.initialization("One");
         hmm.recursion(Arrays.asList("One", "Two", "One", "Two", "One", "One"));
@@ -299,17 +298,17 @@ public class HMMTest {
     @Test
     public void forwardTest() {
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission("One",40);
-        emitterOne.addEmission("Two", 60);
+        emitterOne.addEmission("One",.4);
+        emitterOne.addEmission("Two", .6);
         TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
-        emitterTwo.addEmission("One", 50);
-        emitterTwo.addEmission("Two", 50);
+        emitterTwo.addEmission("One", .5);
+        emitterTwo.addEmission("Two", .5);
 
         Node<String, String> one = hmm.instanceNode("One", emitterOne);
         Node<String, String> two = hmm.instanceNode("Two", emitterTwo);
-        hmm.instanceEdge(one, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.2);
-        hmm.instanceEdge(one, two, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.8);
-        hmm.instanceEdge(two, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.instanceEdge(one, one, 0.2);
+        hmm.instanceEdge(one, two, 0.8);
+        hmm.instanceEdge(two, one, 1.0);
         hmm.addInitialNode(one, 0.7);
         hmm.addInitialNode(two, 0.3);
 
@@ -328,18 +327,18 @@ public class HMMTest {
     @Test
     public void viterbiTest() {
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission("One",40);
-        emitterOne.addEmission("Two", 60);
+        emitterOne.addEmission("One",.4);
+        emitterOne.addEmission("Two", .6);
         TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
-        emitterTwo.addEmission("One", 50);
-        emitterTwo.addEmission("Two", 50);
+        emitterTwo.addEmission("One", .5);
+        emitterTwo.addEmission("Two", .5);
 
         Node<String, String> one = hmm.instanceNode("One", emitterOne);
         Node<String, String> two = hmm.instanceNode("Two", emitterTwo);
-        hmm.instanceEdge(one, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.2);
-        hmm.instanceEdge(one, two, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.8);
-        hmm.instanceEdge(two, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.5);
-        hmm.instanceEdge(two, two, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.5);
+        hmm.instanceEdge(one, one, 0.2);
+        hmm.instanceEdge(one, two, 0.8);
+        hmm.instanceEdge(two, one, 0.5);
+        hmm.instanceEdge(two, two, 0.5);
         hmm.addInitialNode(one, 0.7);
         hmm.addInitialNode(two, 0.3);
 
@@ -350,18 +349,18 @@ public class HMMTest {
     @Test
     public void viterbiTest2() {
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission("One",100);
+        emitterOne.addEmission("One",1);
         emitterOne.addEmission("Two", 0);
         TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
         emitterTwo.addEmission("One", 0);
-        emitterTwo.addEmission("Two", 100);
+        emitterTwo.addEmission("Two", 1);
 
         Node<String, String> one = hmm.instanceNode("One", emitterOne);
         Node<String, String> two = hmm.instanceNode("Two", emitterTwo);
-        hmm.instanceEdge(one, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.0);
-        hmm.instanceEdge(one, two, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        hmm.instanceEdge(two, one, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
-        hmm.instanceEdge(two, two, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.0);
+        hmm.instanceEdge(one, one, 0.0);
+        hmm.instanceEdge(one, two, 1.0);
+        hmm.instanceEdge(two, one, 1.0);
+        hmm.instanceEdge(two, two, 0.0);
         hmm.addInitialNode(one, 1.0);
         hmm.addInitialNode(two, 0.0);
 
@@ -375,22 +374,22 @@ public class HMMTest {
     @Test
     public void viterbiTest3() {
         TabulatedProbabilityEmitter<String> emitterH = new TabulatedProbabilityEmitter<>();
-        emitterH.addEmission("A",20);
-        emitterH.addEmission("C", 30);
-        emitterH.addEmission("G", 30);
-        emitterH.addEmission("T", 20);
+        emitterH.addEmission("A",.2);
+        emitterH.addEmission("C", .3);
+        emitterH.addEmission("G", .3);
+        emitterH.addEmission("T", .2);
         TabulatedProbabilityEmitter<String> emitterL = new TabulatedProbabilityEmitter<>();
-        emitterL.addEmission("A", 30);
-        emitterL.addEmission("C", 20);
-        emitterL.addEmission("G", 20);
-        emitterL.addEmission("T", 30);
+        emitterL.addEmission("A", .3);
+        emitterL.addEmission("C", .2);
+        emitterL.addEmission("G", .2);
+        emitterL.addEmission("T", .3);
 
         Node<String, String> h = hmm.instanceNode("H", emitterH);
         Node<String, String> l = hmm.instanceNode("L", emitterL);
-        hmm.instanceEdge(h, h, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.5);
-        hmm.instanceEdge(h, l, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.5);
-        hmm.instanceEdge(l, h, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.4);
-        hmm.instanceEdge(l, l, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.6);
+        hmm.instanceEdge(h, h, 0.5);
+        hmm.instanceEdge(h, l, 0.5);
+        hmm.instanceEdge(l, h, 0.4);
+        hmm.instanceEdge(l, l, 0.6);
         hmm.addInitialNode(h, 0.5);
         hmm.addInitialNode(l, 0.5);
 
@@ -402,21 +401,21 @@ public class HMMTest {
     @Test
     public void viterbiTest4() {
         TabulatedProbabilityEmitter<String> emitterHealthy = new TabulatedProbabilityEmitter<>();
-        emitterHealthy.addEmission("Dizzy", 10);
-        emitterHealthy.addEmission("Cold", 40);
-        emitterHealthy.addEmission("Normal", 50);
+        emitterHealthy.addEmission("Dizzy", .1);
+        emitterHealthy.addEmission("Cold", .4);
+        emitterHealthy.addEmission("Normal", .5);
         TabulatedProbabilityEmitter<String> emitterFever = new TabulatedProbabilityEmitter<>();
-        emitterFever.addEmission("Dizzy", 60);
-        emitterFever.addEmission("Cold", 30);
-        emitterFever.addEmission("Normal", 10);
+        emitterFever.addEmission("Dizzy", .6);
+        emitterFever.addEmission("Cold", .3);
+        emitterFever.addEmission("Normal", .1);
 
         Node<String, String> helthy = hmm.instanceNode("Healthy", emitterHealthy);
         Node<String, String> fever = hmm.instanceNode("Fever", emitterFever);
 
-        hmm.instanceEdge(helthy, helthy, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.7);
-        hmm.instanceEdge(helthy, fever, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.3);
-        hmm.instanceEdge(fever, fever, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.5);
-        hmm.instanceEdge(fever, helthy, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.5);
+        hmm.instanceEdge(helthy, helthy, 0.7);
+        hmm.instanceEdge(helthy, fever, 0.3);
+        hmm.instanceEdge(fever, fever, 0.5);
+        hmm.instanceEdge(fever, helthy, 0.5);
         hmm.addInitialNode(helthy, 0.6);
         hmm.addInitialNode(fever, 0.4);
 
