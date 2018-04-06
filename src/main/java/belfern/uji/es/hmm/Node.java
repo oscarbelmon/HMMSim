@@ -11,6 +11,9 @@ public class Node<T, U> {
     List<Double> alfas;
     double alfa;
     double alfaPrevious = 0;
+    List<Viterbi> viterbiPath;
+    double viterbi;
+    double viterbiPrevious;
 
     Node(T id, Emitter<U> emitter) {
         if(emitter == null) throw new IllegalArgumentException("Emitter can not be null");
@@ -19,6 +22,7 @@ public class Node<T, U> {
         edges = new LinkedHashMap<>();
         incomingEdges = new LinkedHashMap<>();
         alfas = new ArrayList<>();
+        viterbiPath = new ArrayList<>();
     }
 
     public U emmit() {
@@ -90,6 +94,44 @@ public class Node<T, U> {
         return alfa = result;
     }
 
+//    class Commodity {
+//        Node<T,U> node;
+//        double viterbi;
+//
+//        public Commodity(Node<T, U> node, double viterbi) {
+//            this.node = node;
+//            this.viterbi = viterbi;
+//        }
+//    }
+
+    void viterbiInit() {
+        viterbiPath = new ArrayList<>();
+    }
+
+    double viterbi(U symbol) {
+        double symbolPorbability = emitter.getSymbolProbability(symbol);
+//        List<Double> tmp = new ArrayList<>();
+        List<Viterbi> tmp = new ArrayList<>();
+
+        for(Edge<T,U> edge: incomingEdges.keySet()) {
+            double probability = edge.start.viterbiPrevious * symbolPorbability * incomingEdges.get(edge);
+            System.out.println(edge.start.viterbiPrevious + ", " + symbolPorbability + ", " + incomingEdges.get(edge) + ": " + probability);
+//            tmp.add(edge.start.viterbiPrevious * symbolPorbability * incomingEdges.get(edge));
+            tmp.add(new Viterbi(edge.start, edge.start.viterbiPrevious * symbolPorbability * incomingEdges.get(edge)));
+        }
+
+        Viterbi max = tmp.stream()
+                .max((a, b) -> Double.compare(a.probability, b.probability))
+                .get();
+
+        viterbiPath.add(max);
+        viterbi = max.probability;
+
+        System.out.println(max.node.id + ": " + viterbi + " (" + id + ")");
+
+        return viterbi;
+    }
+
     void stepForward() {
         alfaPrevious = alfa;
         alfas.add(alfa);
@@ -97,5 +139,19 @@ public class Node<T, U> {
 
     public List<Double> getAlfas() {
         return alfas;
+    }
+
+    public void viterbiStepForward() {
+        viterbiPrevious = viterbi;
+    }
+
+    class Viterbi {
+        Node<T,U> node;
+        double probability;
+
+        Viterbi(Node<T,U> node, double probability) {
+            this.node = node;
+            this.probability = probability;
+        }
     }
 }

@@ -320,5 +320,112 @@ public class HMMTest {
 
         double[] expectedTwo = {0.15, 0.1120, 0.049440, 0.02187520, 0.01449062, 0.004659282, 0.004036864, 0.001068434, 0.0007313729, 0.0002294593, 0.0002030646};
         assertArrayEquals(expectedTwo, ArrayUtils.toPrimitive(dos.getAlfas().toArray(new Double[dos.getAlfas().size()])), 0.0001);
+
+        hmm.viterbi(Arrays.asList("One", "Two", "One", "Two", "Two","One","One","One","One","One"));
+    }
+
+    @Test
+    public void viterbiTest() {
+        TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
+        emitterOne.addEmission("One",40);
+        emitterOne.addEmission("Two", 60);
+        TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
+        emitterTwo.addEmission("One", 50);
+        emitterTwo.addEmission("Two", 50);
+
+        Node<String, String> uno = hmm.instanceNode("One", emitterOne);
+        Node<String, String> dos = hmm.instanceNode("Two", emitterTwo);
+        hmm.instanceEdge(uno, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.2);
+        hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.8);
+        hmm.instanceEdge(dos, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.5);
+        hmm.instanceEdge(dos, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.5);
+        hmm.addInitialNode(uno, 0.7);
+        hmm.addInitialNode(dos, 0.3);
+
+        hmm.viterbi(Arrays.asList("One", "Two", "One", "Two", "One", "Two", "One"));
+
+//        System.out.println(hmm.generateSequence(20));
+    }
+
+    @Test
+    public void viterbiTest2() {
+        TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
+        emitterOne.addEmission("One",100);
+        emitterOne.addEmission("Two", 0);
+        TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
+        emitterTwo.addEmission("One", 0);
+        emitterTwo.addEmission("Two", 100);
+
+        Node<String, String> uno = hmm.instanceNode("One", emitterOne);
+        Node<String, String> dos = hmm.instanceNode("Two", emitterTwo);
+        hmm.instanceEdge(uno, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.0);
+        hmm.instanceEdge(uno, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.instanceEdge(dos, uno, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 1.0);
+        hmm.instanceEdge(dos, dos, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.0);
+        hmm.addInitialNode(uno, 1.0);
+        hmm.addInitialNode(dos, 0.0);
+
+        hmm.viterbi(Arrays.asList("One", "One", "One", "Two", "One", "Two", "One", "One"));
+
+//        System.out.println(hmm.generateSequence(20));
+    }
+    @Test
+    public void viterbiTest3() {
+        TabulatedProbabilityEmitter<String> emitterH = new TabulatedProbabilityEmitter<>();
+        emitterH.addEmission("A",20);
+        emitterH.addEmission("C", 30);
+        emitterH.addEmission("G", 30);
+        emitterH.addEmission("T", 20);
+        TabulatedProbabilityEmitter<String> emitterL = new TabulatedProbabilityEmitter<>();
+        emitterL.addEmission("A", 30);
+        emitterL.addEmission("C", 20);
+        emitterL.addEmission("G", 20);
+        emitterL.addEmission("T", 30);
+
+        Node<String, String> h = hmm.instanceNode("H", emitterH);
+        Node<String, String> l = hmm.instanceNode("L", emitterL);
+        hmm.instanceEdge(h, h, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.5);
+        hmm.instanceEdge(h, l, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.5);
+        hmm.instanceEdge(l, h, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.4);
+        hmm.instanceEdge(l, l, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.6);
+        hmm.addInitialNode(h, 0.5);
+        hmm.addInitialNode(l, 0.5);
+
+        hmm.viterbi(Arrays.asList("G","G","C","A","C","T","G","A","A"));
+
+//        System.out.println(hmm.generateSequence(20));
+    }
+
+    @Test
+    public void viterbiTest4() {
+        TabulatedProbabilityEmitter<String> emitterHealthy = new TabulatedProbabilityEmitter();
+        emitterHealthy.addEmission("Dizzy", 10);
+        emitterHealthy.addEmission("Cold", 40);
+        emitterHealthy.addEmission("Normal", 50);
+        TabulatedProbabilityEmitter<String> emitterFever = new TabulatedProbabilityEmitter();
+        emitterFever.addEmission("Dizzy", 60);
+        emitterFever.addEmission("Cold", 30);
+        emitterFever.addEmission("Normal", 10);
+
+        Node<String, String> helthy = hmm.instanceNode("Healthy", emitterHealthy);
+        Node<String, String> fever = hmm.instanceNode("Fever", emitterFever);
+
+        hmm.instanceEdge(helthy, helthy, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.7);
+        hmm.instanceEdge(helthy, fever, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.3);
+        hmm.instanceEdge(fever, fever, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.5);
+        hmm.instanceEdge(fever, helthy, ProbabilityDensityFunction.CONSTANT_PROBABILITY, 0.5);
+        hmm.addInitialNode(helthy, 0.6);
+        hmm.addInitialNode(fever, 0.4);
+
+//        hmm.viterbi(Arrays.asList("Normal", "Cold", "Dizzy"));
+        hmm.viterbi(Arrays.asList("Normal", "Dizzy", "Dizzy", "Cold", "Normal", "Normal", "Cold", "Normal", "Normal", "Cold", "Dizzy", "Normal",
+                "Cold"));
+
+//        helthy.viterbiPath.stream()
+//                .forEach(s -> System.out.print(s.node.id + ","));
+//        System.out.println("");
+//
+//        fever.viterbiPath.stream()
+//                .forEach(s -> System.out.print(s.node.id + ","));
     }
 }
