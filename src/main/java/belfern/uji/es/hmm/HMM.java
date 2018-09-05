@@ -141,16 +141,35 @@ public class HMM<T, U> {
                 .getAsDouble();
     }
 
-    void initializationBackward(U symbol) {
+    double backward(List<U> symbols) {
+        initializationBackward(symbols.get(symbols.size()-1)); // The last symbol
+        recursionBackward(symbols);
+        return terminationBackward();
+    }
 
+    void initializationBackward(U symbol) {
+        nodes.values()
+                .forEach(node -> {
+                    node.beta = node.betaPrevious = node.emitter.getSymbolProbability(symbol);
+                });
     }
 
     void recursionBackward(List<U> symbols) {
-
+        for(int i = symbols.size() - 2; i >= 0; i--) {
+            for(Node<T, U> node: nodes.values()) {
+                node.getProbabilityForSymbol(symbols.get(i));
+            }
+            for(Node<T, U> node: nodes.values()) {
+                node.stepBackward();
+            }
+        }
     }
 
     double terminationBackward() {
-        return 0;
+        return nodes.values().stream()
+                .mapToDouble(node -> node.beta)
+                .max()
+                .getAsDouble();
     }
 
     private Node<T,U> getInitialNode() {
