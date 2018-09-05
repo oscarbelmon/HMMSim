@@ -106,12 +106,12 @@ public class HMM<T, U> {
     }
 
     double forward(List<U> symbols) {
-        initialization(symbols.get(0));
-        recursion(symbols);
-        return termination();
+        initializationForward(symbols.get(0));
+        recursionForward(symbols);
+        return terminationForward();
     }
 
-    void initialization(U symbol) {
+    void initializationForward(U symbol) {
         nodes.values()//.stream()
                 .forEach(node -> {
                     if (initialNodes.get(node) != null) {
@@ -123,7 +123,7 @@ public class HMM<T, U> {
                 });
     }
 
-    void recursion(List<U> symbols) {
+    void recursionForward(List<U> symbols) {
         for(int i = 1; i < symbols.size(); i++) {
             for(Node<T, U> node: nodes.values()) {
                 node.getProbabilityForSymbol(symbols.get(i));
@@ -134,7 +134,7 @@ public class HMM<T, U> {
         }
     }
 
-    double termination() {
+    double terminationForward() {
         return nodes.values().stream()
                 .mapToDouble(node -> node.alfa)
                 .max()

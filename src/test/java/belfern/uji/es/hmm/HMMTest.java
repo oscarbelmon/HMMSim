@@ -48,7 +48,7 @@ public class HMMTest {
     }
 
     @Test
-    public void instanceEdgeNoNullTest() {
+    public void instanceEdgeNotNullTest() {
         Node<String, String> start = hmm.instanceNode("start", () -> "Start");
         Node<String, String> end = hmm.instanceNode("end", () -> "End");
         Edge<String, String> edge = hmm.instanceEdge(start, end,1);
@@ -218,7 +218,7 @@ public class HMMTest {
         hmm.instanceEdge(two, one, 1.0);
         hmm.addInitialNode(one, 1);
 
-        hmm.initialization("One");
+        hmm.initializationForward("One");
 
         assertThat(one, is(one));
         assertEquals(one, one);
@@ -258,8 +258,8 @@ public class HMMTest {
         hmm.instanceEdge(two, one, 1.0);
         hmm.addInitialNode(one, 1);
 
-        hmm.initialization("One");
-        hmm.recursion(Arrays.asList("One", "Two", "One", "Two", "One", "Two"));
+        hmm.initializationForward("One");
+        hmm.recursionForward(Arrays.asList("One", "Two", "One", "Two", "One", "Two"));
 
         double[] oneForward = {1.0, 0.0, 1.0, 0.0, 1.0, 0.0};
         assertArrayEquals(oneForward, ArrayUtils.toPrimitive(one.getAlfas().toArray(new Double[0])));
@@ -282,15 +282,15 @@ public class HMMTest {
         hmm.instanceEdge(two, one, 1.0);
         hmm.addInitialNode(one, 1);
 
-        hmm.initialization("One");
-        hmm.recursion(Arrays.asList("One", "Two", "One", "Two", "One", "Two"));
-        double probability = hmm.termination();
+        hmm.initializationForward("One");
+        hmm.recursionForward(Arrays.asList("One", "Two", "One", "Two", "One", "Two"));
+        double probability = hmm.terminationForward();
 
         assertEquals(1.0, probability, 0.0001);
 
-        hmm.initialization("One");
-        hmm.recursion(Arrays.asList("One", "Two", "One", "Two", "One", "One"));
-        probability = hmm.termination();
+        hmm.initializationForward("One");
+        hmm.recursionForward(Arrays.asList("One", "Two", "One", "Two", "One", "One"));
+        probability = hmm.terminationForward();
 
         assertEquals(0.0, probability, 0.01);
     }
