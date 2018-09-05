@@ -14,6 +14,9 @@ public class Node<T, U> {
     List<Viterbi> viterbiPath;
     double viterbi;
     double viterbiPrevious;
+    private List<Double> betas;
+    double beta;
+    double betaPrevious = 0;
 
     Node(T id, Emitter<U> emitter) {
         if(emitter == null) throw new IllegalArgumentException("Emitter can not be null");
@@ -23,6 +26,7 @@ public class Node<T, U> {
         incomingEdges = new LinkedHashMap<>();
         alfas = new ArrayList<>();
         viterbiPath = new ArrayList<>();
+        betas = new ArrayList<>();
     }
 
     U emmit() {
@@ -107,6 +111,11 @@ public class Node<T, U> {
     void stepForward() {
         alfaPrevious = alfa;
         alfas.add(alfa);
+    }
+
+    void stepBackward() {
+        betaPrevious = beta;
+        betas.add(beta);
     }
 
     List<Double> getAlfas() {

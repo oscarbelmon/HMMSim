@@ -141,6 +141,18 @@ public class HMM<T, U> {
                 .getAsDouble();
     }
 
+    void initializationBackward(U symbol) {
+
+    }
+
+    void recursionBackward(List<U> symbols) {
+
+    }
+
+    double terminationBackward() {
+        return 0;
+    }
+
     private Node<T,U> getInitialNode() {
         double acc = 0;
         Map<Node<T,U>, Double> tmp = new LinkedHashMap<>();
