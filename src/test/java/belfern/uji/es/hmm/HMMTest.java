@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.*;
@@ -322,6 +323,35 @@ public class HMMTest {
 
         String[] expected = {"One", "Two", "One", "Two", "One", "Two", "One", "Two", "One", "Two"};
         assertArrayEquals(expected, hmm.viterbi(Arrays.asList("One", "Two", "One", "Two", "Two","One","One","One","One","One")).toArray(new String[expected.length]));
+    }
+
+    @Test
+    public void forwardTest2() {
+        TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
+        emitterOne.addEmission("a", 0.3);
+        emitterOne.addEmission("b", 0.7);
+        TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
+        emitterTwo.addEmission("a", 0.7);
+        emitterTwo.addEmission("b", 0.3);
+
+        Node<String, String> X = hmm.instanceNode("X", emitterOne);
+        Node<String, String> Y = hmm.instanceNode("Y", emitterTwo);
+        hmm.instanceEdge(X, X, 0.9);
+        hmm.instanceEdge(X, Y, 0.1);
+        hmm.instanceEdge(Y, Y, 0.9);
+        hmm.instanceEdge(Y, X, 0.1);
+        hmm.addInitialNode(X, 0.3);
+        hmm.addInitialNode(Y, 0.7);
+
+        hmm.forward(Arrays.asList("a","a","b"));
+        System.out.println(X.getAlfas());
+        System.out.println(Y.getAlfas());
+
+        hmm.backward(Arrays.asList("a","a","b"));
+        Collections.reverse(X.getBetas());
+        Collections.reverse(Y.getBetas());
+        System.out.println(X.getBetas());
+        System.out.println(Y.getBetas());
     }
 
     @Test

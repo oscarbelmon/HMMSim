@@ -1,13 +1,14 @@
 package belfern.uji.es.hmm;
 
+// [1] Speech and Language Processing. Daniel Jurafsky et al. (Chapter 9)
 
 import java.util.*;
 
 public class Node<T, U> {
     T id;
-    private Map<Edge<T, U>, Double> edges;
-    private Map<Edge<T, U>, Double> incomingEdges;
-    Emitter<U> emitter;
+    private Map<Edge<T, U>, Double> edges; // Probabilities for going to each outgoing edge
+    private Map<Edge<T, U>, Double> incomingEdges; // Probabilities for coming from each incoming edge
+    Emitter<U> emitter; // Probability density function for observations
     private List<Double> alfas;
     double alfa;
     double alfaPrevious = 0;
@@ -16,7 +17,7 @@ public class Node<T, U> {
     double viterbiPrevious;
     private List<Double> betas;
     double beta;
-    double betaPrevious = 0;
+    double betaNext = 0;
 
     Node(T id, Emitter<U> emitter) {
         if(emitter == null) throw new IllegalArgumentException("Emitter can not be null");
@@ -75,7 +76,7 @@ public class Node<T, U> {
         return tmpNormalized;
     }
 
-    double getProbabilityForSymbol(U symbol) {
+    double getAlfaProbabilityForSymbol(U symbol) { // This is alfa in Reference [1]
         double result = 0;
         double symbolProbability = emitter.getSymbolProbability(symbol);
 
@@ -84,6 +85,16 @@ public class Node<T, U> {
         }
 
         return alfa = result;
+    }
+
+    double getBetaProbabilityForSymbol(U symbol) { // This is beta in Reference [1]
+        double result = 0;
+
+        for(Edge<T, U> edge: edges.keySet()) {
+            result += edge.end.betaNext * edge.end.emitter.getSymbolProbability(symbol) * edges.get(edge);
+        }
+
+        return beta = result;
     }
 
     void viterbiInit() {
@@ -114,7 +125,7 @@ public class Node<T, U> {
     }
 
     void stepBackward() {
-        betaPrevious = beta;
+        betaNext = beta;
         betas.add(beta);
     }
 
@@ -124,6 +135,10 @@ public class Node<T, U> {
 
     void viterbiStepForward() {
         viterbiPrevious = viterbi;
+    }
+
+    List<Double> getBetas() {
+        return betas;
     }
 
     class Viterbi {

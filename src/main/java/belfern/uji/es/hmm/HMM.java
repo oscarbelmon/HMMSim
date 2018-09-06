@@ -126,7 +126,7 @@ public class HMM<T, U> {
     void recursionForward(List<U> symbols) {
         for(int i = 1; i < symbols.size(); i++) {
             for(Node<T, U> node: nodes.values()) {
-                node.getProbabilityForSymbol(symbols.get(i));
+                node.getAlfaProbabilityForSymbol(symbols.get(i));
             }
             for(Node<T, U> node: nodes.values()) {
                 node.stepForward();
@@ -150,14 +150,15 @@ public class HMM<T, U> {
     void initializationBackward(U symbol) {
         nodes.values()
                 .forEach(node -> {
-                    node.beta = node.betaPrevious = node.emitter.getSymbolProbability(symbol);
+                    node.beta = node.betaNext = 1;
+                    node.stepBackward();
                 });
     }
 
     void recursionBackward(List<U> symbols) {
-        for(int i = symbols.size() - 2; i >= 0; i--) {
+        for(int i = symbols.size() - 1; i > 0; i--) {
             for(Node<T, U> node: nodes.values()) {
-                node.getProbabilityForSymbol(symbols.get(i));
+                node.getBetaProbabilityForSymbol(symbols.get(i));
             }
             for(Node<T, U> node: nodes.values()) {
                 node.stepBackward();
@@ -171,6 +172,8 @@ public class HMM<T, U> {
                 .max()
                 .getAsDouble();
     }
+
+
 
     private Node<T,U> getInitialNode() {
         double acc = 0;
