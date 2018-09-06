@@ -164,6 +164,9 @@ public class HMM<T, U> {
                 node.stepBackward();
             }
         }
+        for(Node<T, U> node: nodes.values()) {
+            Collections.reverse(node.getBetas());
+        }
     }
 
     double terminationBackward() {

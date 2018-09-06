@@ -326,7 +326,7 @@ public class HMMTest {
     }
 
     @Test
-    public void forwardTest2() {
+    public void backwardTest() {
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
         emitterOne.addEmission("a", 0.3);
         emitterOne.addEmission("b", 0.7);
@@ -343,15 +343,13 @@ public class HMMTest {
         hmm.addInitialNode(X, 0.3);
         hmm.addInitialNode(Y, 0.7);
 
-        hmm.forward(Arrays.asList("a","a","b"));
-        System.out.println(X.getAlfas());
-        System.out.println(Y.getAlfas());
-
         hmm.backward(Arrays.asList("a","a","b"));
-        Collections.reverse(X.getBetas());
-        Collections.reverse(Y.getBetas());
-        System.out.println(X.getBetas());
-        System.out.println(Y.getBetas());
+
+        double[] expectedX = {0.202, 0.66, 1.0};
+        assertArrayEquals(expectedX, ArrayUtils.toPrimitive(X.getBetas().toArray(new Double[0])), 0.001);
+
+        double[] expectedY = {0.234, 0.34, 1.0};
+        assertArrayEquals(expectedY, ArrayUtils.toPrimitive(Y.getBetas().toArray(new Double[0])), 0.001);
     }
 
     @Test
