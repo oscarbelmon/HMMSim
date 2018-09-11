@@ -176,6 +176,14 @@ public class HMM<T, U> {
                 .getAsDouble();
     }
 
+    // Probablity of being at state i at time t and state j at time t+1.
+    // Page 15 of [1]
+    double etha(Node<T, U> i, Node<T, U> j, U symbol) {
+//        double alfa = i.getAlfaProbabilityForSymbol(symbol);
+//        double a = i.
+        return 0;
+    }
+
 
 
     private Node<T,U> getInitialNode() {
@@ -203,3 +211,6 @@ public class HMM<T, U> {
 
     }
 }
+// Bibliography
+// [1] Speech and Language Processing. Daniel Jurafsky et al. (Chapter 9)
+
