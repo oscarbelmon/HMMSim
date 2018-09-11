@@ -8,6 +8,8 @@ public class Node<T, U> {
     T id;
     private Map<Edge<T, U>, Double> edges; // Probabilities for going to each outgoing edge
     private Map<Edge<T, U>, Double> incomingEdges; // Probabilities for coming from each incoming edge
+    private Map<Node<T, U>, Double> nodes; // Probabilities for going from this node to other node.
+    private Map<Node<T, U>, Double> incomingNodes; // Probability for comming from any other node to this node.
     Emitter<U> emitter; // Probability density function for observations
     private List<Double> alfas;
     double alfa;
@@ -25,6 +27,8 @@ public class Node<T, U> {
         this.emitter = emitter;
         edges = new LinkedHashMap<>();
         incomingEdges = new LinkedHashMap<>();
+        nodes = new LinkedHashMap<>();
+        incomingNodes = new LinkedHashMap<>();
         alfas = new ArrayList<>();
         viterbiPath = new ArrayList<>();
         betas = new ArrayList<>();
@@ -38,10 +42,23 @@ public class Node<T, U> {
         if(ratio < 0 || ratio > 1.0) throw new IllegalArgumentException("Edge's ratio can be between 0.0 and 1.0");
         edges.put(edge, ratio);
         edge.end.addIncomingEdge(edge, ratio);
+        nodes.put(edge.end, ratio);
+        edge.end.addIncomingNode(this, ratio);
     }
 
     private void addIncomingEdge(Edge<T,U> edge, double ratio) {
         incomingEdges.put(edge, ratio);
+    }
+
+    private void addIncomingNode(Node<T, U> node, double ratio) {
+        incomingNodes.put(node, ratio);
+    }
+
+    // This returns the probability of the transition form 'this' node to node 'endNode'
+    double getProbabilityToNode(Node<T, U> endNode) {
+        if(nodes.containsKey(endNode))
+            return nodes.get(endNode);
+        else return 0;
     }
 
     // todo This is maintained for testing purposes only

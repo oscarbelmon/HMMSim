@@ -452,4 +452,16 @@ public class HMMTest {
 
         assertArrayEquals(expected, real);
     }
+
+    @Test
+    public void transitionProbabilityToNode() {
+        Node<String, String> one = hmm.instanceNode("One", () -> "One");
+        Node<String, String> two = hmm.instanceNode("Two", () -> "Two");
+        Node<String, String> three = hmm.instanceNode("Three", () -> "Three");
+        hmm.instanceEdge(one, two, 0.4);
+        hmm.instanceEdge(one, three, 0.6);
+        assertThat(one.getProbabilityToNode(two), is(0.4));
+
+        assertThat(one.getProbabilityToNode(one), is(0.0));
+    }
 }
