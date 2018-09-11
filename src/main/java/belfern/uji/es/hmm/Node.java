@@ -93,6 +93,11 @@ public class Node<T, U> {
         return tmpNormalized;
     }
 
+    double getProbabilityToNode(Node<T, U> endNode) {
+        // todo Aquí me quedé.
+        return 0;
+    }
+
     double getAlfaProbabilityForSymbol(U symbol) { // This is alfa in Reference [1]
         double result = 0;
         double symbolProbability = emitter.getSymbolProbability(symbol);
