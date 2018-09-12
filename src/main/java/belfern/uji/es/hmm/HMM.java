@@ -10,12 +10,14 @@ public class HMM<T, U> {
     private final Map<Node<T,U>, Double> initialNodes;
     private Matrix<Node<T, U>, Node<T, U>, Double> ethaMatrix;
     Matrix<Node<T, U>, Node<T, U>, Double> matrixA;
+    Matrix<Node<T, U>, U, Double> matrixEmissions;
 
     public HMM() {
         nodes = new LinkedHashMap<>();
         initialNodes = new LinkedHashMap<>();
         ethaMatrix = new Matrix<>();
         matrixA = new Matrix<>();
+        matrixEmissions = new Matrix<>();
     }
 
     public void addInitialNode(Node<T,U> node, double probability) {
@@ -185,30 +187,29 @@ public class HMM<T, U> {
     public void EM() {
     }
 
-    // Probablity of being at state i at time t and state j at time t+1.
-    // Page 15 of [1]
-    double etha(Node<T, U> i, Node<T, U> j, U symbol) {
-        double result = numEtha(i, j, symbol) / denEtha(i, j, symbol);
-        ethaMatrix.put(i, j, result);
-        return result;
-    }
-
-    private double numEtha(Node<T, U> i, Node<T, U> j, U symbol) {
-        double alfa = i.getAlfaProbabilityForSymbol(symbol);
+//    private double numEtha(Node<T, U> i, Node<T, U> j, U symbol) {
+    private double numEtha(Node<T, U> i, Node<T, U> j, int pos, U symbol) {
+//        double alfa = i.getAlfaProbabilityForSymbol(symbol);
+        double alfa = i.getAlfas().get(pos);
         double aij = i.getProbabilityToNode(j);
-        double beta = i.getBetaProbabilityForSymbol(symbol);
+//        double beta = i.getBetaProbabilityForSymbol(symbol);
+        double beta = i.getBetas().get(pos);
+//        double emission = i.emitter.getSymbolProbability(symbol);
         double emission = i.emitter.getSymbolProbability(symbol);
+//        System.out.println(alfa + " " + aij + " " + emission + " " + beta);
         double result = alfa * aij * emission * beta;
-//        System.out.println(result);
+
         return result;
     }
 
-    private double denEtha(Node<T, U> i, Node<T, U> j, U symbol) {
+//    private double denEtha(Node<T, U> i, Node<T, U> j, U symbol) {
+    private double denEtha(Node<T, U> i, Node<T, U> j, int pos) {
         double result = 0;
 
         result =nodes.entrySet().stream()
                 .map(entry -> entry.getValue())
-                .mapToDouble(node -> node.getAlfaProbabilityForSymbol(symbol) * node.getBetaProbabilityForSymbol(symbol))
+//                .mapToDouble(node -> node.getAlfaProbabilityForSymbol(symbol) * node.getBetaProbabilityForSymbol(symbol))
+                .mapToDouble(node -> node.getAlfas().get(pos) * node.getBetas().get(pos))
                 .sum();
 
 //        System.out.println(result);
@@ -216,9 +217,46 @@ public class HMM<T, U> {
         return result;
     }
 
+    // Probablity of being at state i at time t and state j at time t+1.
+    // Page 15 of [1]
+//    double etha(Node<T, U> i, Node<T, U> j, U symbol) {
+    double etha(Node<T, U> i, Node<T, U> j, int pos, U symbol) {
+//        double result = numEtha(i, j, symbol) / denEtha(i, j, symbol);
+        double result = numEtha(i, j, pos, symbol) / denEtha(i, j, pos);
+        ethaMatrix.put(i, j, result);
+        return result;
+    }
+
+    double numeratorEstimatedA(Node<T, U> i, Node<T, U> j, List<U> symbols) {
+        double result = 0;
+
+//        for(U symbol: symbols) {
+//            result += etha(i, j, symbol);
+//        }
+        for(int pos = 0; pos < symbols.size(); pos++) {
+            result += etha(i, j, pos, symbols.get(pos));
+        }
+
+//        System.out.println("numeratorEstimatedA " + result);
+
+        return result;
+    }
+
+    double denominatorEstimatedA(Node<T, U> i, List<U> symbols) {
+        double result = 0;
+//        for(U symbol: symbols) {
+        for(int pos = 0; pos < symbols.size(); pos++) {
+            for(Node<T, U> toNode: i.getNodes()) {
+                result += etha(i, toNode, pos, symbols.get(pos));
+            }
+        }
+
+        return result;
+    }
+
     // Estimates just on matrix element
     double estimateAij(Node<T, U> i, Node<T, U> j, List<U> symbols) {
-        double result = numeratorEstimatedA(i, j, symbols) / denominatorEstimatedA(i, j, symbols);
+        double result = numeratorEstimatedA(i, j, symbols) / denominatorEstimatedA(i, symbols);
         matrixA.put(i, j, result);
         return result;
     }
@@ -233,6 +271,68 @@ public class HMM<T, U> {
         nodes.entrySet().stream().
                 map(n -> n.getValue()).
                 forEach(node -> estimateAForNode(node, symbols));
+    }
+
+//    double numeratorGamma(Node<T, U> node, U symbol) {
+    double numeratorGamma(Node<T, U> node, int pos) {
+        double result = 0;
+//        result = node.getAlfaProbabilityForSymbol(symbol) * node.getBetaProbabilityForSymbol(symbol);
+        result = node.getAlfas().get(pos) * node.getBetas().get(pos);
+        return result;
+    }
+
+    double denominatorGamma(Node<T, U> node, List<U> symbols) {
+        double result = 0;
+        result = denominatorEstimatedA(node, symbols);
+        return result;
+    }
+
+    // Eq. 9.42 of [1]
+//    double gamma(Node<T, U> node, U symbol, List<U> symbols) {
+    double gamma(Node<T, U> node, int pos, List<U> symbols) {
+//        return numeratorGamma(node, symbol) / denominatorGamma(node, symbols);
+        return numeratorGamma(node, pos) / denominatorGamma(node, symbols);
+    }
+
+    double numeratorEmissionProbability(Node<T, U> node, U symbol, List<U> symbols) {
+        double result = 0;
+
+        for(int pos = 0; pos < symbols.size(); pos++) {
+            if(symbol.equals(symbols.get(pos))) {
+                result += gamma(node, pos, symbols);
+            }
+        }
+
+        return result;
+    }
+
+    double denominatorEmissionProbability(Node<T, U> node, List<U> symbols) {
+        double result = 0;
+
+        for(int pos = 0; pos < symbols.size(); pos++) {
+            result += gamma(node, pos, symbols);
+        }
+
+        return result;
+    }
+
+    double emissionProbabilityNodeSymbol(Node<T, U> node, U symbol, List<U> symbols) {
+        double result = 0;
+
+        result = numeratorEmissionProbability(node, symbol, symbols) / denominatorEmissionProbability(node, symbols);
+
+        return result;
+    }
+
+    void estimateEmissions(List<U> symbols) {
+        double emissionProbability = 0;
+        for(Map.Entry<T, Node<T, U>> entry: nodes.entrySet()) {
+            Node<T, U> node = entry.getValue();
+            for(U symbol: symbols) {
+                emissionProbability = emissionProbabilityNodeSymbol(node, symbol, symbols);
+                matrixEmissions.put(node, symbol, emissionProbability);
+            }
+        }
     }
 
     void matrixARandomInitialization() {
@@ -252,26 +352,6 @@ public class HMM<T, U> {
                 matrixA.put(entry.getValue(), toNode, random[i++]);
             }
         }
-    }
-
-    double numeratorEstimatedA(Node<T, U> i, Node<T, U> j, List<U> symbols) {
-        double result = 0;
-        for(U symbol: symbols) {
-            result += etha(i, j, symbol);
-        }
-//        System.out.println(result);
-        return result;
-    }
-
-    double denominatorEstimatedA(Node<T, U> i, Node<T, U> j, List<U> symbols) {
-        double result = 0;
-        for(U symbol: symbols) {
-            for(Node<T, U> toNode: i.getNodes()) {
-                result += etha(i, toNode, symbol);
-            }
-        }
-
-        return result;
     }
 
     private Node<T,U> getInitialNode() {

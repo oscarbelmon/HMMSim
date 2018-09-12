@@ -50,6 +50,10 @@ public class Node<T, U> {
         edge.end.addIncomingNode(this, ratio);
     }
 
+    void updateEdge(Edge<T, U> edge, double ratio) {
+        addEdge(edge, ratio);
+    }
+
     private void addIncomingEdge(Edge<T,U> edge, double ratio) {
         incomingEdges.put(edge, ratio);
     }

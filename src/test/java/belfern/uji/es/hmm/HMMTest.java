@@ -515,10 +515,21 @@ public class HMMTest {
         hmm.instanceEdge(three, two, 0.2);
         hmm.instanceEdge(three, three, 0.2);
 
-        hmm.matrixARandomInitialization();
+        hmm.addInitialNode(one, 0.1);
+        hmm.addInitialNode(two, 0.4);
+        hmm.addInitialNode(three, 0.5);
+
+//        hmm.matrixARandomInitialization();
+//        System.out.println(hmm.matrixA);
+
+        List<String> observations = Arrays.asList("a", "c", "a", "b", "a", "a", "b", "c", "b", "b", "c", "c");
+        hmm.forward(observations);
+        hmm.backward(observations);
+
+        hmm.estimateMatrixA(observations);
         System.out.println(hmm.matrixA);
 
-        hmm.estimateMatrixA(Arrays.asList("a", "c", "a", "b", "a", "a", "b", "c", "b", "b", "c", "c"));
-        System.out.println(hmm.matrixA);
+        hmm.estimateEmissions(observations);
+        System.out.println(hmm.matrixEmissions);
     }
 }
