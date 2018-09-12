@@ -30,6 +30,14 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
         probabilities.put(symbol, new Probability<>(symbol, probability, accumulatedProbability));
     }
 
+    @Override
+    public String toString() {
+        return "TabulatedProbabilityEmitter{" +
+                "probabilities=" + probabilities +
+                ", accumulatedProbability=" + accumulatedProbability +
+                '}';
+    }
+
     private class Probability<T> {
         final T symbol;
         final double probability;
@@ -43,6 +51,15 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
 
         boolean lessThan(double random) {
             return random < accumulatedProbability;
+        }
+
+        @Override
+        public String toString() {
+            return "Probability{" +
+                    "symbol=" + symbol +
+                    ", probability=" + probability +
+                    ", accumulatedProbability=" + accumulatedProbability +
+                    '}';
         }
     }
 }

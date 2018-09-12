@@ -13,13 +13,13 @@ public class Node<T, U> {
     Emitter<U> emitter; // Probability density function for observations
     private List<Double> alfas;
     double alfa;
-    double alfaPrevious = 0;
+    double alfaPrevious = 1;
     List<Viterbi> viterbiPath;
     double viterbi;
     double viterbiPrevious;
     private List<Double> betas;
     double beta;
-    double betaNext = 0;
+    double betaNext = 1;
 
     Node(T id, Emitter<U> emitter) {
         if(emitter == null) throw new IllegalArgumentException("Emitter can not be null");
@@ -102,8 +102,11 @@ public class Node<T, U> {
         double symbolProbability = emitter.getSymbolProbability(symbol);
 
         for(Edge<T,U> edge: incomingEdges.keySet()) {
+//            System.out.println(edge.start.alfaPrevious + " " + symbolProbability + " " + incomingEdges.get(edge));
             result += edge.start.alfaPrevious * symbolProbability * incomingEdges.get(edge);
         }
+
+//        System.out.println("getAlfaProbabilityForSymbol " + id + " " + symbol + " " + result);
 
         return alfa = result;
     }

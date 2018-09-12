@@ -487,23 +487,38 @@ public class HMMTest {
 
     @Test
     public void estimateMatrixATest() {
-        Node<String, String> one = hmm.instanceNode("One", () -> "One");
-        Node<String, String> two = hmm.instanceNode("Two", () -> "Two");
-        Node<String, String> three = hmm.instanceNode("Three", () -> "Three");
+        TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
+        emitterOne.addEmission("a", .1);
+        emitterOne.addEmission("b", .4);
+        emitterOne.addEmission("c", .5);
+
+        TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
+        emitterTwo.addEmission("a", .2);
+        emitterTwo.addEmission("b", .3);
+        emitterTwo.addEmission("c", .5);
+
+        TabulatedProbabilityEmitter<String> emitterThree = new TabulatedProbabilityEmitter<>();
+        emitterThree.addEmission("a", .4);
+        emitterThree.addEmission("b", .3);
+        emitterThree.addEmission("c", .3);
+
+        Node<String, String> one = hmm.instanceNode("One", emitterOne);
+        Node<String, String> two = hmm.instanceNode("Two", emitterTwo);
+        Node<String, String> three = hmm.instanceNode("Three", emitterThree);
         hmm.instanceEdge(one, one, 0.1);
         hmm.instanceEdge(one, two, 0.4);
         hmm.instanceEdge(one, three, 0.5);
-        hmm.instanceEdge(two, one, 0.1);
-        hmm.instanceEdge(two, two, 0.4);
+        hmm.instanceEdge(two, one, 0.2);
+        hmm.instanceEdge(two, two, 0.3);
         hmm.instanceEdge(two, three, 0.5);
-        hmm.instanceEdge(three, one, 0.1);
-        hmm.instanceEdge(three, two, 0.4);
-        hmm.instanceEdge(three, three, 0.5);
+        hmm.instanceEdge(three, one, 0.6);
+        hmm.instanceEdge(three, two, 0.2);
+        hmm.instanceEdge(three, three, 0.2);
 
         hmm.matrixARandomInitialization();
         System.out.println(hmm.matrixA);
 
-        hmm.estimateMatrixA(Arrays.asList("One", "One", "Two", "Two", "Three"));
+        hmm.estimateMatrixA(Arrays.asList("a", "c", "a", "b", "a", "a", "b", "c", "b", "b", "c", "c"));
         System.out.println(hmm.matrixA);
     }
 }

@@ -198,7 +198,9 @@ public class HMM<T, U> {
         double aij = i.getProbabilityToNode(j);
         double beta = i.getBetaProbabilityForSymbol(symbol);
         double emission = i.emitter.getSymbolProbability(symbol);
-        return alfa * aij * emission * beta;
+        double result = alfa * aij * emission * beta;
+//        System.out.println(result);
+        return result;
     }
 
     private double denEtha(Node<T, U> i, Node<T, U> j, U symbol) {
@@ -209,28 +211,25 @@ public class HMM<T, U> {
                 .mapToDouble(node -> node.getAlfaProbabilityForSymbol(symbol) * node.getBetaProbabilityForSymbol(symbol))
                 .sum();
 
-        matrixA.put(i, j, result);
+//        System.out.println(result);
 
         return result;
     }
 
     // Estimates just on matrix element
     double estimateAij(Node<T, U> i, Node<T, U> j, List<U> symbols) {
-        System.out.println("estimateAij");
         double result = numeratorEstimatedA(i, j, symbols) / denominatorEstimatedA(i, j, symbols);
-
+        matrixA.put(i, j, result);
         return result;
     }
 
     void estimateAForNode(Node<T, U> node, List<U> symbols) {
-        System.out.println("estimateAForNode");
         node.nodes.keySet().stream().
                 forEach(e -> estimateAij(node, e, symbols));
     }
 
     // Estimates the whole matrix
     public void estimateMatrixA(List<U> symbols) {
-        System.out.println("estimateMatrixA");
         nodes.entrySet().stream().
                 map(n -> n.getValue()).
                 forEach(node -> estimateAForNode(node, symbols));
@@ -257,11 +256,20 @@ public class HMM<T, U> {
 
     double numeratorEstimatedA(Node<T, U> i, Node<T, U> j, List<U> symbols) {
         double result = 0;
+        for(U symbol: symbols) {
+            result += etha(i, j, symbol);
+        }
+//        System.out.println(result);
         return result;
     }
 
     double denominatorEstimatedA(Node<T, U> i, Node<T, U> j, List<U> symbols) {
         double result = 0;
+        for(U symbol: symbols) {
+            for(Node<T, U> toNode: i.getNodes()) {
+                result += etha(i, toNode, symbol);
+            }
+        }
 
         return result;
     }
