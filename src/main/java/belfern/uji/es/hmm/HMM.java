@@ -1,5 +1,6 @@
 package belfern.uji.es.hmm;
 
+import belfern.uji.es.data.Matrix;
 import belfern.uji.es.statistics.ProbabilityDensityFunction;
 
 import java.util.*;
@@ -7,10 +8,12 @@ import java.util.*;
 public class HMM<T, U> {
     final Map<T, Node<T, U>> nodes;
     private final Map<Node<T,U>, Double> initialNodes;
+    private Matrix<Node<T, U>, Node<T, U>, Double> ethaMatrix;
 
     public HMM() {
         nodes = new LinkedHashMap<>();
         initialNodes = new LinkedHashMap<>();
+        ethaMatrix = new Matrix<>();
     }
 
     public void addInitialNode(Node<T,U> node, double probability) {
@@ -176,15 +179,39 @@ public class HMM<T, U> {
                 .getAsDouble();
     }
 
+    // Expectation maximization algorithm
+    public void EM() {
+    }
+
     // Probablity of being at state i at time t and state j at time t+1.
     // Page 15 of [1]
     double etha(Node<T, U> i, Node<T, U> j, U symbol) {
-//        double alfa = i.getAlfaProbabilityForSymbol(symbol);
-//        double a = i.
-        return 0;
+        double result = numEtha(i, j, symbol) / denEtha(i, j, symbol);
+        ethaMatrix.put(i, j, result);
+        return result;
     }
 
+    private double numEtha(Node<T, U> i, Node<T, U> j, U symbol) {
+        double alfa = i.getAlfaProbabilityForSymbol(symbol);
+        double aij = i.getProbabilityToNode(j);
+        double beta = i.getBetaProbabilityForSymbol(symbol);
+        double emission = i.emitter.getSymbolProbability(symbol);
+        return alfa * aij * emission * beta;
+    }
 
+    private double denEtha(Node<T, U> i, Node<T, U> j, U symbol) {
+        double result = 0;
+//        for(Node<T, U> node: nodes.entrySet()) {
+//            result += node.getAlfaProbabilityForSymbol(symbol) * node.getBetaProbabilityForSymbol(symbol);
+//        }
+
+        nodes.entrySet().stream()
+                .map(entry -> entry.getValue())
+                .mapToDouble(node -> node.getAlfaProbabilityForSymbol(symbol) * node.getBetaProbabilityForSymbol(symbol))
+                .sum();
+
+        return result;
+    }
 
     private Node<T,U> getInitialNode() {
         double acc = 0;
