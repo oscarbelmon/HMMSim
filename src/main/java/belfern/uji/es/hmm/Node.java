@@ -8,7 +8,7 @@ public class Node<T, U> {
     T id;
     private Map<Edge<T, U>, Double> edges; // Probabilities for going to each outgoing edge
     private Map<Edge<T, U>, Double> incomingEdges; // Probabilities for coming from each incoming edge
-    private Map<Node<T, U>, Double> nodes; // Probabilities for going from this node to other node.
+    Map<Node<T, U>, Double> nodes; // Probabilities for going from this node to other node.
     private Map<Node<T, U>, Double> incomingNodes; // Probability for comming from any other node to this node.
     Emitter<U> emitter; // Probability density function for observations
     private List<Double> alfas;
@@ -32,6 +32,10 @@ public class Node<T, U> {
         alfas = new ArrayList<>();
         viterbiPath = new ArrayList<>();
         betas = new ArrayList<>();
+    }
+
+    public Set<Node<T, U>> getNodes() {
+        return nodes.keySet();
     }
 
     U emmit() {

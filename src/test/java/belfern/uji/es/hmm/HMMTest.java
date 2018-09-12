@@ -464,4 +464,46 @@ public class HMMTest {
 
         assertThat(one.getProbabilityToNode(one), is(0.0));
     }
+
+    @Test
+    public void matrixARandomInitializationTest() {
+        Node<String, String> one = hmm.instanceNode("One", () -> "One");
+        Node<String, String> two = hmm.instanceNode("Two", () -> "Two");
+        Node<String, String> three = hmm.instanceNode("Three", () -> "Three");
+        hmm.instanceEdge(one, one, 0.1);
+        hmm.instanceEdge(one, two, 0.4);
+        hmm.instanceEdge(one, three, 0.5);
+        hmm.instanceEdge(two, one, 0.1);
+        hmm.instanceEdge(two, two, 0.4);
+        hmm.instanceEdge(two, three, 0.5);
+        hmm.instanceEdge(three, one, 0.1);
+        hmm.instanceEdge(three, two, 0.4);
+        hmm.instanceEdge(three, three, 0.5);
+
+        hmm.matrixARandomInitialization();
+
+        System.out.println(hmm.matrixA);
+    }
+
+    @Test
+    public void estimateMatrixATest() {
+        Node<String, String> one = hmm.instanceNode("One", () -> "One");
+        Node<String, String> two = hmm.instanceNode("Two", () -> "Two");
+        Node<String, String> three = hmm.instanceNode("Three", () -> "Three");
+        hmm.instanceEdge(one, one, 0.1);
+        hmm.instanceEdge(one, two, 0.4);
+        hmm.instanceEdge(one, three, 0.5);
+        hmm.instanceEdge(two, one, 0.1);
+        hmm.instanceEdge(two, two, 0.4);
+        hmm.instanceEdge(two, three, 0.5);
+        hmm.instanceEdge(three, one, 0.1);
+        hmm.instanceEdge(three, two, 0.4);
+        hmm.instanceEdge(three, three, 0.5);
+
+        hmm.matrixARandomInitialization();
+        System.out.println(hmm.matrixA);
+
+        hmm.estimateMatrixA(Arrays.asList("One", "One", "Two", "Two", "Three"));
+        System.out.println(hmm.matrixA);
+    }
 }

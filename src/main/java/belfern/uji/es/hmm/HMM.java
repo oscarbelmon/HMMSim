@@ -9,11 +9,13 @@ public class HMM<T, U> {
     final Map<T, Node<T, U>> nodes;
     private final Map<Node<T,U>, Double> initialNodes;
     private Matrix<Node<T, U>, Node<T, U>, Double> ethaMatrix;
+    Matrix<Node<T, U>, Node<T, U>, Double> matrixA;
 
     public HMM() {
         nodes = new LinkedHashMap<>();
         initialNodes = new LinkedHashMap<>();
         ethaMatrix = new Matrix<>();
+        matrixA = new Matrix<>();
     }
 
     public void addInitialNode(Node<T,U> node, double probability) {
@@ -201,14 +203,65 @@ public class HMM<T, U> {
 
     private double denEtha(Node<T, U> i, Node<T, U> j, U symbol) {
         double result = 0;
-//        for(Node<T, U> node: nodes.entrySet()) {
-//            result += node.getAlfaProbabilityForSymbol(symbol) * node.getBetaProbabilityForSymbol(symbol);
-//        }
 
-        nodes.entrySet().stream()
+        result =nodes.entrySet().stream()
                 .map(entry -> entry.getValue())
                 .mapToDouble(node -> node.getAlfaProbabilityForSymbol(symbol) * node.getBetaProbabilityForSymbol(symbol))
                 .sum();
+
+        matrixA.put(i, j, result);
+
+        return result;
+    }
+
+    // Estimates just on matrix element
+    double estimateAij(Node<T, U> i, Node<T, U> j, List<U> symbols) {
+        System.out.println("estimateAij");
+        double result = numeratorEstimatedA(i, j, symbols) / denominatorEstimatedA(i, j, symbols);
+
+        return result;
+    }
+
+    void estimateAForNode(Node<T, U> node, List<U> symbols) {
+        System.out.println("estimateAForNode");
+        node.nodes.keySet().stream().
+                forEach(e -> estimateAij(node, e, symbols));
+    }
+
+    // Estimates the whole matrix
+    public void estimateMatrixA(List<U> symbols) {
+        System.out.println("estimateMatrixA");
+        nodes.entrySet().stream().
+                map(n -> n.getValue()).
+                forEach(node -> estimateAForNode(node, symbols));
+    }
+
+    void matrixARandomInitialization() {
+        for(Map.Entry<T, Node<T, U>> entry: nodes.entrySet()) {
+            int size = entry.getValue().nodes.size();
+            double sum = 0;
+            double[] random = new double[size];
+            for(int i = 0; i < size; i++) {
+                random[i] = Math.random();
+                sum += random[i];
+            }
+            for(int i = 0; i < size; i++) {
+                random[i] /= sum;
+            }
+            int i = 0;
+            for(Node<T, U> toNode: entry.getValue().getNodes()) {
+                matrixA.put(entry.getValue(), toNode, random[i++]);
+            }
+        }
+    }
+
+    double numeratorEstimatedA(Node<T, U> i, Node<T, U> j, List<U> symbols) {
+        double result = 0;
+        return result;
+    }
+
+    double denominatorEstimatedA(Node<T, U> i, Node<T, U> j, List<U> symbols) {
+        double result = 0;
 
         return result;
     }
