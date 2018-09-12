@@ -488,32 +488,54 @@ public class HMMTest {
     @Test
     public void estimateMatrixATest() {
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission("a", .1);
-        emitterOne.addEmission("b", .4);
-        emitterOne.addEmission("c", .5);
+//        emitterOne.addEmission("a", .1);
+//        emitterOne.addEmission("b", .4);
+//        emitterOne.addEmission("c", .5);
+
+        emitterOne.addEmission("a", 0.1137271);
+        emitterOne.addEmission("b", 0.4645561);
+        emitterOne.addEmission("c", 0.4217168);
 
         TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
-        emitterTwo.addEmission("a", .2);
-        emitterTwo.addEmission("b", .3);
-        emitterTwo.addEmission("c", .5);
+//        emitterTwo.addEmission("a", .2);
+//        emitterTwo.addEmission("b", .3);
+//        emitterTwo.addEmission("c", .5);
+
+        emitterTwo.addEmission("a", 0.2991603);
+        emitterTwo.addEmission("b", 0.2860711);
+        emitterTwo.addEmission("c", 0.4147685);
 
         TabulatedProbabilityEmitter<String> emitterThree = new TabulatedProbabilityEmitter<>();
-        emitterThree.addEmission("a", .4);
-        emitterThree.addEmission("b", .3);
-        emitterThree.addEmission("c", .3);
+//        emitterThree.addEmission("a", .4);
+//        emitterThree.addEmission("b", .3);
+//        emitterThree.addEmission("c", .3);
+
+        emitterThree.addEmission("a", 0.5178120);
+        emitterThree.addEmission("b", 0.2647543);
+        emitterThree.addEmission("c", 0.2174337);
 
         Node<String, String> one = hmm.instanceNode("One", emitterOne);
         Node<String, String> two = hmm.instanceNode("Two", emitterTwo);
         Node<String, String> three = hmm.instanceNode("Three", emitterThree);
-        hmm.instanceEdge(one, one, 0.1);
-        hmm.instanceEdge(one, two, 0.4);
-        hmm.instanceEdge(one, three, 0.5);
-        hmm.instanceEdge(two, one, 0.2);
-        hmm.instanceEdge(two, two, 0.3);
-        hmm.instanceEdge(two, three, 0.5);
-        hmm.instanceEdge(three, one, 0.6);
-        hmm.instanceEdge(three, two, 0.2);
-        hmm.instanceEdge(three, three, 0.2);
+//        hmm.instanceEdge(one, one, 0.1);
+//        hmm.instanceEdge(one, two, 0.4);
+//        hmm.instanceEdge(one, three, 0.5);
+//        hmm.instanceEdge(two, one, 0.2);
+//        hmm.instanceEdge(two, two, 0.3);
+//        hmm.instanceEdge(two, three, 0.5);
+//        hmm.instanceEdge(three, one, 0.6);
+//        hmm.instanceEdge(three, two, 0.2);
+//        hmm.instanceEdge(three, three, 0.2);
+
+        hmm.instanceEdge(one, one, 0.09660597);
+        hmm.instanceEdge(one, two, 0.3806887);
+        hmm.instanceEdge(one, three, 0.5227053);
+        hmm.instanceEdge(two, one, 0.23569230);
+        hmm.instanceEdge(two, two, 0.2162365);
+        hmm.instanceEdge(two, three, 0.5480712);
+        hmm.instanceEdge(three, one, 0.58003645);
+        hmm.instanceEdge(three, two, 0.2084311);
+        hmm.instanceEdge(three, three, 0.2115324);
 
         hmm.addInitialNode(one, 0.1);
         hmm.addInitialNode(two, 0.4);

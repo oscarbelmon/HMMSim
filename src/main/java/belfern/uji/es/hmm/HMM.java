@@ -189,30 +189,22 @@ public class HMM<T, U> {
 
 //    private double numEtha(Node<T, U> i, Node<T, U> j, U symbol) {
     private double numEtha(Node<T, U> i, Node<T, U> j, int pos, U symbol) {
-//        double alfa = i.getAlfaProbabilityForSymbol(symbol);
         double alfa = i.getAlfas().get(pos);
         double aij = i.getProbabilityToNode(j);
-//        double beta = i.getBetaProbabilityForSymbol(symbol);
-        double beta = i.getBetas().get(pos);
-//        double emission = i.emitter.getSymbolProbability(symbol);
-        double emission = i.emitter.getSymbolProbability(symbol);
-//        System.out.println(alfa + " " + aij + " " + emission + " " + beta);
+        double emission = j.emitter.getSymbolProbability(symbol);
+        double beta = j.getBetas().get(pos+1);
         double result = alfa * aij * emission * beta;
 
         return result;
     }
 
 //    private double denEtha(Node<T, U> i, Node<T, U> j, U symbol) {
-    private double denEtha(Node<T, U> i, Node<T, U> j, int pos) {
+    private double denEtha(Node<T, U> i, Node<T, U> j, int symbolsSize) {
         double result = 0;
 
-        result =nodes.entrySet().stream()
-                .map(entry -> entry.getValue())
-//                .mapToDouble(node -> node.getAlfaProbabilityForSymbol(symbol) * node.getBetaProbabilityForSymbol(symbol))
-                .mapToDouble(node -> node.getAlfas().get(pos) * node.getBetas().get(pos))
-                .sum();
-
-//        System.out.println(result);
+        for(int pos = 0; pos < symbolsSize; pos++) {
+            result += i.getAlfas().get(pos) * i.getBetas().get(pos);
+        }
 
         return result;
     }
@@ -220,9 +212,9 @@ public class HMM<T, U> {
     // Probablity of being at state i at time t and state j at time t+1.
     // Page 15 of [1]
 //    double etha(Node<T, U> i, Node<T, U> j, U symbol) {
-    double etha(Node<T, U> i, Node<T, U> j, int pos, U symbol) {
+    double etha(Node<T, U> i, Node<T, U> j, int pos, U symbol, int symbolsSize) {
 //        double result = numEtha(i, j, symbol) / denEtha(i, j, symbol);
-        double result = numEtha(i, j, pos, symbol) / denEtha(i, j, pos);
+        double result = numEtha(i, j, pos, symbol) / denEtha(i, j, symbolsSize);
         ethaMatrix.put(i, j, result);
         return result;
     }
@@ -230,24 +222,18 @@ public class HMM<T, U> {
     double numeratorEstimatedA(Node<T, U> i, Node<T, U> j, List<U> symbols) {
         double result = 0;
 
-//        for(U symbol: symbols) {
-//            result += etha(i, j, symbol);
-//        }
-        for(int pos = 0; pos < symbols.size(); pos++) {
-            result += etha(i, j, pos, symbols.get(pos));
+        for(int pos = 0; pos < symbols.size()-1; pos++) {
+            result += etha(i, j, pos, symbols.get(pos+1), symbols.size());
         }
-
-//        System.out.println("numeratorEstimatedA " + result);
 
         return result;
     }
 
     double denominatorEstimatedA(Node<T, U> i, List<U> symbols) {
         double result = 0;
-//        for(U symbol: symbols) {
-        for(int pos = 0; pos < symbols.size(); pos++) {
+        for(int pos = 0; pos < symbols.size()-1; pos++) {
             for(Node<T, U> toNode: i.getNodes()) {
-                result += etha(i, toNode, pos, symbols.get(pos));
+                result += etha(i, toNode, pos, symbols.get(pos+1), symbols.size());
             }
         }
 
