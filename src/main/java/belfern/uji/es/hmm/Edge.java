@@ -19,4 +19,12 @@ public class Edge<T, U> {
     double density() {
         return pdf.density();
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "start=" + start.id +
+                ", end=" + end.id +
+                '}';
+    }
 }

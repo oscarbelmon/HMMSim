@@ -169,6 +169,14 @@ public class Node<T, U> {
         return betas;
     }
 
+    @Override
+    public String toString() {
+        return "{" +
+//                "id=" + id +
+                "edges=" + edges +
+                '}';
+    }
+
     class Viterbi {
         final Node<T,U> node;
         final double probability;

@@ -553,5 +553,7 @@ public class HMMTest {
 
         hmm.estimateEmissions(observations);
         System.out.println(hmm.matrixEmissions);
+
+        System.out.println(hmm);
     }
 }

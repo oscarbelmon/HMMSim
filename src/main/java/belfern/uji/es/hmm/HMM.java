@@ -184,7 +184,7 @@ public class HMM<T, U> {
     }
 
     // Expectation maximization algorithm
-    public void EM() {
+    public void EM(long interations) {
     }
 
 //    private double numEtha(Node<T, U> i, Node<T, U> j, U symbol) {
@@ -338,6 +338,14 @@ public class HMM<T, U> {
                 matrixA.put(entry.getValue(), toNode, random[i++]);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "HMM{" +
+                "nodes=" + nodes +
+                ", initialNodes=" + initialNodes +
+                '}';
     }
 
     private Node<T,U> getInitialNode() {
