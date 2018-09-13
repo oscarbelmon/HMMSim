@@ -7,7 +7,7 @@ import java.util.*;
 
 public class HMM<T, U> {
     final Map<T, Node<T, U>> nodes;
-    private final Map<Node<T,U>, Double> initialNodes;
+    private Map<Node<T,U>, Double> initialNodes;
     private Matrix<Node<T, U>, Node<T, U>, Double> ethaMatrix;
     Matrix<Node<T, U>, Node<T, U>, Double> matrixA;
     Matrix<Node<T, U>, U, Double> matrixEmissions;
@@ -48,7 +48,7 @@ public class HMM<T, U> {
         return instanceEdge(start, end, pdf, ratio);
     }
 
-    Edge<T, U> instanceEdge(String idStart, String idEnd, double ratio) {
+    Edge<T, U> instanceEdge(T idStart, T idEnd, double ratio) {
         Node<T, U> start = nodes.get(idStart);
         Node<T, U> end = nodes.get(idEnd);
         return instanceEdge(start, end, ProbabilityDensityFunction.CONSTANT_PROBABILITY, ratio);
@@ -183,8 +183,69 @@ public class HMM<T, U> {
                 .getAsDouble();
     }
 
+    private void setEmissionsAndNodes(List<U> emissionSet, HMM<T, U> hmm) {
+        Node<T, U> node;
+        TabulatedProbabilityEmitter emitter;
+        for(Map.Entry<T, Node<T, U>> entry: nodes.entrySet()) {
+            node = entry.getValue();
+            emitter = new TabulatedProbabilityEmitter();
+            for(U symbol: emissionSet) {
+//                System.out.println("Emission: " + matrixEmissions.get(node, symbol));
+                emitter.addEmission(symbol, matrixEmissions.get(node, symbol));
+            }
+            hmm.instanceNode(node.id, emitter);
+        }
+    }
+
+    // Improve: each edge is set twice
+    private void setTransitions(HMM<T, U> hmm) {
+        Node<T, U> start, end;
+        for(Map.Entry<T, Node<T, U>> entryStart: nodes.entrySet()) {
+            start = entryStart.getValue();
+            for(Map.Entry<T, Node<T, U>> entryEnd: nodes.entrySet()) {
+                end = entryEnd.getValue();
+//                System.out.println("Transition: " + matrixA.get(start, end));
+                hmm.instanceEdge(start.id, end.id, matrixA.get(start, end));
+            }
+        }
+    }
+
+    private void setInitialNodes(HMM<T, U> hmm) {
+        Node<T, U> node;
+        for(Map.Entry<T, Node<T, U>> entry: nodes.entrySet()) {
+            node = entry.getValue();
+            hmm.addInitialNode(hmm.nodes.get(node.id), initialNodes.get(node));
+        }
+//        hmm.initialNodes = this.initialNodes;
+    }
+
+    private HMM iterate(List<U> emissionSet) {
+        HMM hmm = new HMM();
+
+        setEmissionsAndNodes(emissionSet, hmm);
+//        setNodes(hmm);
+        setTransitions(hmm);
+        setInitialNodes(hmm);
+
+        return hmm;
+    }
+
     // Expectation maximization algorithm
-    public void EM(long interations) {
+    public HMM<T, U> EM(List<U> emissionSet, List<U> observations, long interations) {
+        HMM hmm = this;
+        for(int i = 0; i < interations; i++) {
+            hmm.forward(observations);
+            hmm.backward(observations);
+
+            hmm.estimateMatrixA(observations);
+//            System.out.println(hmm.matrixA);
+
+            hmm.estimateEmissions(observations);
+//            System.out.println(hmm.matrixEmissions);
+
+            hmm = hmm.iterate(emissionSet);
+        }
+        return hmm;
     }
 
 //    private double numEtha(Node<T, U> i, Node<T, U> j, U symbol) {
