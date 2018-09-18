@@ -174,6 +174,7 @@ public class Node<T, U> {
         return "{" +
 //                "id=" + id +
                 "edges=" + edges +
+                "emission=" + emitter +
                 '}';
     }
 

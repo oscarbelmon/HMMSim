@@ -5,6 +5,7 @@ import java.util.*;
 public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
     private final Map<T, Probability<T>> probabilities = new LinkedHashMap<>();
     private double accumulatedProbability = 0;
+    private double minProbability = 1;
 
     public TabulatedProbabilityEmitter() {
     }
@@ -20,7 +21,11 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
 
     @Override
     public double getSymbolProbability(T symbol) {
-        return probabilities.get(symbol).probability;
+        if(probabilities.containsKey(symbol)) {
+            return probabilities.get(symbol).probability;
+        } else {
+            return minProbability * 0.1;
+        }
     }
 
     public void addEmission(T symbol, double probability) throws IllegalArgumentException{
@@ -28,13 +33,14 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
             throw new IllegalArgumentException("Probability should a percentage between 0 and 1. Yours is: " + probability);
         accumulatedProbability += probability;
         probabilities.put(symbol, new Probability<>(symbol, probability, accumulatedProbability));
+        if(minProbability > probability) minProbability = probability;
     }
 
     @Override
     public String toString() {
         return "TabulatedProbabilityEmitter{" +
                 "probabilities=" + probabilities +
-                ", accumulatedProbability=" + accumulatedProbability +
+//                ", accumulatedProbability=" + accumulatedProbability +
                 '}';
     }
 
@@ -58,7 +64,7 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
             return "Probability{" +
                     "symbol=" + symbol +
                     ", probability=" + probability +
-                    ", accumulatedProbability=" + accumulatedProbability +
+//                    ", accumulatedProbability=" + accumulatedProbability +
                     '}';
         }
     }

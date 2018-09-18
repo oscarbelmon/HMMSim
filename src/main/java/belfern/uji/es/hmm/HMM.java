@@ -112,7 +112,7 @@ public class HMM<T, U> {
         return reverse;
     }
 
-    double forward(List<U> symbols) {
+    public double forward(List<U> symbols) {
         initializationForward(symbols.get(0));
         recursionForward(symbols);
         return terminationForward();
@@ -133,6 +133,7 @@ public class HMM<T, U> {
     void recursionForward(List<U> symbols) {
         for(int i = 1; i < symbols.size(); i++) {
             for(Node<T, U> node: nodes.values()) {
+//                System.out.println(symbols.get(i));
                 node.getAlfaProbabilityForSymbol(symbols.get(i));
             }
             for(Node<T, U> node: nodes.values()) {
