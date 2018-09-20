@@ -1,4 +1,4 @@
-package belfern.uji.es.hmm;
+package es.uji.belfern.hmm;
 
 import org.junit.jupiter.api.Test;
 

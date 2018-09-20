@@ -1,4 +1,4 @@
-package belfern.uji.es.statistics;
+package es.uji.belfern.statistics;
 
 @FunctionalInterface
 public interface ProbabilityDensityFunction {

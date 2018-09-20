@@ -1,4 +1,4 @@
-package belfern.uji.es.data;
+package es.uji.belfern.data;
 
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package belfern.uji.es.hmm;
+package es.uji.belfern.hmm;
 
 //@FunctionalInterface
 public interface Emitter<T> {

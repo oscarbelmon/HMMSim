@@ -1,4 +1,4 @@
-package belfern.uji.es.hmm;
+package es.uji.belfern.hmm;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.BeforeEach;

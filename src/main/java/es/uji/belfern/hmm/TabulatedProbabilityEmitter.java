@@ -1,4 +1,4 @@
-package belfern.uji.es.hmm;
+package es.uji.belfern.hmm;
 
 import java.util.*;
 

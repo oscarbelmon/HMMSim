@@ -1,6 +1,6 @@
-package belfern.uji.es.hmm;
+package es.uji.belfern.hmm;
 
-import belfern.uji.es.statistics.ProbabilityDensityFunction;
+import es.uji.belfern.statistics.ProbabilityDensityFunction;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package belfern.uji.es.hmm;
+package es.uji.belfern.hmm;
 
 // [1] Speech and Language Processing. Daniel Jurafsky et al. (Chapter 9)
 

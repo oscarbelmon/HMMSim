@@ -1,7 +1,7 @@
-package belfern.uji.es.hmm;
+package es.uji.belfern.hmm;
 
-import belfern.uji.es.data.Matrix;
-import belfern.uji.es.statistics.ProbabilityDensityFunction;
+import es.uji.belfern.data.Matrix;
+import es.uji.belfern.statistics.ProbabilityDensityFunction;
 
 import java.util.*;
 

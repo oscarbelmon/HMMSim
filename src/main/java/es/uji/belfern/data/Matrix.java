@@ -1,10 +1,7 @@
-package belfern.uji.es.data;
-
-import belfern.uji.es.hmm.Node;
+package es.uji.belfern.data;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class Matrix<T, U, V> {
     private Map<T, Map<U, V>> matrix;

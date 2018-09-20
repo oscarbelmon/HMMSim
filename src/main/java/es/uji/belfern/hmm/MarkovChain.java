@@ -1,4 +1,4 @@
-package belfern.uji.es.hmm;
+package es.uji.belfern.hmm;
 
 public class MarkovChain<T> extends HMM<T, T> {
     public MarkovChain() {

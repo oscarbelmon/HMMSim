@@ -1,6 +1,5 @@
-package belfern.uji.es.hmm;
+package es.uji.belfern.hmm;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

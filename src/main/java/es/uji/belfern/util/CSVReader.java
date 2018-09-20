@@ -1,4 +1,4 @@
-package belfern.uji.es.util;
+package es.uji.belfern.util;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;

@@ -1,8 +1,8 @@
-package belfern.uji.es.util;
+package es.uji.belfern.util;
 
-import belfern.uji.es.hmm.HMM;
-import belfern.uji.es.hmm.Node;
-import belfern.uji.es.hmm.TabulatedCSVProbabilityEmitter;
+import es.uji.belfern.hmm.HMM;
+import es.uji.belfern.hmm.Node;
+import es.uji.belfern.hmm.TabulatedCSVProbabilityEmitter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
