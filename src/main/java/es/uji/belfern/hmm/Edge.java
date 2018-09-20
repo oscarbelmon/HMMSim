@@ -23,8 +23,8 @@ public class Edge<T, U> {
     @Override
     public String toString() {
         return "{" +
-                "start=" + start.id +
-                ", end=" + end.id +
+                start.id +
+                ", " + end.id +
                 '}';
     }
 }

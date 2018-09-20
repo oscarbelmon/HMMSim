@@ -38,9 +38,8 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
 
     @Override
     public String toString() {
-        return "TabulatedProbabilityEmitter{" +
-                "probabilities=" + probabilities +
-//                ", accumulatedProbability=" + accumulatedProbability +
+        return "{" +
+                probabilities +
                 '}';
     }
 
@@ -61,11 +60,7 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
 
         @Override
         public String toString() {
-            return "Probability{" +
-                    "symbol=" + symbol +
-                    ", probability=" + probability +
-//                    ", accumulatedProbability=" + accumulatedProbability +
-                    '}';
+            return probability + "";
         }
     }
 }

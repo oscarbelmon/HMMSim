@@ -32,8 +32,8 @@ class CSVReaderTest {
 
     @Test
     void twoStatesTest() {
-//        List<Integer> dataDespacho = csvTrain.getDataWAPLocation(headerName, className);
-        List<Integer> dataDespachoAll = csvTrain.getDataWAPLocation(headerName, className);
+//        List<Integer> dataDespacho = csvTrain.getDataLocationWAP(className, headerName);
+        List<Integer> dataDespachoAll = csvTrain.getDataLocationWAP(className, headerName);
 //        List<Integer> dataDespacho = dataDespachoAll.subList(0, 80);
         List<Integer> dataDespacho = dataDespachoAll;
 //        List<Integer> firstDespacho = dataDespacho.subList(0, dataDespacho.size()/2);
@@ -65,9 +65,9 @@ class CSVReaderTest {
         HMM<String, Integer> estimatedHMMDespacho = hmmDespacho.EM(emissionSet, dataDespacho, iterations);
         System.out.println(estimatedHMMDespacho);
 
-//        List<Integer> dataDormitorio = csvTrain.getDataWAPLocation(headerName, "Dormitorio");
-//        List<Integer> dataDormitorioAll = csvTrain.getDataWAPLocation(headerName, "Dormitorio");
-        List<Integer> dataDormitorioAll = csvTrain.getDataWAPLocation(headerName, "1");
+//        List<Integer> dataDormitorio = csvTrain.getDataLocationWAP("Dormitorio", headerName);
+//        List<Integer> dataDormitorioAll = csvTrain.getDataLocationWAP("Dormitorio", headerName);
+        List<Integer> dataDormitorioAll = csvTrain.getDataLocationWAP("1", headerName);
 //        List<Integer> dataDormitorio = dataDormitorioAll.subList(0, 80);
         List<Integer> dataDormitorio = dataDormitorioAll;
 //        List<Integer> firstDormitorio = dataDormitorio.subList(0, dataDespacho.size()/2);
@@ -102,8 +102,8 @@ class CSVReaderTest {
         List<Integer> dataDespachoTest = dataDespachoAll;
         List<Integer> dataDormitorioTest = dataDormitorioAll;
 //        List<Integer> dataDormitorioTest = Arrays.asList(-44, -38, -38, -38, -37);
-//        List<Integer> dataDespachoTest = csvTest.getDataWAPLocation(headerName, className);
-//        List<Integer> dataDormitorioTest = csvTest.getDataWAPLocation(headerName, "Dormitorio");
+//        List<Integer> dataDespachoTest = csvTest.getDataLocationWAP(headerName, className);
+//        List<Integer> dataDormitorioTest = csvTest.getDataLocationWAP(headerName, "Dormitorio");
 //        List<Integer> observationsDespacho = dataDespacho.subList(dataDespacho.size()-6, dataDespacho.size()-1);
 //        List<Integer> observationsDormitorio = dataDormitorio.subList(dataDormitorio.size()-6, dataDormitorio.size()-1);
 //        System.out.println(dataDespachoTest);
@@ -134,7 +134,7 @@ class CSVReaderTest {
 
     @Test
     public void getDataWAPLocationTest() {
-        List<Integer> data = csvTrain.getDataWAPLocation(headerName, className);
+        List<Integer> data = csvTrain.getDataLocationWAP(headerName, className);
         System.out.println(data);
     }
 

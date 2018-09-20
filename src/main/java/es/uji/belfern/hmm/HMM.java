@@ -24,6 +24,10 @@ public class HMM<T, U> {
         initialNodes.put(node, probability);
     }
 
+    public void addInitialNode(T id, double probability) {
+        initialNodes.put(nodes.get(id), probability);
+    }
+
     public Node<T, U> instanceNode(T id, Emitter<U> emitter) {
         Node<T, U> node = new Node<>(id, emitter);
         nodes.put(id, node);
@@ -42,13 +46,13 @@ public class HMM<T, U> {
         return edge;
     }
 
-    Edge<T, U> instanceEdge(String idStart, String idEnd, ProbabilityDensityFunction pdf, double ratio) {
+    public Edge<T, U> instanceEdge(String idStart, String idEnd, ProbabilityDensityFunction pdf, double ratio) {
         Node<T, U> start = nodes.get(idStart);
         Node<T, U> end = nodes.get(idEnd);
         return instanceEdge(start, end, pdf, ratio);
     }
 
-    Edge<T, U> instanceEdge(T idStart, T idEnd, double ratio) {
+    public Edge<T, U> instanceEdge(T idStart, T idEnd, double ratio) {
         Node<T, U> start = nodes.get(idStart);
         Node<T, U> end = nodes.get(idEnd);
         return instanceEdge(start, end, ProbabilityDensityFunction.CONSTANT_PROBABILITY, ratio);
@@ -406,8 +410,19 @@ public class HMM<T, U> {
     public String toString() {
         return "HMM{" +
                 "nodes=" + nodes +
-                ", initialNodes=" + initialNodes +
+                ", initialNodes=" + initialNodes() +
                 '}';
+    }
+
+    private String initialNodes() {
+        StringBuffer sb = new StringBuffer();
+
+        for(Node<T, U> node: initialNodes.keySet()) {
+            sb.append(node.id + "=");
+            sb.append(initialNodes.get(node) + ", ");
+        }
+
+        return sb.toString();
     }
 
     private Node<T,U> getInitialNode() {

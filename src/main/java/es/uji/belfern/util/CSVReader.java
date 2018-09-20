@@ -1,6 +1,7 @@
 package es.uji.belfern.util;
 
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import java.io.FileNotFoundException;
@@ -9,42 +10,45 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CSVReader {
+    private final static String TIME_STAMP = "timestamp";
     private String fileName;
-//    private String headerName;
     private String headerClassName;
-//    private String className;
-//    private List<Integer> data = new ArrayList<>();
     private List<CSVRecord> rawData = new ArrayList<>();
-//    private int min;
-//    private int max;
+    private List<String> headerNames;
+    private List<String> locations = new ArrayList<>();
 
-//    public CSVReader(String fileName, String headerName, String headerClassName, String className) {
     public CSVReader(String fileName, String headerClassName) {
         this.fileName = fileName;
-//        this.headerName = headerName;
         this.headerClassName = headerClassName;
-//        this.className = className;
-//        readData(fileName, headerName, headerClassName, className);
         readData();
-//        processData();
     }
 
-//    public List<Integer> getData() {
-//        return data;
-//    }
+    public List<String> getHeaderNames() {
+        return headerNames;
+    }
 
-    private void readData() {//String fileName, String headerName, String headerClassName, String className) {
+    public List<String> getLocations() {
+        return locations;
+    }
+
+    private void readLocations() {
+        locations = rawData.stream()
+                .map(record -> record.get(headerClassName))
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private void readData() {
         try {
             Reader reader = new FileReader(fileName);
-            List<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader).getRecords();
-            for(CSVRecord record: records) {
-                rawData.add(record);
-//                if(className.equals(record.get(headerClassName))) {
-//                    data.add(Integer.parseInt(record.get(headerName)));
-//                }
-            }
+            CSVParser csvParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
+
+            readHeaderNames(csvParser);
+            readRecords(csvParser);
+            readLocations();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -52,7 +56,20 @@ public class CSVReader {
         }
     }
 
-    public List<Integer> getDataWAPLocation(String wap, String location) {
+    private void readRecords(CSVParser csvParser) throws IOException {
+        List<CSVRecord> records = csvParser.getRecords();
+        for(CSVRecord record: records) {
+            rawData.add(record);
+        }
+    }
+
+    private void readHeaderNames(CSVParser csvParser) {
+        headerNames = new ArrayList(csvParser.getHeaderMap().keySet());
+        headerNames.remove(headerClassName);
+        headerNames.remove(TIME_STAMP);
+    }
+
+    public List<Integer> getDataLocationWAP(String location, String wap) {
         List<Integer> result = new ArrayList<>();
 
         for(CSVRecord record: rawData) {
@@ -64,16 +81,4 @@ public class CSVReader {
         return result;
     }
 
-//    private void processData() {
-//        min = data.stream()
-//                .mapToInt(i -> i)
-//                .min()
-//                .orElse(-100);
-//
-//        max = data.stream()
-//                .mapToInt(i -> i)
-//                .max()
-//                .orElse(-20);
-//
-//    }
 }
