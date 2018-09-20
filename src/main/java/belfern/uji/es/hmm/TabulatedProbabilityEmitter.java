@@ -24,7 +24,7 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
         if(probabilities.containsKey(symbol)) {
             return probabilities.get(symbol).probability;
         } else {
-            return minProbability * 0.1;
+            return minProbability * 0.01;
         }
     }
 
@@ -44,12 +44,12 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
                 '}';
     }
 
-    private class Probability<T> {
-        final T symbol;
+    private class Probability<U> {
+        final U symbol;
         final double probability;
         final double accumulatedProbability;
 
-        Probability(T symbol, double probability, double accumulatedProbability) {
+        Probability(U symbol, double probability, double accumulatedProbability) {
             this.symbol = symbol;
             this.probability = probability;
             this.accumulatedProbability = accumulatedProbability;
