@@ -6,6 +6,7 @@ import es.uji.belfern.hmm.TabulatedCSVProbabilityEmitter;
 import es.uji.belfern.util.CSVReader;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class Location {
@@ -26,13 +27,14 @@ public class Location {
     }
 
     void createHMMForWAP(String wap) {
+        Random random = new Random(0);
         int nodes = 3;
         List<Integer> wapReadings = csvReader.getDataLocationWAP(locationName, wap);
         TabulatedCSVProbabilityEmitter emitter = new TabulatedCSVProbabilityEmitter(wapReadings);
         HMM<String, Integer> hmm =  new HMM<>();
 
         for(int i = 0; i < nodes; i++) {
-            Node<String, Integer> node = hmm.instanceNode(i+"", emitter);
+            hmm.instanceNode(i+"", emitter);
         }
 
         String start, end;
@@ -41,7 +43,7 @@ public class Location {
         for(int i = 0; i < nodes; i++) {
             start = i + "";
             for(int j = 0; j < nodes; j++) {
-                probabilities[j] = Math.random();
+                probabilities[j] = random.nextDouble();
                 accum += probabilities[j];
             }
             for(int j = 0; j  < nodes; j++) {
@@ -54,7 +56,7 @@ public class Location {
         }
 
         for(int i = 0; i < nodes; i++) {
-            probabilities[i] = Math.random();
+            probabilities[i] = random.nextDouble();
             accum += probabilities[i];
         }
         for(int i = 0; i  < nodes; i++) {
@@ -69,7 +71,7 @@ public class Location {
                 .distinct()
                 .collect(Collectors.toList());
 
-        int iterations = 50;
+        int iterations = 5;
 
         HMM<String, Integer> hmmEstimated = hmm.EM(emissionSet, wapReadings, iterations);
         System.out.println(hmmEstimated);
