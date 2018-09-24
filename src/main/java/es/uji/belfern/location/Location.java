@@ -1,11 +1,12 @@
 package es.uji.belfern.location;
 
 import es.uji.belfern.hmm.HMM;
-import es.uji.belfern.hmm.Node;
 import es.uji.belfern.hmm.TabulatedCSVProbabilityEmitter;
 import es.uji.belfern.util.CSVReader;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,7 @@ public class Location {
     private final String headerClassName;
     private final String locationName;
     private CSVReader csvReader;
+    private Map<String, HMM<String, Integer>> hmms = new HashMap<>();
 
     public Location(String trainDataFile, String headerClassName, String locationName) {
         this.trainDataFile = trainDataFile;
@@ -24,6 +26,14 @@ public class Location {
 
     private void readData() {
         csvReader = new CSVReader(trainDataFile, headerClassName);
+    }
+
+    void createHMMForAllWAP() {
+        List<String> waps =  csvReader.getHeaderNames();
+        for(String wap: waps) {
+            System.out.println("WAP: " + wap);
+            createHMMForWAP(wap);
+        }
     }
 
     void createHMMForWAP(String wap) {
@@ -71,11 +81,18 @@ public class Location {
                 .distinct()
                 .collect(Collectors.toList());
 
-        int iterations = 5;
+        int iterations = 10;
 
         HMM<String, Integer> hmmEstimated = hmm.EM(emissionSet, wapReadings, iterations);
-        System.out.println(hmmEstimated);
+        hmms.put(wap, hmmEstimated);
+//        System.out.println(hmmEstimated);
 
-        System.out.println(hmmEstimated.forward(wapReadings.subList(50, 55)));
+//        System.out.println(hmmEstimated.forward(wapReadings.subList(50, 55)));
+    }
+
+    void estimateLocationProbability(Map<String, List<Integer>> measures) {
+        for(String wap: measures.keySet()) {
+            System.out.println(hmms.get(wap).forward(measures.get(wap)));
+        }
     }
 }
