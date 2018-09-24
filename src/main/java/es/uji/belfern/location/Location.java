@@ -85,14 +85,16 @@ public class Location {
 
         HMM<String, Integer> hmmEstimated = hmm.EM(emissionSet, wapReadings, iterations);
         hmms.put(wap, hmmEstimated);
-//        System.out.println(hmmEstimated);
-
-//        System.out.println(hmmEstimated.forward(wapReadings.subList(50, 55)));
     }
 
     void estimateLocationProbability(Map<String, List<Integer>> measures) {
+        double totalLogProbability = 0;
+        double logProbability = 0;
         for(String wap: measures.keySet()) {
-            System.out.println(hmms.get(wap).forward(measures.get(wap)));
+            logProbability = Math.log(hmms.get(wap).forward(measures.get(wap)));
+            System.out.println("Log probability: " + logProbability);
+            totalLogProbability += logProbability;
         }
+        System.out.println("Total probability: " + totalLogProbability);
     }
 }
