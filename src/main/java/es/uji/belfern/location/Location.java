@@ -78,14 +78,15 @@ public class Location implements Serializable {
         return hmmEstimated;
     }
 
-    void estimateLocationProbability(Map<String, List<Integer>> measures) {
+    double estimateLocationProbability(Map<String, List<Integer>> measures) {
         double totalLogProbability = 0;
         double logProbability = 0;
         for(String wap: measures.keySet()) {
             logProbability = Math.log(hmms.get(wap).forward(measures.get(wap)));
-            System.out.println("Log probability: " + logProbability);
+//            System.out.println("Log probability: " + logProbability);
             totalLogProbability += logProbability;
         }
-        System.out.println("Total probability: " + totalLogProbability);
+//        System.out.println("Total probability: " + totalLogProbability);
+        return totalLogProbability;
     }
 }

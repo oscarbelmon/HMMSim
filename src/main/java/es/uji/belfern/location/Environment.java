@@ -3,7 +3,7 @@ package es.uji.belfern.location;
 import es.uji.belfern.util.CSVReader;
 
 import java.beans.Transient;
-import java.io.Serializable;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +19,24 @@ public class Environment implements Serializable {
         this.headerClassName = headerClassName;
         readCSVData();
         createLocations();
+    }
+
+    public static Environment readEnvironmentFromFile(String fileName) throws IOException {
+        try {
+            FileInputStream fis = new FileInputStream(fileName);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            Environment environment = (Environment)ois.readObject();
+            ois.close();
+            fis.close();
+            return environment;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        throw new IOException("Something went wrong reading the file");
     }
 
     private void createLocations() {
@@ -45,9 +63,16 @@ public class Environment implements Serializable {
         csvReader = new CSVReader(trainDataFile, headerClassName);
     }
 
-    void estimateLocationProbability(Map<String, List<Integer>> measures) {
+    String estimateLocationProbability(Map<String, List<Integer>> measures) {
+        String estimatedLocation = "";
+        double minimum = Integer.MIN_VALUE, current;
         for(String location: locations.keySet()) {
-            locations.get(location).estimateLocationProbability(measures);
+            current = locations.get(location).estimateLocationProbability(measures);
+            if(current > minimum) {
+                minimum = current;
+                estimatedLocation = location;
+            }
         }
+        return estimatedLocation;
     }
 }

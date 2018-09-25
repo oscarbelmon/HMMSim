@@ -1,12 +1,10 @@
 package es.uji.belfern.location;
 
+import es.uji.belfern.util.CSVReader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +63,67 @@ public class EnvironmentTest {
         Environment environment = new Environment(trainDataFile, headerClassName);
         environment.estimateLocationProbability(zeroMeasures);
         storeEnvironment(environment);
+    }
+
+    @Test
+    void readEnvironmentTest() throws IOException {
+//        Environment environment = readEnvironmentFile();
+        Environment environment = Environment.readEnvironmentFromFile("hmm.bin");
+        environment.estimateLocationProbability(zeroMeasures);
+        environment.estimateLocationProbability(oneMeasures);
+    }
+
+    @Test
+    void allMeasuresTest() throws IOException {
+//        Environment environment = readEnvironmentFile();
+        Environment environment = Environment.readEnvironmentFromFile("hmm.bin");
+        CSVReader csvReader = new CSVReader("test_emilio.csv", headerClassName);
+        List<String> waps = csvReader.getHeaderNames();
+        System.out.println("Waps: " + waps);
+        List<String> locations = csvReader.getLocations();
+        System.out.println("Locations: " + locations);
+        Map<String, List<Integer>> allMeasures = new HashMap<>();
+        Map<String, List<Integer>> measures;
+        long total = 0, success = 0;
+        String estimatedLocation = "";
+        for(String location: locations) {
+            total++;
+            System.out.println("Location: " + location);
+            for (String wap : waps) {
+                allMeasures.put(wap, csvReader.getDataLocationWAP(location, wap));
+            }
+            for(int i = 0; i < 90; i++) {
+//            for(int i = 0; i < allMeasures.get(waps.get(0)).size(); i++) {
+                System.out.println(i + "---");
+                measures = new HashMap<>();
+                for(String wap: waps) {
+                    measures.put(wap, allMeasures.get(wap).subList(i, i+5));
+                }
+                estimatedLocation = environment.estimateLocationProbability(measures);
+                if(estimatedLocation.equals(location)) {
+                    success++;
+                }
+            }
+        }
+        System.out.println(success*100.0/total);
+    }
+
+    private Environment readEnvironmentFile() {
+        try {
+            FileInputStream fis = new FileInputStream("hmm.bin");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            Environment environment = (Environment)ois.readObject();
+            ois.close();
+            fis.close();
+            return environment;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private void storeEnvironment(Environment environment) {
