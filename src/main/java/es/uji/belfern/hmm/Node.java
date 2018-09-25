@@ -2,9 +2,10 @@ package es.uji.belfern.hmm;
 
 // [1] Speech and Language Processing. Daniel Jurafsky et al. (Chapter 9)
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Node<T, U> {
+public class Node<T, U> implements Serializable {
     T id;
     private Map<Edge<T, U>, Double> edges; // Probabilities for going to each outgoing edge
     private Map<Edge<T, U>, Double> incomingEdges; // Probabilities for coming from each incoming edge
@@ -178,7 +179,7 @@ public class Node<T, U> {
                 '}';
     }
 
-    class Viterbi {
+    class Viterbi implements Serializable {
         final Node<T,U> node;
         final double probability;
 

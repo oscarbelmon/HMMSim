@@ -3,16 +3,17 @@ package es.uji.belfern.location;
 import es.uji.belfern.hmm.HMM;
 import es.uji.belfern.hmm.TabulatedCSVProbabilityEmitter;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class Location {
-    private final String locationName;
+public class Location implements Serializable {
+    private transient final String locationName;
     private Map<String, HMM<String, Integer>> hmms = new HashMap<>();
-    private Map<String, List<Integer>> readings;
+    private transient Map<String, List<Integer>> readings;
 
     public Location(String locationName, Map<String, List<Integer>> readings) {
         this.locationName = locationName;

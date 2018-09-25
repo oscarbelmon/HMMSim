@@ -2,15 +2,17 @@ package es.uji.belfern.location;
 
 import es.uji.belfern.util.CSVReader;
 
+import java.beans.Transient;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Environment {
+public class Environment implements Serializable {
     private Map<String, Location> locations = new HashMap<>();
-    private String trainDataFile;
-    private String headerClassName;
-    private CSVReader csvReader;
+    private transient String trainDataFile;
+    private transient String headerClassName;
+    private transient CSVReader csvReader;
 
     public Environment(String trainDataFile, String headerClassName) {
         this.trainDataFile = trainDataFile;

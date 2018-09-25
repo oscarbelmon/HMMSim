@@ -1,5 +1,6 @@
 package es.uji.belfern.hmm;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
@@ -43,7 +44,7 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
                 '}';
     }
 
-    private class Probability<U> {
+    private class Probability<U> implements Serializable {
         final U symbol;
         final double probability;
         final double accumulatedProbability;

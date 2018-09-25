@@ -3,9 +3,10 @@ package es.uji.belfern.hmm;
 import es.uji.belfern.data.Matrix;
 import es.uji.belfern.statistics.ProbabilityDensityFunction;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class HMM<T, U> {
+public class HMM<T, U> implements Serializable {
     final Map<T, Node<T, U>> nodes;
     private Map<Node<T,U>, Double> initialNodes;
     private Matrix<Node<T, U>, Node<T, U>, Double> ethaMatrix;

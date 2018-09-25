@@ -1,9 +1,10 @@
 package es.uji.belfern.data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Matrix<T, U, V> {
+public class Matrix<T, U, V> implements Serializable {
     private Map<T, Map<U, V>> matrix;
 
     public Matrix() {

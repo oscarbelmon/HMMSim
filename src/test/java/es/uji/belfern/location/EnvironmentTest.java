@@ -3,6 +3,10 @@ package es.uji.belfern.location;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -60,5 +64,20 @@ public class EnvironmentTest {
     void environmentTest() {
         Environment environment = new Environment(trainDataFile, headerClassName);
         environment.estimateLocationProbability(zeroMeasures);
+        storeEnvironment(environment);
+    }
+
+    private void storeEnvironment(Environment environment) {
+        try {
+            FileOutputStream fos = new FileOutputStream("hmm.bin");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(environment);
+            oos.close();
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

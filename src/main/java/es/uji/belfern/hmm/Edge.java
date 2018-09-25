@@ -2,7 +2,9 @@ package es.uji.belfern.hmm;
 
 import es.uji.belfern.statistics.ProbabilityDensityFunction;
 
-public class Edge<T, U> {
+import java.io.Serializable;
+
+public class Edge<T, U> implements Serializable {
     Node<T, U> start;
     Node<T, U> end;
     ProbabilityDensityFunction pdf;
