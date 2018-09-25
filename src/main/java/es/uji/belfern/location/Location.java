@@ -2,7 +2,6 @@ package es.uji.belfern.location;
 
 import es.uji.belfern.hmm.HMM;
 import es.uji.belfern.hmm.TabulatedCSVProbabilityEmitter;
-import es.uji.belfern.util.CSVReader;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,35 +10,26 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class Location {
-    private final String trainDataFile;
-    private final String headerClassName;
     private final String locationName;
-    private CSVReader csvReader;
     private Map<String, HMM<String, Integer>> hmms = new HashMap<>();
+    private Map<String, List<Integer>> readings;
 
-    public Location(String trainDataFile, String headerClassName, String locationName) {
-        this.trainDataFile = trainDataFile;
-        this.headerClassName = headerClassName;
+    public Location(String locationName, Map<String, List<Integer>> readings) {
         this.locationName = locationName;
-        readData();
-    }
-
-    private void readData() {
-        csvReader = new CSVReader(trainDataFile, headerClassName);
+        this.readings = readings;
+        createHMMForAllWAP();
     }
 
     void createHMMForAllWAP() {
-        List<String> waps =  csvReader.getHeaderNames();
-        for(String wap: waps) {
+        for(String wap: readings.keySet()) {
             System.out.println("WAP: " + wap);
-            createHMMForWAP(wap);
+            hmms.put(wap, createHMMForWAP(readings.get(wap)));
         }
     }
 
-    void createHMMForWAP(String wap) {
+    HMM<String, Integer> createHMMForWAP(List<Integer> wapReadings) {
         Random random = new Random(0);
         int nodes = 3;
-        List<Integer> wapReadings = csvReader.getDataLocationWAP(locationName, wap);
         TabulatedCSVProbabilityEmitter emitter = new TabulatedCSVProbabilityEmitter(wapReadings);
         HMM<String, Integer> hmm =  new HMM<>();
 
@@ -84,7 +74,7 @@ public class Location {
         int iterations = 10;
 
         HMM<String, Integer> hmmEstimated = hmm.EM(emissionSet, wapReadings, iterations);
-        hmms.put(wap, hmmEstimated);
+        return hmmEstimated;
     }
 
     void estimateLocationProbability(Map<String, List<Integer>> measures) {

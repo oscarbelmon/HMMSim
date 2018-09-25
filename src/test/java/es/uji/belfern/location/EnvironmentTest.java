@@ -8,12 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LocationTest {
-//    private final String fileName = "oscar_train.csv";
-    private final String fileName = "train_emilio.csv";
-    private final String label = "label";
-//    private final String labelName = "Despacho";
-    private final String labelName = "zero";
+public class EnvironmentTest {
+    private String trainDataFile = "train_emilio.csv";
+    private String headerClassName = "label";
     private static Map<String, List<Integer>> zeroMeasures = new HashMap<>();
     private static Map<String, List<Integer>> oneMeasures = new HashMap<>();
 
@@ -57,26 +54,11 @@ public class LocationTest {
         oneMeasures.put("h", intensities);
         intensities = Arrays.asList(0, 0, 0, 0, 0);
         oneMeasures.put("i", intensities);
-
     }
 
-//    @Test
-//    void createHMMForWAPTest() {
-//        Location location = new Location(fileName, label, labelName);
-//        location.createHMMForWAP("e2:41:36:00:07:b8");
-//    }
-//
-//    @Test
-//    void createHMMForAllWAPTest() {
-//        Location location = new Location(fileName, label, labelName);
-//        location.createHMMForAllWAP();
-//    }
-//
-//    @Test
-//    void estimateLocationProbabilityZeroTest() {
-//        Location location = new Location(fileName, label, labelName);
-//        location.createHMMForAllWAP();
-//
-//        location.estimateLocationProbability(oneMeasures);
-//    }
+    @Test
+    void environmentTest() {
+        Environment environment = new Environment(trainDataFile, headerClassName);
+        environment.estimateLocationProbability(zeroMeasures);
+    }
 }
