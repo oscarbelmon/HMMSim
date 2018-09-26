@@ -29,8 +29,8 @@ public class Location implements Serializable {
     }
 
     HMM<String, Integer> createHMMForWAP(List<Integer> wapReadings) {
-        Random random = new Random(0);
-        int nodes = 3;
+        Random random = new Random(1);
+        int nodes = 2;
         TabulatedCSVProbabilityEmitter emitter = new TabulatedCSVProbabilityEmitter(wapReadings);
         HMM<String, Integer> hmm =  new HMM<>();
 
@@ -72,21 +72,32 @@ public class Location implements Serializable {
                 .distinct()
                 .collect(Collectors.toList());
 
-        int iterations = 10;
+        int iterations = 5;
 
         HMM<String, Integer> hmmEstimated = hmm.EM(emissionSet, wapReadings, iterations);
         return hmmEstimated;
     }
 
     double estimateLocationProbability(Map<String, List<Integer>> measures) {
+//        double maxProbability = Double.MIN_VALUE;
         double totalLogProbability = 0;
         double logProbability = 0;
+        double maxProbability, probability;
         for(String wap: measures.keySet()) {
-            logProbability = Math.log(hmms.get(wap).forward(measures.get(wap)));
-//            System.out.println("Log probability: " + logProbability);
-            totalLogProbability += logProbability;
+            if(hmms.get(wap) != null) {
+                maxProbability = hmms.get(wap).maxProbability(measures.size());
+                probability = hmms.get(wap).forward(measures.get(wap));
+//                logProbability = Math.log(hmms.get(wap).forward(measures.get(wap)) / maxProbability);
+                logProbability = Math.log(probability / maxProbability);
+            System.out.println("Probability: " + probability + ", maxProbability: " + maxProbability);
+                totalLogProbability += logProbability;
+//                if (logProbability > maxProbability) maxProbability = logProbability;
+            }
         }
-//        System.out.println("Total probability: " + totalLogProbability);
+        System.out.println("Total probability: " + totalLogProbability);
+        System.out.println("---");
+
         return totalLogProbability;
+//        return maxProbability;
     }
 }

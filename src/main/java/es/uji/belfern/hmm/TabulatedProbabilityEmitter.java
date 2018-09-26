@@ -7,6 +7,8 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
     private final Map<T, Probability<T>> probabilities = new LinkedHashMap<>();
     private double accumulatedProbability = 0;
     private double minProbability = 1;
+    private double maxProbability = 0;
+    private T symbolMaxProbability;
 
     public TabulatedProbabilityEmitter() {
     }
@@ -29,12 +31,26 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
         }
     }
 
+    @Override
+    public double maxProbability() {
+        return maxProbability;
+    }
+
+    @Override
+    public T getSymbolMaxProbability() {
+        return symbolMaxProbability;
+    }
+
     public void addEmission(T symbol, double probability) throws IllegalArgumentException{
         if(probability > 1 || probability < 0)
             throw new IllegalArgumentException("Probability should a percentage between 0 and 1. Yours is: " + probability);
         accumulatedProbability += probability;
         probabilities.put(symbol, new Probability<>(symbol, probability, accumulatedProbability));
         if(minProbability > probability) minProbability = probability;
+        if(probability > maxProbability) {
+            symbolMaxProbability = symbol;
+            maxProbability = probability;
+        }
     }
 
     @Override

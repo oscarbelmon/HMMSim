@@ -7,10 +7,13 @@ import java.util.stream.Collectors;
 public class TabulatedCSVProbabilityEmitter<T> implements Emitter<T> {
     private List<T> data;
     private Map<T, Long> histogram;
+    private double maxProbability = 0;
+    private T symbolMaxProbability;
 
     public TabulatedCSVProbabilityEmitter(List<T> data) {
         this.data = data;
         processData();
+        findMax();
     }
 
     private void processData() {
@@ -19,6 +22,21 @@ public class TabulatedCSVProbabilityEmitter<T> implements Emitter<T> {
 
         data.stream()
                 .forEach(e -> histogram.put(e, histogram.get(e)+1));
+    }
+
+    private void findMax() {
+        double max = histogram.entrySet()
+                .stream()
+                .mapToDouble(entry -> entry.getValue())
+                .max()
+                .orElse(0);
+        symbolMaxProbability = histogram.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() >= max)
+                .findFirst()
+                .orElse(null)
+                .getKey();
+        maxProbability = (max + 1.0) / (data.size() + 1.0);
     }
 
     @Override
@@ -34,6 +52,16 @@ public class TabulatedCSVProbabilityEmitter<T> implements Emitter<T> {
             result = (histogram.get(symbol) + 1.0) / (data.size() + 1.0);
         }
         return result;
+    }
+
+    @Override
+    public double maxProbability() {
+        return maxProbability;
+    }
+
+    @Override
+    public T getSymbolMaxProbability() {
+        return symbolMaxProbability;
     }
 
     @Override

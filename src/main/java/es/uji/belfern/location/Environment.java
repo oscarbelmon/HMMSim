@@ -65,14 +65,15 @@ public class Environment implements Serializable {
 
     String estimateLocationProbability(Map<String, List<Integer>> measures) {
         String estimatedLocation = "";
-        double minimum = Integer.MIN_VALUE, current;
+        double maximum = Integer.MIN_VALUE, current;
         for(String location: locations.keySet()) {
             current = locations.get(location).estimateLocationProbability(measures);
-            if(current > minimum) {
-                minimum = current;
+            if(current > maximum) {
+                maximum = current;
                 estimatedLocation = location;
             }
         }
+        System.out.println("---");
         return estimatedLocation;
     }
 }

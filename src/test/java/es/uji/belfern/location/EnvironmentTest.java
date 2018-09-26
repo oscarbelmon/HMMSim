@@ -1,10 +1,16 @@
 package es.uji.belfern.location;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import es.uji.belfern.data.Matrix;
 import es.uji.belfern.util.CSVReader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +67,7 @@ public class EnvironmentTest {
     @Test
     void environmentTest() {
         Environment environment = new Environment(trainDataFile, headerClassName);
-        environment.estimateLocationProbability(zeroMeasures);
+//        environment.estimateLocationProbability(zeroMeasures);
         storeEnvironment(environment);
     }
 
@@ -75,37 +81,90 @@ public class EnvironmentTest {
 
     @Test
     void allMeasuresTest() throws IOException {
-//        Environment environment = readEnvironmentFile();
-        Environment environment = Environment.readEnvironmentFromFile("hmm.bin");
+//        Environment environment = Environment.readEnvironmentFromFile("hmm_5_iterations_2_states.bin");
+//        Environment environment = Environment.readEnvironmentFromFile("hmm.bin");
+        Environment environment = Environment.readEnvironmentFromFile("hmm_with_max.bin");
+//        Environment environment = Environment.readEnvironmentFromFile("hmm_20_iterations.bin");
+//        Environment environment = Environment.readEnvironmentFromFile("hmm_5_iterations_2_states_random_1.bin");
+//        Environment environment = Environment.readEnvironmentFromFile("hmm_5_iterations_2_states_random_1_emilio_2.bin");
+        System.out.println(environment);
+//        Environment environment = jsonReadTest();
         CSVReader csvReader = new CSVReader("test_emilio.csv", headerClassName);
+//        CSVReader csvReader = new CSVReader("train_emilio.csv", headerClassName);
         List<String> waps = csvReader.getHeaderNames();
-        System.out.println("Waps: " + waps);
         List<String> locations = csvReader.getLocations();
-        System.out.println("Locations: " + locations);
         Map<String, List<Integer>> allMeasures = new HashMap<>();
         Map<String, List<Integer>> measures;
+        Matrix<String, String, Integer> confusion = new Matrix<>();
         long total = 0, success = 0;
         String estimatedLocation = "";
+        int step = 5;
         for(String location: locations) {
-            total++;
-            System.out.println("Location: " + location);
             for (String wap : waps) {
                 allMeasures.put(wap, csvReader.getDataLocationWAP(location, wap));
             }
-            for(int i = 0; i < 90; i++) {
-//            for(int i = 0; i < allMeasures.get(waps.get(0)).size(); i++) {
-                System.out.println(i + "---");
+            System.out.println("Size: " + allMeasures.get(waps.get(0)).size());
+            for(int i = 0; i < allMeasures.get(waps.get(0)).size()-step; i += 1) {
+                total++;
                 measures = new HashMap<>();
                 for(String wap: waps) {
-                    measures.put(wap, allMeasures.get(wap).subList(i, i+5));
+                    measures.put(wap, allMeasures.get(wap).subList(i, i+step));
                 }
                 estimatedLocation = environment.estimateLocationProbability(measures);
                 if(estimatedLocation.equals(location)) {
                     success++;
                 }
+                int previous = 0;
+                if(confusion.get(location, estimatedLocation) != null)
+                    previous = confusion.get(location, estimatedLocation);
+                confusion.put(location, estimatedLocation, previous+1);
             }
         }
+        System.out.println("Total:" + total + ", success: " + success);
         System.out.println(success*100.0/total);
+        System.out.println(confusion);
+    }
+
+    @Test
+    void jsonTest() throws IOException {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Environment environment = Environment.readEnvironmentFromFile("hmm_50_iterations.bin");
+//        System.out.println(gson.toJson(environment));
+        String json = gson.toJson(environment);
+        FileWriter fw = new FileWriter("coso_50_iterations.txt");
+        fw.write(json);
+        fw.flush();
+        fw.close();
+    }
+
+    @Test
+    void jsonReadTest() throws FileNotFoundException {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//        FileReader fr = new FileReader("coso.txt");
+//        Environment environment = gson.fromJson(fr, Environment.class);
+//        System.out.println(environment);
+//        return environment;
+
+
+        Type REVIEW_TYPE = new TypeToken<Environment>() { }.getType();
+//        Gson gson = new Gson();
+        JsonReader reader = new JsonReader(new FileReader("coso.txt"));
+        Environment env = gson.fromJson(reader, REVIEW_TYPE); // contains the whole reviews list
+        System.out.println(env);
+    }
+
+    @Test
+    void showHMMTest() throws IOException {
+        Environment environment = Environment.readEnvironmentFromFile("hmm.bin");
+        environment = Environment.readEnvironmentFromFile("hmm_5_iterations_2_states_random_1.bin");
+
+    }
+
+    @Test
+    void viterbiTest() throws IOException {
+        Environment environment = Environment.readEnvironmentFromFile("hmm.bin");
+
+
     }
 
     private Environment readEnvironmentFile() {
@@ -128,7 +187,7 @@ public class EnvironmentTest {
 
     private void storeEnvironment(Environment environment) {
         try {
-            FileOutputStream fos = new FileOutputStream("hmm.bin");
+            FileOutputStream fos = new FileOutputStream("hmm_with_max.bin");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(environment);
             oos.close();

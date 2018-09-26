@@ -154,6 +154,8 @@ public class HMM<T, U> implements Serializable {
                 .getAsDouble();
     }
 
+
+
     double backward(List<U> symbols) {
         initializationBackward(symbols.get(symbols.size()-1)); // The last symbol
         recursionBackward(symbols);
@@ -449,6 +451,51 @@ public class HMM<T, U> implements Serializable {
 
         return entry.getKey();
 
+    }
+
+    public double maxProbability(int sequenceLength) {
+        List<U> sequence = new ArrayList<>();
+        double result;
+        final double maxInit = initialNodes.entrySet()
+                .stream()
+                .mapToDouble(entry -> entry.getValue())
+                .max()
+                .orElse(0);
+//        System.out.println("MaxInit: " + maxInit);
+        Node<T, U> current = initialNodes.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() >= maxInit)
+                .map(entry -> entry.getKey())
+                .findFirst()
+                .orElse(null);
+        sequence.add(current.emitter.getSymbolMaxProbability());
+
+        double emitterProbability = current.emitter.maxProbability();
+//        System.out.println("Emitter probability: " + emitterProbability);
+        result = maxInit * emitterProbability;
+//        result = 1;
+
+        Node<T, U> next;
+        for(int i = 0; i < sequenceLength-1; i++) {
+            final double partial;
+            partial = current.nodes.entrySet()
+                    .stream()
+                    .mapToDouble(entry -> entry.getValue())
+                    .max()
+                    .orElse(0);
+            emitterProbability = current.emitter.maxProbability();
+            current = current.nodes.entrySet()
+                    .stream()
+                    .filter(entry -> entry.getValue() >= maxInit)
+                    .map(entry -> entry.getKey())
+                    .findFirst()
+                    .orElse(null);
+            sequence.add(current.emitter.getSymbolMaxProbability());
+            result *= partial * emitterProbability;
+        }
+//        System.out.println("Max probability: " + result);
+//        return result;
+        return forward(sequence);
     }
 }
 // Bibliography
