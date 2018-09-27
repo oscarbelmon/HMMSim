@@ -8,20 +8,23 @@ import java.util.*;
 
 public class HMM<T, U> implements Serializable {
     final Map<T, Node<T, U>> nodes;
-    private Map<Node<T,U>, Double> initialNodes;
+    private Map<Node<T, U>, Double> initialNodes;
     private Matrix<Node<T, U>, Node<T, U>, Double> ethaMatrix;
     Matrix<Node<T, U>, Node<T, U>, Double> matrixA;
     Matrix<Node<T, U>, U, Double> matrixEmissions;
+    Node<T, U> nodeMax;
+    List<U> symbols;
 
-    public HMM() {
+    public HMM(List<U> symbols) {
         nodes = new LinkedHashMap<>();
         initialNodes = new LinkedHashMap<>();
         ethaMatrix = new Matrix<>();
         matrixA = new Matrix<>();
         matrixEmissions = new Matrix<>();
+        this.symbols = symbols;
     }
 
-    public void addInitialNode(Node<T,U> node, double probability) {
+    public void addInitialNode(Node<T, U> node, double probability) {
         initialNodes.put(node, probability);
     }
 
@@ -63,7 +66,7 @@ public class HMM<T, U> implements Serializable {
         List<U> sequence = new ArrayList<>();
         Node<T, U> currentNode = getInitialNode();
 
-        for(long i = 0; i < items; i++) {
+        for (long i = 0; i < items; i++) {
             sequence.add(currentNode.emmit());
             currentNode = currentNode.nextNode();
         }
@@ -78,7 +81,7 @@ public class HMM<T, U> implements Serializable {
     }
 
     private void initializationViterbi(U symbol) {
-        for(Node<T,U> node: nodes.values()) {
+        for (Node<T, U> node : nodes.values()) {
             if (initialNodes.get(node) != null) {
                 node.viterbi = node.viterbiPrevious = node.emitter.getSymbolProbability(symbol) * initialNodes.get(node);
             } else {
@@ -89,26 +92,26 @@ public class HMM<T, U> implements Serializable {
     }
 
     private void recursionViterbi(List<U> symbols) {
-        for(int i = 1; i < symbols.size(); i++) {
-            for(Node<T, U> node: nodes.values()) {
+        for (int i = 1; i < symbols.size(); i++) {
+            for (Node<T, U> node : nodes.values()) {
                 node.viterbi(symbols.get(i));
             }
-            for(Node<T, U> node: nodes.values()) {
+            for (Node<T, U> node : nodes.values()) {
                 node.viterbiStepForward();
             }
         }
     }
 
     private List<T> terminationViterbi() {
-        Node<T,U> bestNode = nodes.values().stream()
+        Node<T, U> bestNode = nodes.values().stream()
                 .max(Comparator.comparingDouble(a -> a.viterbi))
                 .get();
 
         List<T> reverse = new ArrayList<>();
-        Node<T,U> node = bestNode;
+        Node<T, U> node = bestNode;
         reverse.add(node.id);
-        for(int i = bestNode.viterbiPath.size(); i >0; i--) {
-            node = node.viterbiPath.get(i-1).node;
+        for (int i = bestNode.viterbiPath.size(); i > 0; i--) {
+            node = node.viterbiPath.get(i - 1).node;
             reverse.add(node.id);
         }
 
@@ -136,12 +139,12 @@ public class HMM<T, U> implements Serializable {
     }
 
     void recursionForward(List<U> symbols) {
-        for(int i = 1; i < symbols.size(); i++) {
-            for(Node<T, U> node: nodes.values()) {
+        for (int i = 1; i < symbols.size(); i++) {
+            for (Node<T, U> node : nodes.values()) {
 //                System.out.println(symbols.get(i));
-                node.getAlfaProbabilityForSymbol(symbols.get(i));
+                node.alfa = node.getAlfaProbabilityForSymbol(symbols.get(i));
             }
-            for(Node<T, U> node: nodes.values()) {
+            for (Node<T, U> node : nodes.values()) {
                 node.stepForward();
             }
         }
@@ -154,10 +157,87 @@ public class HMM<T, U> implements Serializable {
                 .getAsDouble();
     }
 
+    // length is the number of symbols in the sequence
+    public double sequenceWithMaxProbability(int length) {
+        initializationForwardMax();
+        recursionForwardMax(length);
+        return terminationForwardMax();
+    }
 
+    private void initializationForwardMax() {
+        nodes.values()
+                .forEach(node -> {
+                    if (initialNodes.get(node) != null) {
+                        node.alfaMax = node.alfaPreviousMax = node.emitter.getMaxProbability() * initialNodes.get(node);
+                    } else {
+                        node.alfaMax = node.alfaPreviousMax = 0;
+                    }
+                    node.stepForwardMax(node.emitter.getSymbolMaxProbability());
+                });
+    }
+
+    private void recursionForwardMax(int length) {
+        class Maximum {
+            U symbol;
+            double probability;
+
+            Maximum(U symbol, double probability) {
+                this.symbol = symbol;
+                this.probability = probability;
+            }
+        }
+        List<Maximum> probabilitySymbols;
+        double probability;
+        for (int i = 1; i < length; i++) {
+            probabilitySymbols = new ArrayList<>();
+//            for (U symbol : symbols) {
+//                for (Node<T, U> node : nodes.values()) {
+//                    probability = node.getAlfaProbabilityForSymbol(symbol);
+//                    probabilitySymbols.add(new Maximum(symbol, probability));
+//                }
+//            }
+
+            for (Node<T, U> node: nodes.values()) {
+                for(U symbol: symbols) {
+                    probability = node.getAlfaProbabilityForSymbol(symbol);
+                    probabilitySymbols.add(new Maximum(symbol, probability));
+                }
+                Maximum max = probabilitySymbols.stream()
+                        .max((a, b) -> a.probability > b.probability? 1 : -1)
+                        .get();
+                node.alfaMax = node.getAlfaProbabilityForSymbol(max.symbol);
+                node.maxSymbols.add(max.symbol);
+            }
+
+//            Maximum max = probabilitySymbols.stream()
+//                    .max((a, b) -> a.probability > b.probability? 1 : 0)
+//                    .get();
+//            for (Node<T, U> node : nodes.values()) {
+//                node.alfaMax = node.getAlfaProbabilityForSymbol(max.symbol);
+//            }
+//
+//            for (Node<T, U> node : nodes.values()) {
+//                node.stepForwardMax(max.symbol);
+//            }
+        }
+    }
+
+    double terminationForwardMax() {
+        double max = nodes.values().stream()
+                .mapToDouble(node -> node.alfaMax)
+                .max()
+                .getAsDouble();
+
+        nodeMax = nodes.values().stream()
+                .filter(node -> node.alfaMax >= max)
+                .findFirst()
+                .orElse(null);
+
+        return max;
+    }
 
     double backward(List<U> symbols) {
-        initializationBackward(symbols.get(symbols.size()-1)); // The last symbol
+        initializationBackward(symbols.get(symbols.size() - 1)); // The last symbol
         recursionBackward(symbols);
         return terminationBackward();
     }
@@ -171,15 +251,15 @@ public class HMM<T, U> implements Serializable {
     }
 
     void recursionBackward(List<U> symbols) {
-        for(int i = symbols.size() - 1; i > 0; i--) {
-            for(Node<T, U> node: nodes.values()) {
+        for (int i = symbols.size() - 1; i > 0; i--) {
+            for (Node<T, U> node : nodes.values()) {
                 node.getBetaProbabilityForSymbol(symbols.get(i));
             }
-            for(Node<T, U> node: nodes.values()) {
+            for (Node<T, U> node : nodes.values()) {
                 node.stepBackward();
             }
         }
-        for(Node<T, U> node: nodes.values()) {
+        for (Node<T, U> node : nodes.values()) {
             Collections.reverse(node.getBetas());
         }
     }
@@ -194,10 +274,10 @@ public class HMM<T, U> implements Serializable {
     private void setEmissionsAndNodes(List<U> emissionSet, HMM<T, U> hmm) {
         Node<T, U> node;
         TabulatedProbabilityEmitter emitter;
-        for(Map.Entry<T, Node<T, U>> entry: nodes.entrySet()) {
+        for (Map.Entry<T, Node<T, U>> entry : nodes.entrySet()) {
             node = entry.getValue();
             emitter = new TabulatedProbabilityEmitter();
-            for(U symbol: emissionSet) {
+            for (U symbol : emissionSet) {
 //                System.out.println("Emission: " + matrixEmissions.get(node, symbol));
                 emitter.addEmission(symbol, matrixEmissions.get(node, symbol));
             }
@@ -208,9 +288,9 @@ public class HMM<T, U> implements Serializable {
     // Improve: each edge is set twice
     private void setTransitions(HMM<T, U> hmm) {
         Node<T, U> start, end;
-        for(Map.Entry<T, Node<T, U>> entryStart: nodes.entrySet()) {
+        for (Map.Entry<T, Node<T, U>> entryStart : nodes.entrySet()) {
             start = entryStart.getValue();
-            for(Map.Entry<T, Node<T, U>> entryEnd: nodes.entrySet()) {
+            for (Map.Entry<T, Node<T, U>> entryEnd : nodes.entrySet()) {
                 end = entryEnd.getValue();
 //                System.out.println("Transition: " + matrixA.get(start, end));
                 hmm.instanceEdge(start.id, end.id, matrixA.get(start, end));
@@ -220,7 +300,7 @@ public class HMM<T, U> implements Serializable {
 
     private void setInitialNodes(HMM<T, U> hmm) {
         Node<T, U> node;
-        for(Map.Entry<T, Node<T, U>> entry: nodes.entrySet()) {
+        for (Map.Entry<T, Node<T, U>> entry : nodes.entrySet()) {
             node = entry.getValue();
             hmm.addInitialNode(hmm.nodes.get(node.id), initialNodes.get(node));
         }
@@ -228,7 +308,7 @@ public class HMM<T, U> implements Serializable {
     }
 
     private HMM iterate(List<U> emissionSet) {
-        HMM hmm = new HMM();
+        HMM hmm = new HMM(symbols);
 
         setEmissionsAndNodes(emissionSet, hmm);
 //        setNodes(hmm);
@@ -241,7 +321,7 @@ public class HMM<T, U> implements Serializable {
     // Expectation maximization algorithm
     public HMM<T, U> EM(List<U> emissionSet, List<U> observations, long interations) {
         HMM hmm = this;
-        for(int i = 0; i < interations; i++) {
+        for (int i = 0; i < interations; i++) {
             hmm.forward(observations);
             hmm.backward(observations);
 
@@ -256,22 +336,22 @@ public class HMM<T, U> implements Serializable {
         return hmm;
     }
 
-//    private double numEtha(Node<T, U> i, Node<T, U> j, U symbol) {
+    //    private double numEtha(Node<T, U> i, Node<T, U> j, U symbol) {
     private double numEtha(Node<T, U> i, Node<T, U> j, int pos, U symbol) {
         double alfa = i.getAlfas().get(pos);
         double aij = i.getProbabilityToNode(j);
         double emission = j.emitter.getSymbolProbability(symbol);
-        double beta = j.getBetas().get(pos+1);
+        double beta = j.getBetas().get(pos + 1);
         double result = alfa * aij * emission * beta;
 
         return result;
     }
 
-//    private double denEtha(Node<T, U> i, Node<T, U> j, U symbol) {
+    //    private double denEtha(Node<T, U> i, Node<T, U> j, U symbol) {
     private double denEtha(Node<T, U> i, Node<T, U> j, int symbolsSize) {
         double result = 0;
 
-        for(int pos = 0; pos < symbolsSize; pos++) {
+        for (int pos = 0; pos < symbolsSize; pos++) {
             result += i.getAlfas().get(pos) * i.getBetas().get(pos);
         }
 
@@ -291,8 +371,8 @@ public class HMM<T, U> implements Serializable {
     double numeratorEstimatedA(Node<T, U> i, Node<T, U> j, List<U> symbols) {
         double result = 0;
 
-        for(int pos = 0; pos < symbols.size()-1; pos++) {
-            result += etha(i, j, pos, symbols.get(pos+1), symbols.size());
+        for (int pos = 0; pos < symbols.size() - 1; pos++) {
+            result += etha(i, j, pos, symbols.get(pos + 1), symbols.size());
         }
 
         return result;
@@ -300,9 +380,9 @@ public class HMM<T, U> implements Serializable {
 
     double denominatorEstimatedA(Node<T, U> i, List<U> symbols) {
         double result = 0;
-        for(int pos = 0; pos < symbols.size()-1; pos++) {
-            for(Node<T, U> toNode: i.getNodes()) {
-                result += etha(i, toNode, pos, symbols.get(pos+1), symbols.size());
+        for (int pos = 0; pos < symbols.size() - 1; pos++) {
+            for (Node<T, U> toNode : i.getNodes()) {
+                result += etha(i, toNode, pos, symbols.get(pos + 1), symbols.size());
             }
         }
 
@@ -328,7 +408,7 @@ public class HMM<T, U> implements Serializable {
                 forEach(node -> estimateAForNode(node, symbols));
     }
 
-//    double numeratorGamma(Node<T, U> node, U symbol) {
+    //    double numeratorGamma(Node<T, U> node, U symbol) {
     double numeratorGamma(Node<T, U> node, int pos) {
         double result = 0;
 //        result = node.getAlfaProbabilityForSymbol(symbol) * node.getBetaProbabilityForSymbol(symbol);
@@ -352,8 +432,8 @@ public class HMM<T, U> implements Serializable {
     double numeratorEmissionProbability(Node<T, U> node, U symbol, List<U> symbols) {
         double result = 0;
 
-        for(int pos = 0; pos < symbols.size(); pos++) {
-            if(symbol.equals(symbols.get(pos))) {
+        for (int pos = 0; pos < symbols.size(); pos++) {
+            if (symbol.equals(symbols.get(pos))) {
                 result += gamma(node, pos, symbols);
             }
         }
@@ -364,7 +444,7 @@ public class HMM<T, U> implements Serializable {
     double denominatorEmissionProbability(Node<T, U> node, List<U> symbols) {
         double result = 0;
 
-        for(int pos = 0; pos < symbols.size(); pos++) {
+        for (int pos = 0; pos < symbols.size(); pos++) {
             result += gamma(node, pos, symbols);
         }
 
@@ -381,9 +461,9 @@ public class HMM<T, U> implements Serializable {
 
     void estimateEmissions(List<U> symbols) {
         double emissionProbability = 0;
-        for(Map.Entry<T, Node<T, U>> entry: nodes.entrySet()) {
+        for (Map.Entry<T, Node<T, U>> entry : nodes.entrySet()) {
             Node<T, U> node = entry.getValue();
-            for(U symbol: symbols) {
+            for (U symbol : symbols) {
                 emissionProbability = emissionProbabilityNodeSymbol(node, symbol, symbols);
                 matrixEmissions.put(node, symbol, emissionProbability);
             }
@@ -391,19 +471,19 @@ public class HMM<T, U> implements Serializable {
     }
 
     void matrixARandomInitialization() {
-        for(Map.Entry<T, Node<T, U>> entry: nodes.entrySet()) {
+        for (Map.Entry<T, Node<T, U>> entry : nodes.entrySet()) {
             int size = entry.getValue().nodes.size();
             double sum = 0;
             double[] random = new double[size];
-            for(int i = 0; i < size; i++) {
+            for (int i = 0; i < size; i++) {
                 random[i] = Math.random();
                 sum += random[i];
             }
-            for(int i = 0; i < size; i++) {
+            for (int i = 0; i < size; i++) {
                 random[i] /= sum;
             }
             int i = 0;
-            for(Node<T, U> toNode: entry.getValue().getNodes()) {
+            for (Node<T, U> toNode : entry.getValue().getNodes()) {
                 matrixA.put(entry.getValue(), toNode, random[i++]);
             }
         }
@@ -420,7 +500,7 @@ public class HMM<T, U> implements Serializable {
     private String initialNodes() {
         StringBuffer sb = new StringBuffer();
 
-        for(Node<T, U> node: initialNodes.keySet()) {
+        for (Node<T, U> node : initialNodes.keySet()) {
             sb.append(node.id + "=");
             sb.append(initialNodes.get(node) + ", ");
         }
@@ -428,23 +508,23 @@ public class HMM<T, U> implements Serializable {
         return sb.toString();
     }
 
-    private Node<T,U> getInitialNode() {
+    private Node<T, U> getInitialNode() {
         double acc = 0;
-        Map<Node<T,U>, Double> tmp = new LinkedHashMap<>();
+        Map<Node<T, U>, Double> tmp = new LinkedHashMap<>();
 
-        for(Map.Entry<Node<T,U>, Double> node: initialNodes.entrySet()) {
+        for (Map.Entry<Node<T, U>, Double> node : initialNodes.entrySet()) {
             acc += node.getValue();
             tmp.put(node.getKey(), acc);
         }
 
-        Map<Node<T,U>, Double> tmpNormalized = new LinkedHashMap<>();
+        Map<Node<T, U>, Double> tmpNormalized = new LinkedHashMap<>();
 
-        for (Map.Entry<Node<T,U>, Double> node: tmp.entrySet()) {
-            tmpNormalized.put(node.getKey(), tmp.get(node.getKey())/acc);
+        for (Map.Entry<Node<T, U>, Double> node : tmp.entrySet()) {
+            tmpNormalized.put(node.getKey(), tmp.get(node.getKey()) / acc);
         }
 
         double probability = Math.random();
-        Map.Entry<Node<T,U>, Double> entry = tmpNormalized.entrySet().stream()
+        Map.Entry<Node<T, U>, Double> entry = tmpNormalized.entrySet().stream()
                 .filter(e -> e.getValue() > probability)
                 .findFirst()
                 .get();
@@ -470,20 +550,20 @@ public class HMM<T, U> implements Serializable {
                 .orElse(null);
         sequence.add(current.emitter.getSymbolMaxProbability());
 
-        double emitterProbability = current.emitter.maxProbability();
+        double emitterProbability = current.emitter.getMaxProbability();
 //        System.out.println("Emitter probability: " + emitterProbability);
         result = maxInit * emitterProbability;
 //        result = 1;
 
         Node<T, U> next;
-        for(int i = 0; i < sequenceLength-1; i++) {
+        for (int i = 0; i < sequenceLength - 1; i++) {
             final double partial;
             partial = current.nodes.entrySet()
                     .stream()
                     .mapToDouble(entry -> entry.getValue())
                     .max()
                     .orElse(0);
-            emitterProbability = current.emitter.maxProbability();
+            emitterProbability = current.emitter.getMaxProbability();
             current = current.nodes.entrySet()
                     .stream()
                     .filter(entry -> entry.getValue() >= maxInit)

@@ -83,7 +83,7 @@ public class EnvironmentTest {
     void allMeasuresTest() throws IOException {
 //        Environment environment = Environment.readEnvironmentFromFile("hmm_5_iterations_2_states.bin");
 //        Environment environment = Environment.readEnvironmentFromFile("hmm.bin");
-        Environment environment = Environment.readEnvironmentFromFile("hmm_with_max.bin");
+        Environment environment = Environment.readEnvironmentFromFile("hmm_with_max_10_iterations.bin");
 //        Environment environment = Environment.readEnvironmentFromFile("hmm_20_iterations.bin");
 //        Environment environment = Environment.readEnvironmentFromFile("hmm_5_iterations_2_states_random_1.bin");
 //        Environment environment = Environment.readEnvironmentFromFile("hmm_5_iterations_2_states_random_1_emilio_2.bin");
@@ -98,7 +98,7 @@ public class EnvironmentTest {
         Matrix<String, String, Integer> confusion = new Matrix<>();
         long total = 0, success = 0;
         String estimatedLocation = "";
-        int step = 5;
+        int step = 10;
         for(String location: locations) {
             for (String wap : waps) {
                 allMeasures.put(wap, csvReader.getDataLocationWAP(location, wap));
@@ -187,7 +187,7 @@ public class EnvironmentTest {
 
     private void storeEnvironment(Environment environment) {
         try {
-            FileOutputStream fos = new FileOutputStream("hmm_with_max.bin");
+            FileOutputStream fos = new FileOutputStream("hmm_with_max_10_iterations.bin");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(environment);
             oos.close();

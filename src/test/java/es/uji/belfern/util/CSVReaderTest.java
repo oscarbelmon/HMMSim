@@ -43,7 +43,13 @@ class CSVReaderTest {
         TabulatedCSVProbabilityEmitter emitter1Despacho = new TabulatedCSVProbabilityEmitter<Integer>(firstDespacho);
         TabulatedCSVProbabilityEmitter emitter2Despacho = new TabulatedCSVProbabilityEmitter<Integer>(secondDespacho);
 
-        HMM<String, Integer> hmmDespacho = new HMM<>();
+        List<Integer> symbols = new ArrayList<>();
+        symbols.addAll(firstDespacho);
+        symbols.addAll(secondDespacho);
+        symbols = symbols.stream()
+                .distinct()
+                .collect(Collectors.toList());
+        HMM<String, Integer> hmmDespacho = new HMM<>(symbols);
 
         Node<String, Integer> a = hmmDespacho.instanceNode("a", emitter1Despacho);
         Node<String, Integer> b = hmmDespacho.instanceNode("b", emitter2Despacho);
@@ -77,7 +83,13 @@ class CSVReaderTest {
         TabulatedCSVProbabilityEmitter emitter1Dormitorio = new TabulatedCSVProbabilityEmitter(firstDormitorio);
         TabulatedCSVProbabilityEmitter emitter2Dormitorio = new TabulatedCSVProbabilityEmitter(secondDormitorio);
 
-        HMM<String, Integer> hmmDormitorio = new HMM<>();
+        symbols = new ArrayList<>();
+        symbols.addAll(firstDespacho);
+        symbols.addAll(secondDespacho);
+        symbols = symbols.stream()
+                .distinct()
+                .collect(Collectors.toList());
+        HMM<String, Integer> hmmDormitorio = new HMM<>(symbols);
 
         a = hmmDormitorio.instanceNode("a", emitter1Dormitorio);
         b = hmmDormitorio.instanceNode("b", emitter2Dormitorio);

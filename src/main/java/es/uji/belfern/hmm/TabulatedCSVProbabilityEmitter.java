@@ -55,7 +55,7 @@ public class TabulatedCSVProbabilityEmitter<T> implements Emitter<T> {
     }
 
     @Override
-    public double maxProbability() {
+    public double getMaxProbability() {
         return maxProbability;
     }
 

@@ -1,8 +1,10 @@
 package es.uji.belfern.hmm;
 
+import java.util.List;
+
 public class MarkovChain<T> extends HMM<T, T> {
-    public MarkovChain() {
-        super();
+    public MarkovChain(List<T> symbols) {
+        super(symbols);
     }
 
 //    @Override
@@ -19,7 +21,7 @@ public class MarkovChain<T> extends HMM<T, T> {
 //        return instanceInitialNode(id, () -> id);
 //    }
 
-    Node<T, T> instanceNode(T id) {
-        return instanceNode(id, () -> id);
-    }
+//    Node<T, T> instanceNode(T id) {
+//        return instanceNode(id, () -> id);
+//    }
 }

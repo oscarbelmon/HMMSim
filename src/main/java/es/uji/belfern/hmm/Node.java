@@ -13,14 +13,18 @@ public class Node<T, U> implements Serializable {
     private Map<Node<T, U>, Double> incomingNodes; // Probability for comming from any other node to this node.
     Emitter<U> emitter; // Probability density function for observations
     private List<Double> alfas;
+    private List<Double> alfasMax;
     double alfa;
     double alfaPrevious = 1;
+    double alfaMax;
+    double alfaPreviousMax = 1;
     List<Viterbi> viterbiPath;
     double viterbi;
     double viterbiPrevious;
     private List<Double> betas;
     double beta;
     double betaNext = 1;
+    List<U> maxSymbols = new ArrayList<>();
 
     Node(T id, Emitter<U> emitter) {
         if(emitter == null) throw new IllegalArgumentException("Emitter can not be null");
@@ -31,6 +35,7 @@ public class Node<T, U> implements Serializable {
         nodes = new LinkedHashMap<>();
         incomingNodes = new LinkedHashMap<>();
         alfas = new ArrayList<>();
+        alfasMax = new ArrayList<>();
         viterbiPath = new ArrayList<>();
         betas = new ArrayList<>();
     }
@@ -113,7 +118,19 @@ public class Node<T, U> implements Serializable {
 
 //        System.out.println("getAlfaProbabilityForSymbol " + id + " " + symbol + " " + result);
 
-        return alfa = result;
+//        return alfa = result;
+        return result;
+    }
+
+    double getAlfaMaxProbability() {
+        double result = 0;
+        double symbolMaxProbability = emitter.getMaxProbability();
+
+        for(Edge<T,U> edge: incomingEdges.keySet()) {
+            result += edge.start.alfaPreviousMax * symbolMaxProbability * incomingEdges.get(edge);
+        }
+
+        return result;
     }
 
     double getBetaProbabilityForSymbol(U symbol) { // This is beta in Reference [1]
@@ -151,6 +168,12 @@ public class Node<T, U> implements Serializable {
     void stepForward() {
         alfaPrevious = alfa;
         alfas.add(alfa);
+    }
+
+    void stepForwardMax(U symbol) {
+        alfaPreviousMax = alfaMax;
+        alfasMax.add(alfaMax);
+        maxSymbols.add(symbol);
     }
 
     void stepBackward() {

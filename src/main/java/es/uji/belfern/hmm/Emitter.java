@@ -8,6 +8,6 @@ public interface Emitter<T> extends Serializable {
     default double getSymbolProbability(T symbol) {
         return 1;
     }
-    double maxProbability();
+    double getMaxProbability();
     T getSymbolMaxProbability();
 }
