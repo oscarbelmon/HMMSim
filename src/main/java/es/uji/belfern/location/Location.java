@@ -84,26 +84,26 @@ public class Location implements Serializable {
 
     double estimateLocationProbability(Map<String, List<Integer>> measures) {
 //        double getMaxProbability = Double.MIN_VALUE;
-        double totalLogProbability = 0;
-        double logProbability = 0;
-        double maxProbability, probability = 0;
+        double totalLogProbability = 1;
+        double probability = 1;
         for(String wap: measures.keySet()) {
             if(hmms.get(wap) != null) {
 //                maxProbability = hmms.get(wap).maxProbability(measures.size());
-                maxProbability = hmms.get(wap).sequenceWithMaxProbability(measures.size());
-                probability = hmms.get(wap).forward(measures.get(wap));
+//                maxProbability = hmms.get(wap).sequenceWithMaxProbability(measures.size());
+                probability *= hmms.get(wap).forward(measures.get(wap));
 //                logProbability = Math.log(hmms.get(wap).forward(measures.get(wap)) / getMaxProbability);
-                logProbability = Math.log(probability / maxProbability);
-            System.out.println("Probability: " + probability + ", getMaxProbability: " + maxProbability);
+//                logProbability = Math.log(probability / maxProbability);
+//            System.out.println("Probability: " + probability + ", getMaxProbability: " + maxProbability);
 //                totalLogProbability += logProbability;
-                totalLogProbability *= probability;
+//                totalLogProbability *= probability;
 //                if (logProbability > getMaxProbability) getMaxProbability = logProbability;
             }
         }
-        System.out.println("Total probability: " + totalLogProbability);
-        System.out.println("---");
+//        System.out.println("Total probability: " + Math.log(probability));
+//        System.out.println("---");
 
-        return totalLogProbability;
+//        return totalLogProbability;
 //        return getMaxProbability;
+        return probability;
     }
 }

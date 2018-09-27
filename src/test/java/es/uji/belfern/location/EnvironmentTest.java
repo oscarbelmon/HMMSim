@@ -98,7 +98,7 @@ public class EnvironmentTest {
         Matrix<String, String, Integer> confusion = new Matrix<>();
         long total = 0, success = 0;
         String estimatedLocation = "";
-        int step = 10;
+        int step = 5;
         for(String location: locations) {
             for (String wap : waps) {
                 allMeasures.put(wap, csvReader.getDataLocationWAP(location, wap));

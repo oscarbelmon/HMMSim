@@ -190,12 +190,6 @@ public class HMM<T, U> implements Serializable {
         double probability;
         for (int i = 1; i < length; i++) {
             probabilitySymbols = new ArrayList<>();
-//            for (U symbol : symbols) {
-//                for (Node<T, U> node : nodes.values()) {
-//                    probability = node.getAlfaProbabilityForSymbol(symbol);
-//                    probabilitySymbols.add(new Maximum(symbol, probability));
-//                }
-//            }
 
             for (Node<T, U> node: nodes.values()) {
                 for(U symbol: symbols) {
@@ -208,17 +202,6 @@ public class HMM<T, U> implements Serializable {
                 node.alfaMax = node.getAlfaProbabilityForSymbol(max.symbol);
                 node.maxSymbols.add(max.symbol);
             }
-
-//            Maximum max = probabilitySymbols.stream()
-//                    .max((a, b) -> a.probability > b.probability? 1 : 0)
-//                    .get();
-//            for (Node<T, U> node : nodes.values()) {
-//                node.alfaMax = node.getAlfaProbabilityForSymbol(max.symbol);
-//            }
-//
-//            for (Node<T, U> node : nodes.values()) {
-//                node.stepForwardMax(max.symbol);
-//            }
         }
     }
 
