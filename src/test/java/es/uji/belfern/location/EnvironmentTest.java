@@ -17,10 +17,13 @@ import java.util.List;
 import java.util.Map;
 
 public class EnvironmentTest {
-    private String trainDataFile = "train_emilio.csv";
+//    private String trainDataFile = "train_emilio.csv";
+    private String trainDataFile = "train_oscar.csv";
     private String headerClassName = "label";
     private static Map<String, List<Integer>> zeroMeasures = new HashMap<>();
     private static Map<String, List<Integer>> oneMeasures = new HashMap<>();
+//    private static String fileOutputName = "hmm_5_iteration_3_states_radom_0.bin";
+    private static String fileOutputName = "oscar.bin";
 
     @BeforeAll
     static void setUp() {
@@ -81,15 +84,9 @@ public class EnvironmentTest {
 
     @Test
     void allMeasuresTest() throws IOException {
-//        Environment environment = Environment.readEnvironmentFromFile("hmm_5_iterations_2_states.bin");
-//        Environment environment = Environment.readEnvironmentFromFile("hmm.bin");
-        Environment environment = Environment.readEnvironmentFromFile("hmm_with_max_10_iterations.bin");
-//        Environment environment = Environment.readEnvironmentFromFile("hmm_20_iterations.bin");
-//        Environment environment = Environment.readEnvironmentFromFile("hmm_5_iterations_2_states_random_1.bin");
-//        Environment environment = Environment.readEnvironmentFromFile("hmm_5_iterations_2_states_random_1_emilio_2.bin");
+        Environment environment = Environment.readEnvironmentFromFile(fileOutputName);
         System.out.println(environment);
-//        Environment environment = jsonReadTest();
-        CSVReader csvReader = new CSVReader("test_emilio.csv", headerClassName);
+        CSVReader csvReader = new CSVReader("test_oscar.csv", headerClassName);
 //        CSVReader csvReader = new CSVReader("train_emilio.csv", headerClassName);
         List<String> waps = csvReader.getHeaderNames();
         List<String> locations = csvReader.getLocations();
@@ -98,7 +95,7 @@ public class EnvironmentTest {
         Matrix<String, String, Integer> confusion = new Matrix<>();
         long total = 0, success = 0;
         String estimatedLocation = "";
-        int step = 5;
+        int step = 20;
         for(String location: locations) {
             for (String wap : waps) {
                 allMeasures.put(wap, csvReader.getDataLocationWAP(location, wap));
@@ -187,7 +184,7 @@ public class EnvironmentTest {
 
     private void storeEnvironment(Environment environment) {
         try {
-            FileOutputStream fos = new FileOutputStream("hmm_with_max_10_iterations.bin");
+            FileOutputStream fos = new FileOutputStream(fileOutputName);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(environment);
             oos.close();
