@@ -416,10 +416,10 @@ public class HMM<T, U> implements Serializable {
 
     // Eq. 9.42 of [1]
 //    double gamma(Node<T, U> node, U symbol, List<U> symbols) {
-    double gamma(Node<T, U> node, int pos, List<U> symbols) {
-//        return numeratorGamma(node, symbol) / denominatorGamma(node, symbols);
-        return numeratorGamma(node, pos) / denominatorGamma(node, symbols);
-    }
+//    double gamma(Node<T, U> node, int pos, List<U> symbols) {
+////        return numeratorGamma(node, symbol) / denominatorGamma(node, symbols);
+//        return numeratorGamma(node, pos) / denominatorGamma(node, symbols);
+//    }
 
     double numeratorEmissionProbability(Node<T, U> node, U symbol, List<U> symbols) {
         double result = 0;
@@ -428,7 +428,7 @@ public class HMM<T, U> implements Serializable {
         for (int pos = 0; pos < symbols.size(); pos++) {
             if (symbol.equals(symbols.get(pos))) {
 //                result += gamma(node, pos, symbols);
-                result += numeratorGamma(node, pos);;
+                result += numeratorGamma(node, pos);
             }
         }
         result /= denominator;
@@ -448,13 +448,13 @@ public class HMM<T, U> implements Serializable {
         return result;
     }
 
-    double emissionProbabilityNodeSymbol(Node<T, U> node, U symbol, List<U> symbols) {
-        double result = 0;
-
-        result = numeratorEmissionProbability(node, symbol, symbols);// / denominatorEmissionProbability(node, symbols);
-
-        return result;
-    }
+//    double emissionProbabilityNodeSymbol(Node<T, U> node, U symbol, List<U> symbols) {
+//        double result = 0;
+//
+//        result = numeratorEmissionProbability(node, symbol, symbols) / denominatorEmissionProbability(node, symbols);
+//
+//        return result;
+//    }
 
     void estimateEmissions(List<U> symbols) {
         double emissionProbability = 0;
@@ -462,8 +462,6 @@ public class HMM<T, U> implements Serializable {
             Node<T, U> node = entry.getValue();
             double denominator = denominatorEmissionProbability(node, symbols);
             for (U symbol : symbols) {
-//                System.out.println("Symbol: " + symbol);
-//                emissionProbability = emissionProbabilityNodeSymbol(node, symbol, symbols);
                 emissionProbability = numeratorEmissionProbability(node, symbol, symbols) / denominator;
                 matrixEmissions.put(node, symbol, emissionProbability);
             }
