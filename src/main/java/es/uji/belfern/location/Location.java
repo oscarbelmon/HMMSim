@@ -30,8 +30,8 @@ public class Location implements Serializable {
 
     HMM<String, Integer> createHMMForWAP(List<Integer> wapReadings) {
         Random random = new Random(0);
-//        int nodes = random.nextInt(3) + 2;
-        int nodes = 3;
+//        int nodes = random.nextInt(3) + 5;
+        int nodes = 2;
         System.out.println(", nodes: " + nodes);
         TabulatedCSVProbabilityEmitter emitter = new TabulatedCSVProbabilityEmitter(wapReadings);
         List<Integer> symbols = wapReadings.stream()

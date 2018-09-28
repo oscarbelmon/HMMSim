@@ -19,6 +19,7 @@ import java.util.Map;
 public class EnvironmentTest {
 //    private String trainDataFile = "train_emilio.csv";
     private String trainDataFile = "train_emilio.csv";
+    private String testDataFile = "test_emilio.csv";
     private String headerClassName = "label";
     private static Map<String, List<Integer>> zeroMeasures = new HashMap<>();
     private static Map<String, List<Integer>> oneMeasures = new HashMap<>();
@@ -70,7 +71,6 @@ public class EnvironmentTest {
     @Test
     void environmentTest() {
         Environment environment = new Environment(trainDataFile, headerClassName);
-//        environment.estimateLocationProbability(zeroMeasures);
         storeEnvironment(environment);
     }
 
@@ -86,7 +86,7 @@ public class EnvironmentTest {
     void allMeasuresTest() throws IOException {
         Environment environment = Environment.readEnvironmentFromFile(fileOutputName);
         System.out.println(environment);
-        CSVReader csvReader = new CSVReader("test_emilio.csv", headerClassName);
+        CSVReader csvReader = new CSVReader(testDataFile, headerClassName);
 //        CSVReader csvReader = new CSVReader("train_emilio.csv", headerClassName);
         List<String> waps = csvReader.getHeaderNames();
         List<String> locations = csvReader.getLocations();

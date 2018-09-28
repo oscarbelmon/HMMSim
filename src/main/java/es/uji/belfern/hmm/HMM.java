@@ -350,9 +350,7 @@ public class HMM<T, U> implements Serializable {
 
     // Probablity of being at state i at time t and state j at time t+1.
     // Page 15 of [1]
-//    double etha(Node<T, U> i, Node<T, U> j, U symbol) {
     double etha(Node<T, U> i, Node<T, U> j, int pos, U symbol, int symbolsSize) {
-//        double result = numEtha(i, j, symbol) / denEtha(i, j, symbol);
         double result = numEtha(i, j, pos, symbol) / denEtha(i, j, symbolsSize);
         ethaMatrix.put(i, j, result);
         return result;
@@ -398,28 +396,13 @@ public class HMM<T, U> implements Serializable {
                 forEach(node -> estimateAForNode(node, symbols));
     }
 
-    //    double numeratorGamma(Node<T, U> node, U symbol) {
     double numeratorGamma(Node<T, U> node, int pos) {
-        double result = 0;
-//        result = node.getAlfaProbabilityForSymbol(symbol) * node.getBetaProbabilityForSymbol(symbol);
-        result = node.getAlfas().get(pos) * node.getBetas().get(pos);
-//        System.out.println("Numerator gamma: " + result);
-        return result;
+        return node.getAlfas().get(pos) * node.getBetas().get(pos);
     }
 
     double denominatorGamma(Node<T, U> node, List<U> symbols) {
-        double result = 0;
-        result = denominatorEstimatedA(node, symbols);
-//        System.out.println("Denominator gamma: " + result);
-        return result;
+        return denominatorEstimatedA(node, symbols);
     }
-
-    // Eq. 9.42 of [1]
-//    double gamma(Node<T, U> node, U symbol, List<U> symbols) {
-//    double gamma(Node<T, U> node, int pos, List<U> symbols) {
-////        return numeratorGamma(node, symbol) / denominatorGamma(node, symbols);
-//        return numeratorGamma(node, pos) / denominatorGamma(node, symbols);
-//    }
 
     double numeratorEmissionProbability(Node<T, U> node, U symbol, List<U> symbols) {
         double result = 0;
@@ -427,7 +410,6 @@ public class HMM<T, U> implements Serializable {
         double denominator = denominatorGamma(node, symbols);
         for (int pos = 0; pos < symbols.size(); pos++) {
             if (symbol.equals(symbols.get(pos))) {
-//                result += gamma(node, pos, symbols);
                 result += numeratorGamma(node, pos);
             }
         }
@@ -440,21 +422,12 @@ public class HMM<T, U> implements Serializable {
         double result = 0;
 
         for (int pos = 0; pos < symbols.size(); pos++) {
-//            result += gamma(node, pos, symbols);
             result += numeratorGamma(node, pos);
         }
         result /=  denominatorGamma(node, symbols);
 
         return result;
     }
-
-//    double emissionProbabilityNodeSymbol(Node<T, U> node, U symbol, List<U> symbols) {
-//        double result = 0;
-//
-//        result = numeratorEmissionProbability(node, symbol, symbols) / denominatorEmissionProbability(node, symbols);
-//
-//        return result;
-//    }
 
     void estimateEmissions(List<U> symbols) {
         double emissionProbability = 0;

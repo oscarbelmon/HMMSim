@@ -574,7 +574,7 @@ public class HMMTest {
         List<String> observations = Arrays.asList("a", "c", "a", "b", "a", "a", "b", "c", "b", "b", "c", "c");
 
 //        System.out.println(hmm);
-        HMM<String, String> hmm2 = hmm.EM(emissionSet, observations, 10);
+        HMM<String, String> hmm2 = hmm.EM(emissionSet, observations, 100);
         System.out.println(hmm2);
     }
 
