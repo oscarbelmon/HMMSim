@@ -2,7 +2,6 @@ package es.uji.belfern.location;
 
 import es.uji.belfern.util.CSVReader;
 
-import java.beans.Transient;
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;

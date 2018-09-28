@@ -9,7 +9,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CSVReader {
@@ -58,7 +60,7 @@ public class CSVReader {
 
     private void readRecords(CSVParser csvParser) throws IOException {
         List<CSVRecord> records = csvParser.getRecords();
-        for(CSVRecord record: records) {
+        for (CSVRecord record : records) {
             rawData.add(record);
         }
     }
@@ -72,8 +74,8 @@ public class CSVReader {
     public List<Integer> getDataLocationWAP(String location, String wap) {
         List<Integer> result = new ArrayList<>();
 
-        for(CSVRecord record: rawData) {
-            if(location.equals(record.get(headerClassName))) {
+        for (CSVRecord record : rawData) {
+            if (location.equals(record.get(headerClassName))) {
                 result.add(Integer.parseInt(record.get(wap)));
             }
         }
@@ -81,4 +83,51 @@ public class CSVReader {
         return result;
     }
 
+    public List<Integer> getDataLocation(String location) {
+        List<Integer> result = new ArrayList<>();
+
+        for (CSVRecord record : rawData) {
+            if (location.equals(record.get(headerClassName))) {
+                for (String wap : headerNames) {
+                    result.add(Integer.parseInt(record.get(wap)));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public List<List<Integer>> getDataLocationAsLists(String location) {
+        List<List<Integer>> result = new ArrayList<>();
+        List<Integer> row;
+
+        for (CSVRecord record : rawData) {
+            if (location.equals(record.get(headerClassName))) {
+                row = new ArrayList<>();
+                for (String wap : headerNames) {
+                    row.add(Integer.parseInt(record.get(wap)));
+                }
+                result.add(row);
+            }
+        }
+
+        return result;
+    }
+
+//    public Map<String, List<Integer>> getAllDataAsLists() {
+//        Map<String, List<Integer>> result = new HashMap<>();
+//        List<Integer> row;
+//        String location;
+//
+//        for (CSVRecord record : rawData) {
+//            location = record.get(headerClassName);
+//            row = new ArrayList<>();
+//            for (String wap : headerNames) {
+//                row.add(Integer.parseInt(record.get(wap)));
+//            }
+//            result.put(location, row);
+//        }
+//
+//        return result;
+//    }
 }
