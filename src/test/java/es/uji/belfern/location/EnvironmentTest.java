@@ -23,7 +23,7 @@ public class EnvironmentTest {
     private static Map<String, List<Integer>> zeroMeasures = new HashMap<>();
     private static Map<String, List<Integer>> oneMeasures = new HashMap<>();
 //    private static String fileOutputName = "hmm_5_iteration_3_states_radom_0.bin";
-    private static String fileOutputName = "oscar.bin";
+    private static String fileOutputName = "kk.bin";
 
     @BeforeAll
     static void setUp() {

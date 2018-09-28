@@ -10,6 +10,10 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.core.Is.*;
+
 class CSVReaderTest {
 //    private final static String fileNameTrain = "oscar_train.csv";
 //    private final static String fileNameTest = "oscar_test.csv";
@@ -153,5 +157,14 @@ class CSVReaderTest {
     @Test
     public void stringGeneratorTest() {
         System.out.println(RandomStringUtils.randomAlphanumeric(10));
+    }
+
+    @Test
+    void getDataLocationTest() {
+        List<Integer> expected = Arrays.asList(0, 0, 0, -60, -88, 0, -80, 0, 0);
+        List<Integer> data = csvTrain.getDataLocation("zero");
+        assertThat(data.size(), is(900));
+        assertThat(data.subList(9, 18), is(expected));
+        System.out.println(data);
     }
 }

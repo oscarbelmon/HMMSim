@@ -191,13 +191,13 @@ public class HMM<T, U> implements Serializable {
         for (int i = 1; i < length; i++) {
             probabilitySymbols = new ArrayList<>();
 
-            for (Node<T, U> node: nodes.values()) {
-                for(U symbol: symbols) {
+            for (Node<T, U> node : nodes.values()) {
+                for (U symbol : symbols) {
                     probability = node.getAlfaProbabilityForSymbol(symbol);
                     probabilitySymbols.add(new Maximum(symbol, probability));
                 }
                 Maximum max = probabilitySymbols.stream()
-                        .max((a, b) -> a.probability > b.probability? 1 : -1)
+                        .max((a, b) -> a.probability > b.probability ? 1 : -1)
                         .get();
                 node.alfaMax = node.getAlfaProbabilityForSymbol(max.symbol);
                 node.maxSymbols.add(max.symbol);
@@ -285,7 +285,8 @@ public class HMM<T, U> implements Serializable {
         Node<T, U> node;
         for (Map.Entry<T, Node<T, U>> entry : nodes.entrySet()) {
             node = entry.getValue();
-            hmm.addInitialNode(hmm.nodes.get(node.id), initialNodes.get(node));
+            if (initialNodes.get(node) != null)
+                hmm.addInitialNode(hmm.nodes.get(node.id), initialNodes.get(node));
         }
 //        hmm.initialNodes = this.initialNodes;
     }
@@ -302,18 +303,24 @@ public class HMM<T, U> implements Serializable {
     }
 
     // Expectation maximization algorithm
-    public HMM<T, U> EM(List<U> emissionSet, List<U> observations, long interations) {
+    public HMM<T, U> EM(List<U> emissionSet, List<U> observations, long iterations) {
         HMM hmm = this;
-        for (int i = 0; i < interations; i++) {
+        for (int i = 0; i < iterations; i++) {
+//            System.out.println("Iteration: " + i);
+//            System.out.println("Forward.");
             hmm.forward(observations);
+//            System.out.println("Backward.");
             hmm.backward(observations);
 
+//            System.out.println("Matrix estimation.");
             hmm.estimateMatrixA(observations);
 //            System.out.println(hmm.matrixA);
 
+//            System.out.println("Emitions estimation");
             hmm.estimateEmissions(observations);
 //            System.out.println(hmm.matrixEmissions);
 
+//            System.out.println("Iterate.");
             hmm = hmm.iterate(emissionSet);
         }
         return hmm;
@@ -396,12 +403,14 @@ public class HMM<T, U> implements Serializable {
         double result = 0;
 //        result = node.getAlfaProbabilityForSymbol(symbol) * node.getBetaProbabilityForSymbol(symbol);
         result = node.getAlfas().get(pos) * node.getBetas().get(pos);
+//        System.out.println("Numerator gamma: " + result);
         return result;
     }
 
     double denominatorGamma(Node<T, U> node, List<U> symbols) {
         double result = 0;
         result = denominatorEstimatedA(node, symbols);
+//        System.out.println("Denominator gamma: " + result);
         return result;
     }
 
@@ -415,11 +424,14 @@ public class HMM<T, U> implements Serializable {
     double numeratorEmissionProbability(Node<T, U> node, U symbol, List<U> symbols) {
         double result = 0;
 
+        double denominator = denominatorGamma(node, symbols);
         for (int pos = 0; pos < symbols.size(); pos++) {
             if (symbol.equals(symbols.get(pos))) {
-                result += gamma(node, pos, symbols);
+//                result += gamma(node, pos, symbols);
+                result += numeratorGamma(node, pos);;
             }
         }
+        result /= denominator;
 
         return result;
     }
@@ -428,8 +440,10 @@ public class HMM<T, U> implements Serializable {
         double result = 0;
 
         for (int pos = 0; pos < symbols.size(); pos++) {
-            result += gamma(node, pos, symbols);
+//            result += gamma(node, pos, symbols);
+            result += numeratorGamma(node, pos);
         }
+        result /=  denominatorGamma(node, symbols);
 
         return result;
     }
@@ -437,7 +451,7 @@ public class HMM<T, U> implements Serializable {
     double emissionProbabilityNodeSymbol(Node<T, U> node, U symbol, List<U> symbols) {
         double result = 0;
 
-        result = numeratorEmissionProbability(node, symbol, symbols) / denominatorEmissionProbability(node, symbols);
+        result = numeratorEmissionProbability(node, symbol, symbols);// / denominatorEmissionProbability(node, symbols);
 
         return result;
     }
@@ -446,8 +460,11 @@ public class HMM<T, U> implements Serializable {
         double emissionProbability = 0;
         for (Map.Entry<T, Node<T, U>> entry : nodes.entrySet()) {
             Node<T, U> node = entry.getValue();
+            double denominator = denominatorEmissionProbability(node, symbols);
             for (U symbol : symbols) {
-                emissionProbability = emissionProbabilityNodeSymbol(node, symbol, symbols);
+//                System.out.println("Symbol: " + symbol);
+//                emissionProbability = emissionProbabilityNodeSymbol(node, symbol, symbols);
+                emissionProbability = numeratorEmissionProbability(node, symbol, symbols) / denominator;
                 matrixEmissions.put(node, symbol, emissionProbability);
             }
         }

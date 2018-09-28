@@ -487,6 +487,7 @@ public class HMMTest {
 
     @Test
     public void estimateMatrixATest() {
+        hmm = new HMM<>(Arrays.asList("a", "b", "c"));
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
         emitterOne.addEmission("a", 0.1137271);
         emitterOne.addEmission("b", 0.4645561);
@@ -532,6 +533,7 @@ public class HMMTest {
 
         System.out.println(hmm);
     }
+
     @Test
     public void EMTest() {
         hmm = new HMM<>(Arrays.asList("a", "b", "c"));

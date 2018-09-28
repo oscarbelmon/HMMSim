@@ -43,7 +43,8 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
 
     public void addEmission(T symbol, double probability) throws IllegalArgumentException{
         if(probability > 1 || probability < 0)
-            throw new IllegalArgumentException("Probability should a percentage between 0 and 1. Yours is: " + probability);
+            probability = 1;
+//            throw new IllegalArgumentException("Probability should a percentage between 0 and 1. Yours is: " + probability);
         accumulatedProbability += probability;
         probabilities.put(symbol, new Probability<>(symbol, probability, accumulatedProbability));
         if(minProbability > probability) minProbability = probability;
