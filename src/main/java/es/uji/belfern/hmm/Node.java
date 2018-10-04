@@ -12,7 +12,7 @@ public class Node<T, U> implements Serializable {
     Map<Node<T, U>, Double> nodes; // Probabilities for going from this node to other node.
     private Map<Node<T, U>, Double> incomingNodes; // Probability for comming from any other node to this node.
     Emitter<U> emitter; // Probability density function for observations
-    private List<Double> alfas;
+    List<Double> alfas;
     private List<Double> alfasMax;
     double alfa;
     double alfaPrevious = 1;
@@ -113,7 +113,11 @@ public class Node<T, U> implements Serializable {
 
         for(Edge<T,U> edge: incomingEdges.keySet()) {
 //            System.out.println(edge.start.alfaPrevious + " " + symbolProbability + " " + incomingEdges.get(edge));
-            result += edge.start.alfaPrevious * symbolProbability * incomingEdges.get(edge);
+                result += edge.start.alfaPrevious * symbolProbability * incomingEdges.get(edge);
+                if(Double.isNaN(result)) {
+                    System.out.println("Cachis");
+                    System.exit(0);
+                }
         }
 
 //        System.out.println("getAlfaProbabilityForSymbol " + id + " " + symbol + " " + result);

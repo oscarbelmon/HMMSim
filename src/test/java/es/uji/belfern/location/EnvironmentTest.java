@@ -17,14 +17,15 @@ import java.util.List;
 import java.util.Map;
 
 public class EnvironmentTest {
-//    private String trainDataFile = "train_emilio.csv";
-    private String trainDataFile = "train_emilio.csv";
-    private String testDataFile = "test_emilio.csv";
+    private String trainDataFile = "wifi_train.csv";
+    private String testDataFile = "wifi_test.csv";
+//    private String trainDataFile = "oscar_train.csv";
+//    private String testDataFile = "oscar_test.csv";
     private String headerClassName = "label";
     private static Map<String, List<Integer>> zeroMeasures = new HashMap<>();
     private static Map<String, List<Integer>> oneMeasures = new HashMap<>();
 //    private static String fileOutputName = "hmm_5_iteration_3_states_radom_0.bin";
-    private static String fileOutputName = "kk.bin";
+    private static String fileOutputName = "kk1.bin";
 
     @BeforeAll
     static void setUp() {
@@ -90,31 +91,39 @@ public class EnvironmentTest {
 //        CSVReader csvReader = new CSVReader("train_emilio.csv", headerClassName);
         List<String> waps = csvReader.getHeaderNames();
         List<String> locations = csvReader.getLocations();
+        List<String> trainLocations = environment.getLocations();
         Map<String, List<Integer>> allMeasures = new HashMap<>();
-        Map<String, List<Integer>> measures;
+//        Map<String, List<Integer>> measures;
+        Map<String, List<Integer>> measures = new HashMap<>();
         Matrix<String, String, Integer> confusion = new Matrix<>();
         long total = 0, success = 0;
         String estimatedLocation = "";
-        int step = 20;
+        int step = 19;
         for(String location: locations) {
-            for (String wap : waps) {
-                allMeasures.put(wap, csvReader.getDataLocationWAP(location, wap));
-            }
-            System.out.println("Size: " + allMeasures.get(waps.get(0)).size());
-            for(int i = 0; i < allMeasures.get(waps.get(0)).size()-step; i += 1) {
-                total++;
-                measures = new HashMap<>();
-                for(String wap: waps) {
-                    measures.put(wap, allMeasures.get(wap).subList(i, i+step));
+            if(trainLocations.contains(location)) {
+                for (String wap : waps) {
+                    allMeasures.put(wap, csvReader.getDataLocationWAP(location, wap));
                 }
-                estimatedLocation = environment.estimateLocationProbability(measures);
-                if(estimatedLocation.equals(location)) {
-                    success++;
+                System.out.println("Size: " + allMeasures.get(waps.get(0)).size());
+                for (int i = 0; i < allMeasures.get(waps.get(0)).size() - step; i += 1) {
+                    total++;
+//                    System.out.println(total);
+                    measures = new HashMap<>();
+                    for (String wap : waps) {
+                        measures.put(wap, allMeasures.get(wap).subList(i, i + step));
+                    }
+                    estimatedLocation = environment.estimateLocationProbability(measures);
+                    if (estimatedLocation.equals(location)) {
+                        success++;
+                    }
+                    int previous = 0;
+                    if (confusion.get(location, estimatedLocation) != null)
+                        previous = confusion.get(location, estimatedLocation);
+                    confusion.put(location, estimatedLocation, previous + 1);
+//                    for (String wap : waps) {
+//                        measures.remove(wap);
+//                    }
                 }
-                int previous = 0;
-                if(confusion.get(location, estimatedLocation) != null)
-                    previous = confusion.get(location, estimatedLocation);
-                confusion.put(location, estimatedLocation, previous+1);
             }
         }
         System.out.println("Total:" + total + ", success: " + success);

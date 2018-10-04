@@ -3,6 +3,7 @@ package es.uji.belfern.location;
 import es.uji.belfern.util.CSVReader;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,5 +75,9 @@ public class Environment implements Serializable {
         }
 //        System.out.println("---");
         return estimatedLocation;
+    }
+
+    public List<String> getLocations() {
+        return new ArrayList<>(locations.keySet());
     }
 }

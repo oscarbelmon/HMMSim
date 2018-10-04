@@ -31,7 +31,7 @@ public class Location implements Serializable {
     HMM<String, Integer> createHMMForWAP(List<Integer> wapReadings) {
         Random random = new Random(0);
 //        int nodes = random.nextInt(3) + 5;
-        int nodes = 2;
+        int nodes = 3;
         System.out.println(", nodes: " + nodes);
         TabulatedCSVProbabilityEmitter emitter = new TabulatedCSVProbabilityEmitter(wapReadings);
         List<Integer> symbols = wapReadings.stream()
@@ -47,9 +47,11 @@ public class Location implements Serializable {
 
         // Creates each edge
         String start, end;
-        double[] probabilities = new double[nodes];
-        double accum = 0;
+        double accum;
+        double[] probabilities;
         for(int i = 0; i < nodes; i++) {
+            accum = 0;
+            probabilities = new double[nodes];
             start = i + "";
             for(int j = 0; j < nodes; j++) {
                 probabilities[j] = random.nextDouble();
@@ -65,6 +67,8 @@ public class Location implements Serializable {
         }
 
         // Creates each initial node
+        probabilities = new double[nodes];
+        accum = 0;
         for(int i = 0; i < nodes; i++) {
             probabilities[i] = random.nextDouble();
             accum += probabilities[i];
@@ -81,7 +85,7 @@ public class Location implements Serializable {
                 .distinct()
                 .collect(Collectors.toList());
 
-        int iterations = 5;
+        int iterations = 10;
 
         HMM<String, Integer> hmmEstimated = hmm.EM(emissionSet, wapReadings, iterations);
         return hmmEstimated;
@@ -89,11 +93,14 @@ public class Location implements Serializable {
 
     double estimateLocationProbability(Map<String, List<Integer>> measures) {
         double probability = 1;
+//        double probability = 0;
         for(String wap: measures.keySet()) {
             if(hmms.get(wap) != null) {
                 probability *= hmms.get(wap).forward(measures.get(wap));
+//                probability += Math.log(hmms.get(wap).forward(measures.get(wap)));
             }
         }
+//        System.out.println("Probability: " + probability);
         return probability;
     }
 }

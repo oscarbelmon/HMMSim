@@ -39,24 +39,36 @@ public class HMM<T, U> implements Serializable {
     }
 
     public Edge<T, U> instanceEdge(Node<T, U> start, Node<T, U> end, ProbabilityDensityFunction pdf, double ratio) {
+        if(Double.isNaN(ratio)) {
+            System.out.println("Error");
+        }
         Edge<T, U> edge = new Edge<>(start, end, pdf);
         start.addEdge(edge, ratio);
         return edge;
     }
 
     public Edge<T, U> instanceEdge(Node<T, U> start, Node<T, U> end, double ratio) {
+        if(Double.isNaN(ratio)) {
+            System.out.println("Error");
+        }
         Edge<T, U> edge = new Edge<>(start, end, ProbabilityDensityFunction.CONSTANT_PROBABILITY);
         start.addEdge(edge, ratio);
         return edge;
     }
 
     public Edge<T, U> instanceEdge(String idStart, String idEnd, ProbabilityDensityFunction pdf, double ratio) {
+        if(Double.isNaN(ratio)) {
+            System.out.println("Error");
+        }
         Node<T, U> start = nodes.get(idStart);
         Node<T, U> end = nodes.get(idEnd);
         return instanceEdge(start, end, pdf, ratio);
     }
 
     public Edge<T, U> instanceEdge(T idStart, T idEnd, double ratio) {
+        if(Double.isNaN(ratio)) {
+            System.out.println("Error");
+        }
         Node<T, U> start = nodes.get(idStart);
         Node<T, U> end = nodes.get(idEnd);
         return instanceEdge(start, end, ProbabilityDensityFunction.CONSTANT_PROBABILITY, ratio);
@@ -123,13 +135,18 @@ public class HMM<T, U> implements Serializable {
     public double forward(List<U> symbols) {
         initializationForward(symbols.get(0));
         recursionForward(symbols);
-        return terminationForward();
+        double result = terminationForward();
+        if(Double.isNaN(result)) {
+            System.out.println("Otro cachis");
+        }
+        return result;
     }
 
     void initializationForward(U symbol) {
         nodes.values()//.stream()
                 .forEach(node -> {
                     if (initialNodes.get(node) != null) {
+                        node.alfas = new ArrayList<>();
                         node.alfa = node.alfaPrevious = node.emitter.getSymbolProbability(symbol) * initialNodes.get(node);
                     } else {
                         node.alfa = node.alfaPrevious = 0;
@@ -143,6 +160,7 @@ public class HMM<T, U> implements Serializable {
             for (Node<T, U> node : nodes.values()) {
 //                System.out.println(symbols.get(i));
                 node.alfa = node.getAlfaProbabilityForSymbol(symbols.get(i));
+//                System.out.println("Node.alfa: " + node.alfa);
             }
             for (Node<T, U> node : nodes.values()) {
                 node.stepForward();
@@ -257,12 +275,16 @@ public class HMM<T, U> implements Serializable {
     private void setEmissionsAndNodes(List<U> emissionSet, HMM<T, U> hmm) {
         Node<T, U> node;
         TabulatedProbabilityEmitter emitter;
+        double ratio;
         for (Map.Entry<T, Node<T, U>> entry : nodes.entrySet()) {
             node = entry.getValue();
             emitter = new TabulatedProbabilityEmitter();
             for (U symbol : emissionSet) {
 //                System.out.println("Emission: " + matrixEmissions.get(node, symbol));
-                emitter.addEmission(symbol, matrixEmissions.get(node, symbol));
+                if(Double.isNaN(matrixEmissions.get(node, symbol))) ratio = 0;
+                else ratio = matrixEmissions.get(node, symbol);
+//                emitter.addEmission(symbol, matrixEmissions.get(node, symbol));
+                emitter.addEmission(symbol, ratio);
             }
             hmm.instanceNode(node.id, emitter);
         }
@@ -271,12 +293,16 @@ public class HMM<T, U> implements Serializable {
     // Improve: each edge is set twice
     private void setTransitions(HMM<T, U> hmm) {
         Node<T, U> start, end;
+        double ratio;
         for (Map.Entry<T, Node<T, U>> entryStart : nodes.entrySet()) {
             start = entryStart.getValue();
             for (Map.Entry<T, Node<T, U>> entryEnd : nodes.entrySet()) {
                 end = entryEnd.getValue();
 //                System.out.println("Transition: " + matrixA.get(start, end));
-                hmm.instanceEdge(start.id, end.id, matrixA.get(start, end));
+                if(Double.isNaN(matrixA.get(start, end))) ratio = 0;
+                else ratio = matrixA.get(start, end);
+//                hmm.instanceEdge(start.id, end.id, matrixA.get(start, end));
+                hmm.instanceEdge(start.id, end.id, ratio);
             }
         }
     }
