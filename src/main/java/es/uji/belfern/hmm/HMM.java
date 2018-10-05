@@ -360,6 +360,13 @@ public class HMM<T, U> implements Serializable {
         double beta = j.getBetas().get(pos + 1);
         double result = alfa * aij * emission * beta;
 
+//        System.out.println("Alfa: " + alfa + ", aif: " + aij + ", emission: " + emission + ", beta: " + beta);
+
+        if(Double.isNaN(result)) {
+            System.out.println("Underflow");
+            System.exit(0);
+        }
+
         return result;
     }
 
@@ -369,6 +376,10 @@ public class HMM<T, U> implements Serializable {
 
         for (int pos = 0; pos < symbolsSize; pos++) {
             result += i.getAlfas().get(pos) * i.getBetas().get(pos);
+            if(Double.isNaN(result)) {
+                System.out.println("Underflow");
+                System.exit(0);
+            }
         }
 
         return result;
@@ -377,7 +388,11 @@ public class HMM<T, U> implements Serializable {
     // Probablity of being at state i at time t and state j at time t+1.
     // Page 15 of [1]
     double etha(Node<T, U> i, Node<T, U> j, int pos, U symbol, int symbolsSize) {
-        double result = numEtha(i, j, pos, symbol) / denEtha(i, j, symbolsSize);
+        double num = numEtha(i, j, pos, symbol);
+        double den = denEtha(i, j, symbolsSize);
+//        double result = numEtha(i, j, pos, symbol) / denEtha(i, j, symbolsSize);
+        double result = num / den;
+        System.out.println("Num: " + num + ", den: " + den + ", res: " + result);
         ethaMatrix.put(i, j, result);
         return result;
     }

@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 public class EnvironmentTest {
-    private String trainDataFile = "wifi_train.csv";
+//    private String trainDataFile = "wifi_train.csv";
+    private String trainDataFile = "wifi_wap1_2ef2.csv";
     private String testDataFile = "wifi_test.csv";
 //    private String trainDataFile = "oscar_train.csv";
 //    private String testDataFile = "oscar_test.csv";
@@ -25,7 +26,8 @@ public class EnvironmentTest {
     private static Map<String, List<Integer>> zeroMeasures = new HashMap<>();
     private static Map<String, List<Integer>> oneMeasures = new HashMap<>();
 //    private static String fileOutputName = "hmm_5_iteration_3_states_radom_0.bin";
-    private static String fileOutputName = "kk1.bin";
+    private static String fileOutputName = "kk_wap1_2ef2.bin";
+//    private static String fileOutputName = "kktodos.bin";
 
     @BeforeAll
     static void setUp() {
@@ -98,7 +100,7 @@ public class EnvironmentTest {
         Matrix<String, String, Integer> confusion = new Matrix<>();
         long total = 0, success = 0;
         String estimatedLocation = "";
-        int step = 19;
+        int step = 20;
         for(String location: locations) {
             if(trainLocations.contains(location)) {
                 for (String wap : waps) {
