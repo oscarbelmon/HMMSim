@@ -360,12 +360,9 @@ public class HMM<T, U> implements Serializable {
         double beta = j.getBetas().get(pos + 1);
         double result = alfa * aij * emission * beta;
 
-//        System.out.println("Alfa: " + alfa + ", aif: " + aij + ", emission: " + emission + ", beta: " + beta);
-
-        if(Double.isNaN(result)) {
-            System.out.println("Underflow");
-            System.exit(0);
-        }
+//        if(result == 0) {
+//            System.out.println("Alfa: " + alfa + ", aif: " + aij + ", emission: " + emission + ", beta: " + beta);
+//        }
 
         return result;
     }
@@ -376,10 +373,6 @@ public class HMM<T, U> implements Serializable {
 
         for (int pos = 0; pos < symbolsSize; pos++) {
             result += i.getAlfas().get(pos) * i.getBetas().get(pos);
-            if(Double.isNaN(result)) {
-                System.out.println("Underflow");
-                System.exit(0);
-            }
         }
 
         return result;
@@ -392,7 +385,7 @@ public class HMM<T, U> implements Serializable {
         double den = denEtha(i, j, symbolsSize);
 //        double result = numEtha(i, j, pos, symbol) / denEtha(i, j, symbolsSize);
         double result = num / den;
-        System.out.println("Num: " + num + ", den: " + den + ", res: " + result);
+//        System.out.println("Num: " + num + ", den: " + den + ", res: " + result);
         ethaMatrix.put(i, j, result);
         return result;
     }
