@@ -184,12 +184,12 @@ public class HMMTest {
         double one_zero = 0.6;
         double one_one = 1 - one_zero;
         double zero_one = 0.8;
-        double zero_zero = 1- zero_one;
-        double expectedRatio = zero_one/(one_zero + zero_one);
+        double zero_zero = 1 - zero_one;
+        double expectedRatio = zero_one / (one_zero + zero_one);
 
         HMM<String, Integer> hmmInt = new HMM<>(Arrays.asList(0, 1));
         TabulatedProbabilityEmitter<Integer> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission(1,1);
+        emitterOne.addEmission(1, 1);
         TabulatedProbabilityEmitter<Integer> emitterZero = new TabulatedProbabilityEmitter<>();
         emitterZero.addEmission(0, 1);
         Node<String, Integer> one = hmmInt.instanceNode("one", emitterOne);
@@ -246,7 +246,7 @@ public class HMMTest {
 //        HMM<String, Integer> hmmInt = new HMM<>();
 
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission("One",1);
+        emitterOne.addEmission("One", 1);
         emitterOne.addEmission("Two", 0);
         TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
         emitterTwo.addEmission("One", 0);
@@ -270,7 +270,7 @@ public class HMMTest {
     @Test
     public void terminationTest() {
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission("One",1);
+        emitterOne.addEmission("One", 1);
         emitterOne.addEmission("Two", 0);
         TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
         emitterTwo.addEmission("One", 0);
@@ -299,7 +299,7 @@ public class HMMTest {
     public void forwardTest() {
         hmm = new HMM<>(Arrays.asList("One", "Two"));
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission("One",.4);
+        emitterOne.addEmission("One", .4);
         emitterOne.addEmission("Two", .6);
         TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
         emitterTwo.addEmission("One", .5);
@@ -313,7 +313,7 @@ public class HMMTest {
         hmm.addInitialNode(one, 0.7);
         hmm.addInitialNode(two, 0.3);
 
-        hmm.forward(Arrays.asList("One","Two","One","Two","One","Two","One","One","One","Two","Two"));
+        hmm.forward(Arrays.asList("One", "Two", "One", "Two", "One", "Two", "One", "One", "One", "Two", "Two"));
 
         double[] expectedOne = {0.28, 0.1236, 0.054688, 0.03622656, 0.01164820, 0.010092159, 0.002671085, 0.001828432, 0.0005736483, 0.0005076615, 0.0001985950};
         assertArrayEquals(expectedOne, ArrayUtils.toPrimitive(one.getAlfas().toArray(new Double[0])), 0.001);
@@ -322,7 +322,7 @@ public class HMMTest {
         assertArrayEquals(expectedTwo, ArrayUtils.toPrimitive(two.getAlfas().toArray(new Double[0])), 0.001);
 
         String[] expected = {"One", "Two", "One", "Two", "One", "Two", "One", "Two", "One", "Two"};
-        assertArrayEquals(expected, hmm.viterbi(Arrays.asList("One", "Two", "One", "Two", "Two","One","One","One","One","One")).toArray(new String[expected.length]));
+        assertArrayEquals(expected, hmm.viterbi(Arrays.asList("One", "Two", "One", "Two", "Two", "One", "One", "One", "One", "One")).toArray(new String[expected.length]));
     }
 
     @Test
@@ -343,7 +343,7 @@ public class HMMTest {
         hmm.addInitialNode(X, 0.3);
         hmm.addInitialNode(Y, 0.7);
 
-        hmm.backward(Arrays.asList("a","a","b"));
+        hmm.backward(Arrays.asList("a", "a", "b"));
 
         double[] expectedX = {0.202, 0.66, 1.0};
         assertArrayEquals(expectedX, ArrayUtils.toPrimitive(X.getBetas().toArray(new Double[0])), 0.001);
@@ -355,7 +355,7 @@ public class HMMTest {
     @Test
     public void viterbiTest() {
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission("One",.4);
+        emitterOne.addEmission("One", .4);
         emitterOne.addEmission("Two", .6);
         TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
         emitterTwo.addEmission("One", .5);
@@ -377,7 +377,7 @@ public class HMMTest {
     @Test
     public void viterbiTest2() {
         TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
-        emitterOne.addEmission("One",1);
+        emitterOne.addEmission("One", 1);
         emitterOne.addEmission("Two", 0);
         TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
         emitterTwo.addEmission("One", 0);
@@ -399,10 +399,11 @@ public class HMMTest {
 
         assertArrayEquals(expected, real);
     }
+
     @Test
     public void viterbiTest3() {
         TabulatedProbabilityEmitter<String> emitterH = new TabulatedProbabilityEmitter<>();
-        emitterH.addEmission("A",.2);
+        emitterH.addEmission("A", .2);
         emitterH.addEmission("C", .3);
         emitterH.addEmission("G", .3);
         emitterH.addEmission("T", .2);
@@ -422,7 +423,7 @@ public class HMMTest {
         hmm.addInitialNode(l, 0.5);
 
         String[] expected = {"H", "H", "H", "L", "L", "L", "L", "L", "L"};
-        String[] real = hmm.viterbi(Arrays.asList("G","G","C","A","C","T","G","A","A")).toArray(new String[expected.length]);
+        String[] real = hmm.viterbi(Arrays.asList("G", "G", "C", "A", "C", "T", "G", "A", "A")).toArray(new String[expected.length]);
         assertArrayEquals(expected, real);
     }
 
@@ -699,6 +700,160 @@ public class HMMTest {
         List<String> sequence = hmm2.nodeMax.maxSymbols;
         System.out.println(hmm2.nodeMax.maxSymbols);
         System.out.println(hmm2.forward(sequence));
+    }
+
+    @Test
+    void initializationForwardMaxTest() {
+        hmm = new HMM<>(Arrays.asList("a", "b", "c"));
+        TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
+        emitterOne.addEmission("a", 0.1137271);
+        emitterOne.addEmission("b", 0.4645561);
+        emitterOne.addEmission("c", 0.4217168);
+
+        TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
+        emitterTwo.addEmission("a", 0.2991603);
+        emitterTwo.addEmission("b", 0.2860711);
+        emitterTwo.addEmission("c", 0.4147685);
+
+        TabulatedProbabilityEmitter<String> emitterThree = new TabulatedProbabilityEmitter<>();
+        emitterThree.addEmission("a", 0.5178120);
+        emitterThree.addEmission("b", 0.2647543);
+        emitterThree.addEmission("c", 0.2174337);
+
+        Node<String, String> one = hmm.instanceNode("One", emitterOne);
+        Node<String, String> two = hmm.instanceNode("Two", emitterTwo);
+        Node<String, String> three = hmm.instanceNode("Three", emitterThree);
+
+        hmm.instanceEdge(one, one, 0.09660597);
+        hmm.instanceEdge(one, two, 0.3806887);
+        hmm.instanceEdge(one, three, 0.5227053);
+        hmm.instanceEdge(two, one, 0.23569230);
+        hmm.instanceEdge(two, two, 0.2162365);
+        hmm.instanceEdge(two, three, 0.5480712);
+        hmm.instanceEdge(three, one, 0.58003645);
+        hmm.instanceEdge(three, two, 0.2084311);
+        hmm.instanceEdge(three, three, 0.2115324);
+
+        hmm.addInitialNode(one, 0.1);
+        hmm.addInitialNode(two, 0.4);
+        hmm.addInitialNode(three, 0.5);
+
+        List<String> emissionSet = Arrays.asList("a", "b", "c");
+        List<String> observations = Arrays.asList("a", "c", "a", "b", "a", "a", "b", "c", "b", "b", "c", "c");
+
+//        System.out.println(hmm);
+        HMM<String, String> hmm2 = hmm.EM(emissionSet, observations, 10);
+        System.out.println(hmm2);
+
+//        System.out.println(hmm2.sequenceWithMaxProbability(5));
+//        List<String> sequence = hmm2.nodeMax.maxSymbols;
+//        System.out.println(hmm2.nodeMax.maxSymbols);
+//        System.out.println(hmm2.forward(sequence));
+
+        hmm.initializationForwardMax();
+    }
+
+    @Test
+    void initializationForwardMaxTest2() {
+        hmm = new HMM<>(Arrays.asList("a", "b"));
+        TabulatedProbabilityEmitter<String> emitterOne = new TabulatedProbabilityEmitter<>();
+        emitterOne.addEmission("a", 0.6);
+        emitterOne.addEmission("b", 0.4);
+
+        TabulatedProbabilityEmitter<String> emitterTwo = new TabulatedProbabilityEmitter<>();
+        emitterTwo.addEmission("a", 0.4);
+        emitterTwo.addEmission("b", 0.6);
+
+        Node<String, String> one = hmm.instanceNode("One", emitterOne);
+        Node<String, String> two = hmm.instanceNode("Two", emitterTwo);
+
+        hmm.instanceEdge(one, one, 0.7);
+        hmm.instanceEdge(one, two, 0.3);
+        hmm.instanceEdge(two, one, 0.2);
+        hmm.instanceEdge(two, two, 0.8);
+
+        hmm.addInitialNode(one, 0.6);
+        hmm.addInitialNode(two, 0.4);
+
+        hmm.initializationForward("a");
+        hmm.initializationForwardMax();
+        hmm.recursionForwardMax(3);
+
+//        System.out.println("a --> " + hmm.forward(Arrays.asList("a")));
+//        System.out.println("b --> " + hmm.forward(Arrays.asList("b")));
+//
+        System.out.println("a a -->" + hmm.forward(Arrays.asList("a", "a")));
+        System.out.println("a b -->" + hmm.forward(Arrays.asList("a", "b")));
+        System.out.println("b a -->" + hmm.forward(Arrays.asList("b", "a")));
+        System.out.println("b b -->" + hmm.forward(Arrays.asList("b", "b")));
+
+        System.out.println("a a a -->" + hmm.forward(Arrays.asList("a", "a", "a")));
+        System.out.println("a a b -->" + hmm.forward(Arrays.asList("a", "a", "b")));
+        System.out.println("a b a -->" + hmm.forward(Arrays.asList("a", "b", "a")));
+        System.out.println("a b b -->" + hmm.forward(Arrays.asList("a", "b", "b")));
+        System.out.println("b a a -->" + hmm.forward(Arrays.asList("b", "a", "a")));
+        System.out.println("b a b -->" + hmm.forward(Arrays.asList("b", "a", "b")));
+        System.out.println("b b a -->" + hmm.forward(Arrays.asList("b", "b", "a")));
+        System.out.println("b b b -->" + hmm.forward(Arrays.asList("b", "b", "b")));
+//
+        System.out.println("a a a a -->" + hmm.forward(Arrays.asList("a", "a", "a", "a")));
+        System.out.println("a a a b -->" + hmm.forward(Arrays.asList("a", "a", "a", "b")));
+        System.out.println("a a b a -->" + hmm.forward(Arrays.asList("a", "a", "b", "a")));
+        System.out.println("a a b b -->" + hmm.forward(Arrays.asList("a", "a", "b", "b")));
+        System.out.println("a b a a -->" + hmm.forward(Arrays.asList("a", "b", "a", "a")));
+        System.out.println("a b a b -->" + hmm.forward(Arrays.asList("a", "b", "a", "b")));
+        System.out.println("a b b a -->" + hmm.forward(Arrays.asList("a", "b", "b", "a")));
+        System.out.println("a b b b -->" + hmm.forward(Arrays.asList("a", "b", "b", "b")));
+        System.out.println("b a a a -->" + hmm.forward(Arrays.asList("b", "a", "a", "a")));
+        System.out.println("b a a b -->" + hmm.forward(Arrays.asList("b", "a", "a", "b")));
+        System.out.println("b a b a -->" + hmm.forward(Arrays.asList("b", "a", "b", "a")));
+        System.out.println("b a b b -->" + hmm.forward(Arrays.asList("b", "a", "b", "b")));
+        System.out.println("b b a a -->" + hmm.forward(Arrays.asList("b", "b", "a", "a")));
+        System.out.println("b b a b -->" + hmm.forward(Arrays.asList("b", "b", "a", "b")));
+        System.out.println("b b b a -->" + hmm.forward(Arrays.asList("b", "b", "b", "a")));
+        System.out.println("b b b b -->" + hmm.forward(Arrays.asList("b", "b", "b", "b")));
+//
+        System.out.println("a a a a a -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "a")));
+        System.out.println("a a a a b -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "b")));
+        System.out.println("a a a b a -->" + hmm.forward(Arrays.asList("a", "a", "a", "b", "a")));
+        System.out.println("a a a b b -->" + hmm.forward(Arrays.asList("a", "a", "a", "b", "b")));
+        System.out.println("a a b a a -->" + hmm.forward(Arrays.asList("a", "a", "b", "a", "a")));
+        System.out.println("a a b a b -->" + hmm.forward(Arrays.asList("a", "a", "b", "a", "b")));
+        System.out.println("a a b b a -->" + hmm.forward(Arrays.asList("a", "a", "b", "b", "a")));
+        System.out.println("a a b b b -->" + hmm.forward(Arrays.asList("a", "a", "b", "b", "b")));
+        System.out.println("a b a a a -->" + hmm.forward(Arrays.asList("a", "b", "a", "a", "a")));
+        System.out.println("a b a a b -->" + hmm.forward(Arrays.asList("a", "b", "a", "a", "b")));
+        System.out.println("a b a b a -->" + hmm.forward(Arrays.asList("a", "b", "a", "b", "a")));
+        System.out.println("a b a b b -->" + hmm.forward(Arrays.asList("a", "b", "a", "b", "b")));
+        System.out.println("a b b a a -->" + hmm.forward(Arrays.asList("a", "b", "b", "a", "a")));
+        System.out.println("a b b a b -->" + hmm.forward(Arrays.asList("a", "b", "b", "a", "b")));
+        System.out.println("a b b b a -->" + hmm.forward(Arrays.asList("a", "b", "b", "b", "a")));
+        System.out.println("a b b b b -->" + hmm.forward(Arrays.asList("a", "b", "b", "b", "b")));
+        System.out.println("b a a a a -->" + hmm.forward(Arrays.asList("b", "a", "a", "a", "a")));
+        System.out.println("b a a a b -->" + hmm.forward(Arrays.asList("b", "a", "a", "a", "b")));
+        System.out.println("b a a b a -->" + hmm.forward(Arrays.asList("b", "a", "a", "b", "a")));
+        System.out.println("b a a b b -->" + hmm.forward(Arrays.asList("b", "a", "a", "b", "b")));
+        System.out.println("b a b a a -->" + hmm.forward(Arrays.asList("b", "a", "b", "a", "a")));
+        System.out.println("b a b a b -->" + hmm.forward(Arrays.asList("b", "a", "b", "a", "b")));
+        System.out.println("b a b b a -->" + hmm.forward(Arrays.asList("b", "a", "b", "b", "a")));
+        System.out.println("b a b b b -->" + hmm.forward(Arrays.asList("b", "a", "b", "b", "b")));
+        System.out.println("b b a a a -->" + hmm.forward(Arrays.asList("b", "b", "a", "a", "a")));
+        System.out.println("b b a a b -->" + hmm.forward(Arrays.asList("b", "b", "a", "a", "b")));
+        System.out.println("b b a b a -->" + hmm.forward(Arrays.asList("b", "b", "a", "b", "a")));
+        System.out.println("b b a b b -->" + hmm.forward(Arrays.asList("b", "b", "a", "b", "b")));
+        System.out.println("b b b a a -->" + hmm.forward(Arrays.asList("b", "b", "b", "a", "a")));
+        System.out.println("b b b a b -->" + hmm.forward(Arrays.asList("b", "b", "b", "a", "b")));
+        System.out.println("b b b b a -->" + hmm.forward(Arrays.asList("b", "b", "b", "b", "a")));
+        System.out.println("b b b b b -->" + hmm.forward(Arrays.asList("b", "b", "b", "b", "b")));
+//
+//        System.out.println("a a a a a a -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "a", "a")));
+//        System.out.println("a a a a a b -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "a", "b")));
+//        System.out.println("b b a a a a -->" + hmm.forward(Arrays.asList("b", "b", "a", "a", "a", "a")));
+//        System.out.println("b b a a a b -->" + hmm.forward(Arrays.asList("b", "b", "a", "a", "a", "b")));
+//
+//        System.out.println("a a a a a a -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a")));
+//        System.out.println("a a a a a b -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "b")));
+
     }
 
 }

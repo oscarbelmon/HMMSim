@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class EnvironmentTest {
 //    private String trainDataFile = "wifi_train.csv";
-    private String trainDataFile = "wifi_train.csv";
+    private String trainDataFile = "wifi_train_1.csv";
     private String testDataFile = "wifi_test.csv";
 //    private String trainDataFile = "oscar_train.csv";
 //    private String testDataFile = "oscar_test.csv";

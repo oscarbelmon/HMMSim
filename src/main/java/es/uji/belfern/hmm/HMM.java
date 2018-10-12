@@ -14,6 +14,7 @@ public class HMM<T, U> implements Serializable {
     Matrix<Node<T, U>, U, Double> matrixEmissions;
     Node<T, U> nodeMax;
     List<U> symbols;
+    List<Maximum> maximums = new ArrayList<>();
 
     public HMM(List<U> symbols) {
         nodes = new LinkedHashMap<>();
@@ -143,7 +144,7 @@ public class HMM<T, U> implements Serializable {
     }
 
     void initializationForward(U symbol) {
-        nodes.values()//.stream()
+        nodes.values()
                 .forEach(node -> {
                     if (initialNodes.get(node) != null) {
                         node.alfas = new ArrayList<>();
@@ -171,8 +172,7 @@ public class HMM<T, U> implements Serializable {
     double terminationForward() {
         return nodes.values().stream()
                 .mapToDouble(node -> node.alfa)
-                .max()
-                .getAsDouble();
+                .sum();
     }
 
     // length is the number of symbols in the sequence
@@ -182,59 +182,82 @@ public class HMM<T, U> implements Serializable {
         return terminationForwardMax();
     }
 
-    private void initializationForwardMax() {
+    void initializationForwardMax() {
+        Map<U, Double> maximum = new HashMap<>();
+        double previous, current;
+
+        for(U symbol: symbols) {
+            maximum.put(symbol, 0.0);
+        }
+
+        for (U symbol : symbols) {
+            for (Node<T, U> node : nodes.values()) {
+                node.alfasMax = new ArrayList<>();
+                if (initialNodes.get(node) != null) {
+                    previous = maximum.get(symbol);
+                    current = node.emitter.getSymbolProbability(symbol) * initialNodes.get(node);
+//                    maximum.put(symbol, previous + node.emitter.getSymbolProbability(symbol) * initialNodes.get(node));
+                    maximum.put(symbol, previous + current);
+                    node.alfaMax = previous + current;
+                    System.out.println(node.emitter.getSymbolProbability(symbol) + ", " + initialNodes.get(node));
+                }
+                node.stepForwardMax();
+                node.stepForward();
+            }
+
+        }
+
+        Map.Entry<U, Double> max = maximum.entrySet().stream()
+                .max(Comparator.comparingDouble(Map.Entry::getValue))
+                .get();
+//        System.out.println(maximum);
+//        System.out.println(max);
+        maximums.add(new Maximum(max.getKey(), max.getValue()));
+//        initializationForward(max.getKey());
         nodes.values()
-                .forEach(node -> {
-                    if (initialNodes.get(node) != null) {
-                        node.alfaMax = node.alfaPreviousMax = node.emitter.getMaxProbability() * initialNodes.get(node);
-                    } else {
-                        node.alfaMax = node.alfaPreviousMax = 0;
-                    }
-                    node.stepForwardMax(node.emitter.getSymbolMaxProbability());
-                });
+//                .forEach(Node::stepForwardMax);
+                .forEach(Node::stepForward);
+
     }
 
-    private void recursionForwardMax(int length) {
-        class Maximum {
-            U symbol;
-            double probability;
+    void recursionForwardMax(int steps) {
 
-            Maximum(U symbol, double probability) {
-                this.symbol = symbol;
-                this.probability = probability;
+        for (int i = 0; i < steps; i++) {
+            Map<U, Double> maximum = new HashMap<>();
+            double previous, actual;
+
+            for(U symbol: symbols) {
+                maximum.put(symbol, 0.0);
             }
-        }
-        List<Maximum> probabilitySymbols;
-        double probability;
-        for (int i = 1; i < length; i++) {
-            probabilitySymbols = new ArrayList<>();
+
+            for(U symbol: symbols) {
+                for (Node<T, U> node : nodes.values()) {
+                    previous = maximum.get(symbol);
+                    actual = node.getAlfaProbabilityForSymbol(symbol);
+//                    System.out.println("Previous: " + previous + ", actual: " + actual);
+//                    maximum.put(symbol, previous + node.getAlfaProbabilityForSymbol(symbol));
+                    maximum.put(symbol, previous + actual);
+                }
+            }
+
+            Map.Entry<U, Double> max = maximum.entrySet().stream()
+                    .max(Comparator.comparingDouble(Map.Entry::getValue))
+                    .get();
+            System.out.println(max);
+            System.out.println("Maximum: " + maximum);
+            maximums.add(new Maximum(max.getKey(), max.getValue()));
+            recursionForward(Arrays.asList(max.getKey(), max.getKey()));
 
             for (Node<T, U> node : nodes.values()) {
-                for (U symbol : symbols) {
-                    probability = node.getAlfaProbabilityForSymbol(symbol);
-                    probabilitySymbols.add(new Maximum(symbol, probability));
-                }
-                Maximum max = probabilitySymbols.stream()
-                        .max((a, b) -> a.probability > b.probability ? 1 : -1)
-                        .get();
-                node.alfaMax = node.getAlfaProbabilityForSymbol(max.symbol);
-                node.maxSymbols.add(max.symbol);
+                node.stepForward();
+//                node.stepForwardMax();
             }
         }
+        System.out.println("Maximums: " + maximums);
     }
 
     double terminationForwardMax() {
-        double max = nodes.values().stream()
-                .mapToDouble(node -> node.alfaMax)
-                .max()
-                .getAsDouble();
-
-        nodeMax = nodes.values().stream()
-                .filter(node -> node.alfaMax >= max)
-                .findFirst()
-                .orElse(null);
-
-        return max;
+        return 0;
     }
 
     double backward(List<U> symbols) {
@@ -268,8 +291,7 @@ public class HMM<T, U> implements Serializable {
     double terminationBackward() {
         return nodes.values().stream()
                 .mapToDouble(node -> node.beta)
-                .max()
-                .getAsDouble();
+                .sum();
     }
 
     private void setEmissionsAndNodes(List<U> emissionSet, HMM<T, U> hmm) {
@@ -582,6 +604,25 @@ public class HMM<T, U> implements Serializable {
 //        return result;
         return forward(sequence);
     }
+
+    class Maximum {
+        U symbol;
+        double probability;
+
+        Maximum(U symbol, double probability) {
+            this.symbol = symbol;
+            this.probability = probability;
+        }
+
+        @Override
+        public String toString() {
+            return "{"
+                    + symbol +
+                    ", " + probability +
+                    '}';
+        }
+    }
+
 }
 // Bibliography
 // [1] Speech and Language Processing. Daniel Jurafsky et al. (Chapter 9)

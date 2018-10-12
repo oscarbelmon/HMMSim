@@ -13,7 +13,7 @@ public class Node<T, U> implements Serializable {
     private Map<Node<T, U>, Double> incomingNodes; // Probability for comming from any other node to this node.
     Emitter<U> emitter; // Probability density function for observations
     List<Double> alfas;
-    private List<Double> alfasMax;
+    List<Double> alfasMax;
     double alfa;
     double alfaPrevious = 1;
     double alfaMax;
@@ -174,10 +174,11 @@ public class Node<T, U> implements Serializable {
         alfas.add(alfa);
     }
 
-    void stepForwardMax(U symbol) {
+//    void stepForwardMax(U symbol) {
+    void stepForwardMax() {
         alfaPreviousMax = alfaMax;
         alfasMax.add(alfaMax);
-        maxSymbols.add(symbol);
+//        maxSymbols.add(symbol);
     }
 
     void stepBackward() {
