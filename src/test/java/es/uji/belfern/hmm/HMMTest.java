@@ -696,7 +696,6 @@ public class HMMTest {
         HMM<String, String> hmm2 = hmm.EM(emissionSet, observations, 10);
         System.out.println(hmm2);
 
-        System.out.println(hmm2.sequenceWithMaxProbability(5));
         List<String> sequence = hmm2.nodeMax.maxSymbols;
         System.out.println(hmm2.nodeMax.maxSymbols);
         System.out.println(hmm2.forward(sequence));
@@ -749,8 +748,6 @@ public class HMMTest {
 //        List<String> sequence = hmm2.nodeMax.maxSymbols;
 //        System.out.println(hmm2.nodeMax.maxSymbols);
 //        System.out.println(hmm2.forward(sequence));
-
-        hmm.initializationForwardMax();
     }
 
     @Test
@@ -776,8 +773,6 @@ public class HMMTest {
         hmm.addInitialNode(two, 0.4);
 
         hmm.initializationForward("a");
-        hmm.initializationForwardMax();
-        hmm.recursionForwardMax(3);
 
 //        System.out.println("a --> " + hmm.forward(Arrays.asList("a")));
 //        System.out.println("b --> " + hmm.forward(Arrays.asList("b")));
