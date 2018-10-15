@@ -14,10 +14,14 @@ public class Location implements Serializable {
     private transient final String locationName;
     private Map<String, HMM<String, Integer>> hmms = new HashMap<>();
     private transient Map<String, List<Integer>> readings;
+    private final int nodes;
+    private final int iterations;
 
-    public Location(String locationName, Map<String, List<Integer>> readings) {
+    public Location(String locationName, Map<String, List<Integer>> readings, final int nodes, final int iterations) {
         this.locationName = locationName;
         this.readings = readings;
+        this.nodes = nodes;
+        this.iterations = iterations;
         createHMMForAllWAP();
     }
 
@@ -31,7 +35,7 @@ public class Location implements Serializable {
     HMM<String, Integer> createHMMForWAP(List<Integer> wapReadings) {
         Random random = new Random(0);
 //        int nodes = random.nextInt(3) + 5;
-        int nodes = 2;
+//        int nodes = 2;
         System.out.println(", nodes: " + nodes);
         TabulatedCSVProbabilityEmitter emitter = new TabulatedCSVProbabilityEmitter(wapReadings);
         List<Integer> symbols = wapReadings.stream()
@@ -85,18 +89,22 @@ public class Location implements Serializable {
                 .distinct()
                 .collect(Collectors.toList());
 
-        int iterations = 10;
+//        int iterations = 5;
 
         HMM<String, Integer> hmmEstimated = hmm.EM(emissionSet, wapReadings, iterations);
+        hmmEstimated.findMaxTrellis(emissionSet, 5);
         return hmmEstimated;
     }
 
     double estimateLocationProbability(Map<String, List<Integer>> measures) {
-        double probability = 1;
+        double probability = 1, max, partial;
 //        double probability = 0;
         for(String wap: measures.keySet()) {
             if(hmms.get(wap) != null) {
-                probability *= hmms.get(wap).forward(measures.get(wap));
+                max = hmms.get(wap).maxTrellisProbability;
+                partial = hmms.get(wap).forward(measures.get(wap));
+                if(partial > max) hmms.get(wap).maxTrellisProbability = max = partial;
+                probability *= partial / max;
 //                probability += Math.log(hmms.get(wap).forward(measures.get(wap)));
                 if(Double.isNaN(probability)){
                     System.out.println("Unerflow");

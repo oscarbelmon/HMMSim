@@ -15,6 +15,7 @@ public class HMM<T, U> implements Serializable {
     Node<T, U> nodeMax;
     List<U> symbols;
     List<Maximum> maximums = new ArrayList<>();
+    public double maxTrellisProbability;
 
     public HMM(List<U> symbols) {
         nodes = new LinkedHashMap<>();
@@ -518,6 +519,16 @@ public class HMM<T, U> implements Serializable {
 //        System.out.println("Max probability: " + result);
 //        return result;
         return forward(sequence);
+    }
+
+    public void findMaxTrellis(List<U> emissionSet, int size) {
+        List<Double> max = new ArrayList<>();
+        for(int i = 0; i < emissionSet.size() - size; i++) {
+            max.add(forward(emissionSet.subList(i, i + size)));
+        }
+        maxTrellisProbability = max.stream()
+                .max(Double::compareTo)
+                .orElse(1.0);
     }
 
     class Maximum {

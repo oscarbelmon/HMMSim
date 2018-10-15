@@ -14,11 +14,11 @@ public class Environment implements Serializable {
     private transient String headerClassName;
     private transient CSVReader csvReader;
 
-    public Environment(String trainDataFile, String headerClassName) {
+    public Environment(String trainDataFile, String headerClassName, final int nodes, final int iterations) {
         this.trainDataFile = trainDataFile;
         this.headerClassName = headerClassName;
         readCSVData();
-        createLocations();
+        createLocations(nodes, iterations);
     }
 
     public static Environment readEnvironmentFromFile(String fileName) throws IOException {
@@ -39,14 +39,14 @@ public class Environment implements Serializable {
         throw new IOException("Something went wrong reading the file");
     }
 
-    private void createLocations() {
+    private void createLocations(final int nodes, final int iterations) {
         for(String location: csvReader.getLocations()) {
             System.out.println("Location: " + location);
-            locations.put(location, createLocation(location));
+            locations.put(location, createLocation(location, nodes, iterations));
         }
     }
 
-    private Location createLocation(String locationName) {
+    private Location createLocation(String locationName, final int nodes, final int iterations) {
         List<String> waps = csvReader.getHeaderNames();
         List<Integer> readings;
         Map<String, List<Integer>> data = new HashMap<>();
@@ -54,7 +54,7 @@ public class Environment implements Serializable {
             readings = csvReader.getDataLocationWAP(locationName,wap);
             data.put(wap, readings);
         }
-        Location location = new Location(locationName, data);
+        Location location = new Location(locationName, data, nodes, iterations);
 
         return location;
     }
@@ -63,7 +63,7 @@ public class Environment implements Serializable {
         csvReader = new CSVReader(trainDataFile, headerClassName);
     }
 
-    String estimateLocationProbability(Map<String, List<Integer>> measures) {
+    public String estimateLocationProbability(Map<String, List<Integer>> measures) {
         String estimatedLocation = "";
         double maximum = Integer.MIN_VALUE, current;
         for(String location: locations.keySet()) {
