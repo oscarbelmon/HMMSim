@@ -35,7 +35,6 @@ public class Location implements Serializable {
     HMM<String, Integer> createHMMForWAP(List<Integer> wapReadings) {
         Random random = new Random(0);
 //        int nodes = random.nextInt(3) + 5;
-//        int nodes = 2;
         System.out.println(", nodes: " + nodes);
         TabulatedCSVProbabilityEmitter emitter = new TabulatedCSVProbabilityEmitter(wapReadings);
         List<Integer> symbols = wapReadings.stream()
@@ -89,8 +88,6 @@ public class Location implements Serializable {
                 .distinct()
                 .collect(Collectors.toList());
 
-//        int iterations = 5;
-
         HMM<String, Integer> hmmEstimated = hmm.EM(emissionSet, wapReadings, iterations);
         hmmEstimated.findMaxTrellis(emissionSet, 5);
         return hmmEstimated;
@@ -98,7 +95,6 @@ public class Location implements Serializable {
 
     double estimateLocationProbability(Map<String, List<Integer>> measures) {
         double probability = 1, max, partial;
-//        double probability = 0;
         for(String wap: measures.keySet()) {
             if(hmms.get(wap) != null) {
                 max = hmms.get(wap).maxTrellisProbability;

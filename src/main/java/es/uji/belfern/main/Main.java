@@ -8,12 +8,15 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Main {
     private static final String HEADER_CLASS_NAME = "label";
+    private final NumberFormat f = new DecimalFormat("0.000");
 
     public static void main(String[] args) {
         if (args[0].equals("create")) {
@@ -44,7 +47,6 @@ public class Main {
     private void evaluateHMM(final String hmmFileName, final String testFileName, int step) {
         try {
             Environment environment = Environment.readEnvironmentFromFile(hmmFileName);
-//            System.out.println(environment);
             CSVReader csvReader = new CSVReader(testFileName, HEADER_CLASS_NAME);
             List<String> waps = csvReader.getHeaderNames();
             List<String> locations = csvReader.getLocations();
@@ -52,15 +54,19 @@ public class Main {
             Map<String, List<Integer>> allMeasures = new HashMap<>();
             Map<String, List<Integer>> measures = new HashMap<>();
             Matrix<String, String, Integer> confusion = new Matrix<>();
+            for(String row: locations) {
+                for(String column: locations) {
+                    confusion.put(row, column, 0);
+                }
+            }
             long total = 0, success = 0;
             String estimatedLocation = "";
-//            int step = 12;
             for (String location : locations) {
                 if (trainLocations.contains(location)) {
                     for (String wap : waps) {
                         allMeasures.put(wap, csvReader.getDataLocationWAP(location, wap));
                     }
-                    System.out.println("Size: " + allMeasures.get(waps.get(0)).size());
+//                    System.out.println("Size: " + allMeasures.get(waps.get(0)).size());
                     for (int i = 0; i < allMeasures.get(waps.get(0)).size() - step; i += 1) {
                         total++;
                         measures = new HashMap<>();
@@ -78,8 +84,8 @@ public class Main {
                     }
                 }
             }
-            System.out.println("Total:" + total + ", success: " + success);
-            System.out.println(success * 100.0 / total);
+            System.out.println("Total:" + total + ", success: " + success + " (" + f.format(success * 100.0 / total) + ")");
+//            System.out.printf("%.3f\n", success * 100.0 / total);
             System.out.println(confusion);
             metrics(confusion, locations);
         } catch (IOException e) {
@@ -88,9 +94,11 @@ public class Main {
     }
 
     private void metrics(final Matrix<String, String, Integer> confusion, final List<String> locations) {
-        long tp = 0, fn = 0, fp = 0, tn = 0;
+        long tp, fn, fp, tn;
         double accuracy, precision, sensitivity, f1;
+
         for (String location : locations) {
+            tp = fn = fp = tn = 0;
             if (confusion.get(location, location) != null)
                 tp = confusion.get(location, location);
             for (String estimate : locations) {
@@ -108,8 +116,10 @@ public class Main {
             precision = (double) tp / (double) (tp + fp);
             sensitivity = (double) tp / (double) (tp + fn);
             f1 = 2.0 * precision * sensitivity / (double) (precision + sensitivity);
-            System.out.println(location + ": TP: " + tp + ";  FN: " + fn + ";  FP: " + fp + ";  TN: " + tn +
-                    ";  accuracy: " + accuracy + ";  precision: " + precision + ";  f1-score: " + f1);
+//            System.out.println(location + ": TP: " + tp + ";  FN: " + fn + ";  FP: " + fp + ";  TN: " + tn +
+//                    ";  accuracy: " + accuracy + ";  precision: " + precision + ";  f1-score: " + f1);
+            System.out.println(location + "\t  accuracy: " + f.format(accuracy) + "\t  precision: " + f.format(precision) + "\t  sentivity: "
+                    + f.format(sensitivity) + "\t  f1-score: " + f.format(f1));
         }
     }
 }
