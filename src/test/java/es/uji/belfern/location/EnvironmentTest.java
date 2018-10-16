@@ -86,7 +86,7 @@ public class EnvironmentTest {
     void allMeasuresTest() throws IOException {
         Environment environment = Environment.readEnvironmentFromFile(fileOutputName);
         System.out.println(environment);
-        CSVReader csvReader = new CSVReader(testDataFile, headerClassName);
+        CSVReader csvReader = new CSVReader("test_emilio.csv", headerClassName);
 //        CSVReader csvReader = new CSVReader("train_emilio.csv", headerClassName);
         List<String> waps = csvReader.getHeaderNames();
         List<String> locations = csvReader.getLocations();

@@ -43,12 +43,10 @@ public class Location implements Serializable {
 
         HMM<String, Integer> hmm =  new HMM<>(symbols);
 
-        // Creates each node
         for(int i = 0; i < nodes; i++) {
             hmm.instanceNode(i+"", emitter);
         }
 
-        // Creates each edge
         String start, end;
         double accum;
         double[] probabilities;
