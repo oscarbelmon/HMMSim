@@ -27,7 +27,7 @@ public class Location implements Serializable {
 
     void createHMMForAllWAP() {
         for(String wap: readings.keySet()) {
-            System.out.print("WAP: " + wap);
+//            System.out.print("WAP: " + wap);
             hmms.put(wap, createHMMForWAP(readings.get(wap)));
         }
     }
@@ -35,7 +35,7 @@ public class Location implements Serializable {
     HMM<String, Integer> createHMMForWAP(List<Integer> wapReadings) {
         Random random = new Random(0);
 //        int nodes = random.nextInt(3) + 5;
-        System.out.println(", nodes: " + nodes);
+//        System.out.println(", nodes: " + nodes);
         TabulatedCSVProbabilityEmitter emitter = new TabulatedCSVProbabilityEmitter(wapReadings);
         List<Integer> symbols = wapReadings.stream()
                 .distinct()
@@ -101,14 +101,12 @@ public class Location implements Serializable {
                 partial = hmms.get(wap).forward(measures.get(wap));
                 if(partial > max) hmms.get(wap).maxTrellisProbability = max = partial;
                 probability *= partial / max;
-//                probability += Math.log(hmms.get(wap).forward(measures.get(wap)));
                 if(Double.isNaN(probability)){
                     System.out.println("Unerflow");
                     System.exit(0);
                 }
             }
         }
-//        System.out.println("Probability: " + probability);
         return probability;
     }
 }

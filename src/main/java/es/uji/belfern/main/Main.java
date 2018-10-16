@@ -10,13 +10,10 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Main {
     private static final String HEADER_CLASS_NAME = "label";
-    private final NumberFormat f = new DecimalFormat("0.000");
 
     public static void main(String[] args) {
         if (args[0].equals("create")) {
@@ -50,6 +47,7 @@ public class Main {
             CSVReader csvReader = new CSVReader(testFileName, HEADER_CLASS_NAME);
             List<String> waps = csvReader.getHeaderNames();
             List<String> locations = csvReader.getLocations();
+            Collections.sort(locations);
             List<String> trainLocations = environment.getLocations();
             Map<String, List<Integer>> allMeasures = new HashMap<>();
             Map<String, List<Integer>> measures = new HashMap<>();
@@ -66,7 +64,6 @@ public class Main {
                     for (String wap : waps) {
                         allMeasures.put(wap, csvReader.getDataLocationWAP(location, wap));
                     }
-//                    System.out.println("Size: " + allMeasures.get(waps.get(0)).size());
                     for (int i = 0; i < allMeasures.get(waps.get(0)).size() - step; i += 1) {
                         total++;
                         measures = new HashMap<>();
@@ -84,9 +81,8 @@ public class Main {
                     }
                 }
             }
-            System.out.println("Total:" + total + ", success: " + success + " (" + f.format(success * 100.0 / total) + ")");
-//            System.out.printf("%.3f\n", success * 100.0 / total);
-            System.out.println(confusion);
+            System.out.println("Total:" + total + ", success: " + success + " (" + (success * 100.0 / total) + "%)");
+            System.out.println(formatMatrix(confusion));
             metrics(confusion, locations);
         } catch (IOException e) {
             System.out.println("IO Error");
@@ -96,7 +92,10 @@ public class Main {
     private void metrics(final Matrix<String, String, Integer> confusion, final List<String> locations) {
         long tp, fn, fp, tn;
         double accuracy, precision, sensitivity, f1;
+        StringBuffer sb = new StringBuffer();
+        Formatter f = new Formatter(sb, Locale.US);
 
+        f.format("%12s%12s%12s%12s%12s\n", "", "Accuracy", "Precision", "Sensitivity", "F1-score");
         for (String location : locations) {
             tp = fn = fp = tn = 0;
             if (confusion.get(location, location) != null)
@@ -116,10 +115,33 @@ public class Main {
             precision = (double) tp / (double) (tp + fp);
             sensitivity = (double) tp / (double) (tp + fn);
             f1 = 2.0 * precision * sensitivity / (double) (precision + sensitivity);
-//            System.out.println(location + ": TP: " + tp + ";  FN: " + fn + ";  FP: " + fp + ";  TN: " + tn +
-//                    ";  accuracy: " + accuracy + ";  precision: " + precision + ";  f1-score: " + f1);
-            System.out.println(location + "\t  accuracy: " + f.format(accuracy) + "\t  precision: " + f.format(precision) + "\t  sentivity: "
-                    + f.format(sensitivity) + "\t  f1-score: " + f.format(f1));
+            f.format("%12s%12.3f%12.3f%12.3f%12.3f\n", location, accuracy, precision, sensitivity, f1);
         }
+        System.out.println(sb.toString());
     }
+
+    public String formatMatrix(Matrix<String, String, Integer> matrix) {
+        List<String> rows = new ArrayList<>(matrix.getRows());
+        Collections.sort(rows);
+
+        StringBuffer sb = new StringBuffer();
+        Formatter f = new Formatter(sb, Locale.US);
+
+        f.format("%12s", "");
+        for(String row: rows) {
+            f.format("%12s", row);
+        }
+        f.format("\n");
+
+        for(String row: rows) {
+            f.format("%12s", row);
+            for(String column: rows) {
+                f.format("%12d", matrix.get(row, column));
+            }
+            f.format("\n");
+        }
+
+        return sb.toString();
+    }
+
 }

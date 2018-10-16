@@ -11,10 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EnvironmentTest {
 //    private String trainDataFile = "wifi_train.csv";
@@ -71,11 +68,11 @@ public class EnvironmentTest {
         oneMeasures.put("i", intensities);
     }
 
-    @Test
-    void environmentTest() {
-        Environment environment = new Environment(trainDataFile, headerClassName);
-        storeEnvironment(environment);
-    }
+//    @Test
+//    void environmentTest() {
+//        Environment environment = new Environment(trainDataFile, headerClassName);
+//        storeEnvironment(environment);
+//    }
 
     @Test
     void readEnvironmentTest() throws IOException {
@@ -205,5 +202,14 @@ public class EnvironmentTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    void borrar() {
+        StringBuffer sb = new StringBuffer();
+        Formatter f = new Formatter(sb, Locale.US);
+        f.format("%.3f", 1.23456);
+        f.format("%.3f", 2.3456);
+        System.out.println(sb.toString());
     }
 }

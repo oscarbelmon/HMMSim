@@ -40,9 +40,13 @@ public class Environment implements Serializable {
     }
 
     private void createLocations(final int nodes, final int iterations) {
+        long start, end;
         for(String location: csvReader.getLocations()) {
-            System.out.println("Location: " + location);
+            System.out.print("Location: " + location);
+            start = System.currentTimeMillis();
             locations.put(location, createLocation(location, nodes, iterations));
+            end = System.currentTimeMillis();
+            System.out.println(", time: " + (end - start)/1000.0);
         }
     }
 
