@@ -16,6 +16,7 @@ public class HMM<T, U> implements Serializable {
     List<U> symbols;
     List<Maximum> maximums = new ArrayList<>();
     public double maxTrellisProbability;
+    List<Double> coso = new ArrayList<>();
 
     public HMM(List<U> symbols) {
         nodes = new LinkedHashMap<>();
@@ -138,9 +139,6 @@ public class HMM<T, U> implements Serializable {
         initializationForward(symbols.get(0));
         recursionForward(symbols);
         double result = terminationForward();
-        if(Double.isNaN(result)) {
-            System.out.println("Otro cachis");
-        }
         return result;
     }
 
@@ -153,8 +151,19 @@ public class HMM<T, U> implements Serializable {
                     } else {
                         node.alfa = node.alfaPrevious = 0;
                     }
-                    node.stepForward();
+//                    node.stepForward();
                 });
+
+        double sum = nodes.values().stream()
+                .mapToDouble(node -> node.alfa)
+                .sum();
+        coso.add(sum);
+
+//        nodes.values()
+//                .forEach(node -> node.stepForward());
+
+        nodes.values()
+                .forEach(node -> node.stepForward(sum));
     }
 
     void recursionForward(List<U> symbols) {
@@ -164,8 +173,17 @@ public class HMM<T, U> implements Serializable {
                 node.alfa = node.getAlfaProbabilityForSymbol(symbols.get(i));
 //                System.out.println("Node.alfa: " + node.alfa);
             }
+            double sum = 0;
+
+            for(Node<T, U> node: nodes.values()) {
+                sum += node.alfa;
+            }
+            coso.add(sum);
+
+            if(i == symbols.size() -1) sum = 1;
             for (Node<T, U> node : nodes.values()) {
-                node.stepForward();
+//                node.stepForward();
+                node.stepForward(sum);
             }
         }
     }
@@ -186,8 +204,15 @@ public class HMM<T, U> implements Serializable {
         nodes.values()
                 .forEach(node -> {
                     node.beta = node.betaNext = 1;
-                    node.stepBackward();
+//                    node.stepBackward();
                 });
+
+//        double sum = nodes.values().stream()
+//                .mapToDouble(node -> node.beta)
+//                .sum();
+
+        nodes.values()
+                .forEach(node -> node.stepBackward(coso.get(0)));
     }
 
     void recursionBackward(List<U> symbols) {
@@ -195,8 +220,14 @@ public class HMM<T, U> implements Serializable {
             for (Node<T, U> node : nodes.values()) {
                 node.getBetaProbabilityForSymbol(symbols.get(i));
             }
+
+//            double sum = 0;
+//            for (Node<T, U> node: nodes.values()) {
+//                sum += node.beta;
+//            }
+
             for (Node<T, U> node : nodes.values()) {
-                node.stepBackward();
+                node.stepBackward(coso.get(i));
             }
         }
         for (Node<T, U> node : nodes.values()) {

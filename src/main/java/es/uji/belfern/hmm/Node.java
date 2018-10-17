@@ -169,7 +169,9 @@ public class Node<T, U> implements Serializable {
         return viterbi;
     }
 
-    void stepForward() {
+//    void stepForward() {
+    void stepForward(double sum) {
+        alfa /= sum;
         alfaPrevious = alfa;
         alfas.add(alfa);
     }
@@ -181,7 +183,9 @@ public class Node<T, U> implements Serializable {
 //        maxSymbols.add(symbol);
     }
 
-    void stepBackward() {
+//    void stepBackward() {
+    void stepBackward(double sum) {
+        beta /= sum;
         betaNext = beta;
         betas.add(beta);
     }

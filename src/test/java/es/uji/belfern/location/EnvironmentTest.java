@@ -77,7 +77,7 @@ public class EnvironmentTest {
     @Test
     void readEnvironmentTest() throws IOException {
 //        Environment environment = readEnvironmentFile();
-        Environment environment = Environment.readEnvironmentFromFile("hmm.bin");
+        Environment environment = Environment.readEnvironmentFromFile("emilio_1.bin");
         environment.estimateLocationProbability(zeroMeasures);
         environment.estimateLocationProbability(oneMeasures);
     }
