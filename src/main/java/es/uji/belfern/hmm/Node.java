@@ -21,7 +21,7 @@ public class Node<T, U> implements Serializable {
     List<Viterbi> viterbiPath;
     double viterbi;
     double viterbiPrevious;
-    private List<Double> betas;
+    List<Double> betas;
     double beta;
     double betaNext = 1;
     List<U> maxSymbols = new ArrayList<>();
@@ -141,6 +141,7 @@ public class Node<T, U> implements Serializable {
         double result = 0;
 
         for(Edge<T, U> edge: edges.keySet()) {
+//            System.out.println(edge.end.betaNext);
             result += edge.end.betaNext * edge.end.emitter.getSymbolProbability(symbol) * edges.get(edge);
         }
 
@@ -183,7 +184,13 @@ public class Node<T, U> implements Serializable {
 //        maxSymbols.add(symbol);
     }
 
-//    void stepBackward() {
+    void stepForwardScaled() {
+        alfaPrevious = alfa;
+        alfas.add(alfa);
+    }
+
+
+    //    void stepBackward() {
     void stepBackward(double sum) {
         beta /= sum;
         betaNext = beta;

@@ -284,13 +284,13 @@ public class HMMTest {
 
         hmm.initializationForward("One");
         hmm.recursionForward(Arrays.asList("One", "Two", "One", "Two", "One", "Two"));
-        double probability = hmm.terminationForward();
+        double probability = hmm.terminationForward(6);
 
         assertEquals(1.0, probability, 0.0001);
 
         hmm.initializationForward("One");
         hmm.recursionForward(Arrays.asList("One", "Two", "One", "Two", "One", "One"));
-        probability = hmm.terminationForward();
+        probability = hmm.terminationForward(6);
 
         assertEquals(0.0, probability, 0.01);
     }
@@ -576,7 +576,12 @@ public class HMMTest {
 
 //        System.out.println(hmm);
         HMM<String, String> hmm2 = hmm.EM(emissionSet, observations, 100);
-        System.out.println(hmm2);
+        System.out.println(hmm2.forwardScaled(Arrays.asList("a", "a", "b")));
+        System.out.println(hmm2.forwardScaled(Arrays.asList("a", "b", "b")));
+        System.out.println(hmm2.forwardScaled(Arrays.asList("a", "a", "b")));
+        System.out.println(hmm2.forwardScaled(Arrays.asList("b", "a", "b")));
+
+//        System.out.println(hmm2);
     }
 
     @Test
@@ -771,76 +776,77 @@ public class HMMTest {
 
         hmm.addInitialNode(one, 0.6);
         hmm.addInitialNode(two, 0.4);
-
-        hmm.initializationForward("a");
+        hmm = hmm.EM(Arrays.asList("a", "b"), Arrays.asList("a", "b", "b", "a", "a", "a", "b", "a", "a", "b", "b", "b", "b", "a", "b"), 5);
+        System.out.println(hmm);
+//        hmm.initializationForwardScaled("a");
 
 //        System.out.println("a --> " + hmm.forward(Arrays.asList("a")));
 //        System.out.println("b --> " + hmm.forward(Arrays.asList("b")));
 //
-        System.out.println("a a -->" + hmm.forward(Arrays.asList("a", "a")));
-        System.out.println("a b -->" + hmm.forward(Arrays.asList("a", "b")));
-        System.out.println("b a -->" + hmm.forward(Arrays.asList("b", "a")));
-        System.out.println("b b -->" + hmm.forward(Arrays.asList("b", "b")));
+//        System.out.println("a a -->" + hmm.forward(Arrays.asList("a", "a")));
+//        System.out.println("a b -->" + hmm.forward(Arrays.asList("a", "b")));
+//        System.out.println("b a -->" + hmm.forward(Arrays.asList("b", "a")));
+//        System.out.println("b b -->" + hmm.forward(Arrays.asList("b", "b")));
 
-        System.out.println("a a a -->" + hmm.forward(Arrays.asList("a", "a", "a")));
-        System.out.println("a a b -->" + hmm.forward(Arrays.asList("a", "a", "b")));
-        System.out.println("a b a -->" + hmm.forward(Arrays.asList("a", "b", "a")));
-        System.out.println("a b b -->" + hmm.forward(Arrays.asList("a", "b", "b")));
-        System.out.println("b a a -->" + hmm.forward(Arrays.asList("b", "a", "a")));
-        System.out.println("b a b -->" + hmm.forward(Arrays.asList("b", "a", "b")));
-        System.out.println("b b a -->" + hmm.forward(Arrays.asList("b", "b", "a")));
-        System.out.println("b b b -->" + hmm.forward(Arrays.asList("b", "b", "b")));
+        System.out.println("a a a -->" + hmm.forwardScaled(Arrays.asList("a", "a", "a")));
+        System.out.println("a a b -->" + hmm.forwardScaled(Arrays.asList("a", "a", "b")));
+        System.out.println("a b a -->" + hmm.forwardScaled(Arrays.asList("a", "b", "a")));
+        System.out.println("a b b -->" + hmm.forwardScaled(Arrays.asList("a", "b", "b")));
+        System.out.println("b a a -->" + hmm.forwardScaled(Arrays.asList("b", "a", "a")));
+        System.out.println("b a b -->" + hmm.forwardScaled(Arrays.asList("b", "a", "b")));
+        System.out.println("b b a -->" + hmm.forwardScaled(Arrays.asList("b", "b", "a")));
+        System.out.println("b b b -->" + hmm.forwardScaled(Arrays.asList("b", "b", "b")));
 //
-        System.out.println("a a a a -->" + hmm.forward(Arrays.asList("a", "a", "a", "a")));
-        System.out.println("a a a b -->" + hmm.forward(Arrays.asList("a", "a", "a", "b")));
-        System.out.println("a a b a -->" + hmm.forward(Arrays.asList("a", "a", "b", "a")));
-        System.out.println("a a b b -->" + hmm.forward(Arrays.asList("a", "a", "b", "b")));
-        System.out.println("a b a a -->" + hmm.forward(Arrays.asList("a", "b", "a", "a")));
-        System.out.println("a b a b -->" + hmm.forward(Arrays.asList("a", "b", "a", "b")));
-        System.out.println("a b b a -->" + hmm.forward(Arrays.asList("a", "b", "b", "a")));
-        System.out.println("a b b b -->" + hmm.forward(Arrays.asList("a", "b", "b", "b")));
-        System.out.println("b a a a -->" + hmm.forward(Arrays.asList("b", "a", "a", "a")));
-        System.out.println("b a a b -->" + hmm.forward(Arrays.asList("b", "a", "a", "b")));
-        System.out.println("b a b a -->" + hmm.forward(Arrays.asList("b", "a", "b", "a")));
-        System.out.println("b a b b -->" + hmm.forward(Arrays.asList("b", "a", "b", "b")));
-        System.out.println("b b a a -->" + hmm.forward(Arrays.asList("b", "b", "a", "a")));
-        System.out.println("b b a b -->" + hmm.forward(Arrays.asList("b", "b", "a", "b")));
-        System.out.println("b b b a -->" + hmm.forward(Arrays.asList("b", "b", "b", "a")));
-        System.out.println("b b b b -->" + hmm.forward(Arrays.asList("b", "b", "b", "b")));
-//
-        System.out.println("a a a a a -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "a")));
-        System.out.println("a a a a b -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "b")));
-        System.out.println("a a a b a -->" + hmm.forward(Arrays.asList("a", "a", "a", "b", "a")));
-        System.out.println("a a a b b -->" + hmm.forward(Arrays.asList("a", "a", "a", "b", "b")));
-        System.out.println("a a b a a -->" + hmm.forward(Arrays.asList("a", "a", "b", "a", "a")));
-        System.out.println("a a b a b -->" + hmm.forward(Arrays.asList("a", "a", "b", "a", "b")));
-        System.out.println("a a b b a -->" + hmm.forward(Arrays.asList("a", "a", "b", "b", "a")));
-        System.out.println("a a b b b -->" + hmm.forward(Arrays.asList("a", "a", "b", "b", "b")));
-        System.out.println("a b a a a -->" + hmm.forward(Arrays.asList("a", "b", "a", "a", "a")));
-        System.out.println("a b a a b -->" + hmm.forward(Arrays.asList("a", "b", "a", "a", "b")));
-        System.out.println("a b a b a -->" + hmm.forward(Arrays.asList("a", "b", "a", "b", "a")));
-        System.out.println("a b a b b -->" + hmm.forward(Arrays.asList("a", "b", "a", "b", "b")));
-        System.out.println("a b b a a -->" + hmm.forward(Arrays.asList("a", "b", "b", "a", "a")));
-        System.out.println("a b b a b -->" + hmm.forward(Arrays.asList("a", "b", "b", "a", "b")));
-        System.out.println("a b b b a -->" + hmm.forward(Arrays.asList("a", "b", "b", "b", "a")));
-        System.out.println("a b b b b -->" + hmm.forward(Arrays.asList("a", "b", "b", "b", "b")));
-        System.out.println("b a a a a -->" + hmm.forward(Arrays.asList("b", "a", "a", "a", "a")));
-        System.out.println("b a a a b -->" + hmm.forward(Arrays.asList("b", "a", "a", "a", "b")));
-        System.out.println("b a a b a -->" + hmm.forward(Arrays.asList("b", "a", "a", "b", "a")));
-        System.out.println("b a a b b -->" + hmm.forward(Arrays.asList("b", "a", "a", "b", "b")));
-        System.out.println("b a b a a -->" + hmm.forward(Arrays.asList("b", "a", "b", "a", "a")));
-        System.out.println("b a b a b -->" + hmm.forward(Arrays.asList("b", "a", "b", "a", "b")));
-        System.out.println("b a b b a -->" + hmm.forward(Arrays.asList("b", "a", "b", "b", "a")));
-        System.out.println("b a b b b -->" + hmm.forward(Arrays.asList("b", "a", "b", "b", "b")));
-        System.out.println("b b a a a -->" + hmm.forward(Arrays.asList("b", "b", "a", "a", "a")));
-        System.out.println("b b a a b -->" + hmm.forward(Arrays.asList("b", "b", "a", "a", "b")));
-        System.out.println("b b a b a -->" + hmm.forward(Arrays.asList("b", "b", "a", "b", "a")));
-        System.out.println("b b a b b -->" + hmm.forward(Arrays.asList("b", "b", "a", "b", "b")));
-        System.out.println("b b b a a -->" + hmm.forward(Arrays.asList("b", "b", "b", "a", "a")));
-        System.out.println("b b b a b -->" + hmm.forward(Arrays.asList("b", "b", "b", "a", "b")));
-        System.out.println("b b b b a -->" + hmm.forward(Arrays.asList("b", "b", "b", "b", "a")));
-        System.out.println("b b b b b -->" + hmm.forward(Arrays.asList("b", "b", "b", "b", "b")));
-//
+//        System.out.println("a a a a -->" + hmm.forward(Arrays.asList("a", "a", "a", "a")));
+//        System.out.println("a a a b -->" + hmm.forward(Arrays.asList("a", "a", "a", "b")));
+//        System.out.println("a a b a -->" + hmm.forward(Arrays.asList("a", "a", "b", "a")));
+//        System.out.println("a a b b -->" + hmm.forward(Arrays.asList("a", "a", "b", "b")));
+//        System.out.println("a b a a -->" + hmm.forward(Arrays.asList("a", "b", "a", "a")));
+//        System.out.println("a b a b -->" + hmm.forward(Arrays.asList("a", "b", "a", "b")));
+//        System.out.println("a b b a -->" + hmm.forward(Arrays.asList("a", "b", "b", "a")));
+//        System.out.println("a b b b -->" + hmm.forward(Arrays.asList("a", "b", "b", "b")));
+//        System.out.println("b a a a -->" + hmm.forward(Arrays.asList("b", "a", "a", "a")));
+//        System.out.println("b a a b -->" + hmm.forward(Arrays.asList("b", "a", "a", "b")));
+//        System.out.println("b a b a -->" + hmm.forward(Arrays.asList("b", "a", "b", "a")));
+//        System.out.println("b a b b -->" + hmm.forward(Arrays.asList("b", "a", "b", "b")));
+//        System.out.println("b b a a -->" + hmm.forward(Arrays.asList("b", "b", "a", "a")));
+//        System.out.println("b b a b -->" + hmm.forward(Arrays.asList("b", "b", "a", "b")));
+//        System.out.println("b b b a -->" + hmm.forward(Arrays.asList("b", "b", "b", "a")));
+//        System.out.println("b b b b -->" + hmm.forward(Arrays.asList("b", "b", "b", "b")));
+
+//        System.out.println("a a a a a -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "a")));
+//        System.out.println("a a a a b -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "b")));
+//        System.out.println("a a a b a -->" + hmm.forward(Arrays.asList("a", "a", "a", "b", "a")));
+//        System.out.println("a a a b b -->" + hmm.forward(Arrays.asList("a", "a", "a", "b", "b")));
+//        System.out.println("a a b a a -->" + hmm.forward(Arrays.asList("a", "a", "b", "a", "a")));
+//        System.out.println("a a b a b -->" + hmm.forward(Arrays.asList("a", "a", "b", "a", "b")));
+//        System.out.println("a a b b a -->" + hmm.forward(Arrays.asList("a", "a", "b", "b", "a")));
+//        System.out.println("a a b b b -->" + hmm.forward(Arrays.asList("a", "a", "b", "b", "b")));
+//        System.out.println("a b a a a -->" + hmm.forward(Arrays.asList("a", "b", "a", "a", "a")));
+//        System.out.println("a b a a b -->" + hmm.forward(Arrays.asList("a", "b", "a", "a", "b")));
+//        System.out.println("a b a b a -->" + hmm.forward(Arrays.asList("a", "b", "a", "b", "a")));
+//        System.out.println("a b a b b -->" + hmm.forward(Arrays.asList("a", "b", "a", "b", "b")));
+//        System.out.println("a b b a a -->" + hmm.forward(Arrays.asList("a", "b", "b", "a", "a")));
+//        System.out.println("a b b a b -->" + hmm.forward(Arrays.asList("a", "b", "b", "a", "b")));
+//        System.out.println("a b b b a -->" + hmm.forward(Arrays.asList("a", "b", "b", "b", "a")));
+//        System.out.println("a b b b b -->" + hmm.forward(Arrays.asList("a", "b", "b", "b", "b")));
+//        System.out.println("b a a a a -->" + hmm.forward(Arrays.asList("b", "a", "a", "a", "a")));
+//        System.out.println("b a a a b -->" + hmm.forward(Arrays.asList("b", "a", "a", "a", "b")));
+//        System.out.println("b a a b a -->" + hmm.forward(Arrays.asList("b", "a", "a", "b", "a")));
+//        System.out.println("b a a b b -->" + hmm.forward(Arrays.asList("b", "a", "a", "b", "b")));
+//        System.out.println("b a b a a -->" + hmm.forward(Arrays.asList("b", "a", "b", "a", "a")));
+//        System.out.println("b a b a b -->" + hmm.forward(Arrays.asList("b", "a", "b", "a", "b")));
+//        System.out.println("b a b b a -->" + hmm.forward(Arrays.asList("b", "a", "b", "b", "a")));
+//        System.out.println("b a b b b -->" + hmm.forward(Arrays.asList("b", "a", "b", "b", "b")));
+//        System.out.println("b b a a a -->" + hmm.forward(Arrays.asList("b", "b", "a", "a", "a")));
+//        System.out.println("b b a a b -->" + hmm.forward(Arrays.asList("b", "b", "a", "a", "b")));
+//        System.out.println("b b a b a -->" + hmm.forward(Arrays.asList("b", "b", "a", "b", "a")));
+//        System.out.println("b b a b b -->" + hmm.forward(Arrays.asList("b", "b", "a", "b", "b")));
+//        System.out.println("b b b a a -->" + hmm.forward(Arrays.asList("b", "b", "b", "a", "a")));
+//        System.out.println("b b b a b -->" + hmm.forward(Arrays.asList("b", "b", "b", "a", "b")));
+//        System.out.println("b b b b a -->" + hmm.forward(Arrays.asList("b", "b", "b", "b", "a")));
+//        System.out.println("b b b b b -->" + hmm.forward(Arrays.asList("b", "b", "b", "b", "b")));
+
 //        System.out.println("a a a a a a -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "a", "a")));
 //        System.out.println("a a a a a b -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "a", "b")));
 //        System.out.println("b b a a a a -->" + hmm.forward(Arrays.asList("b", "b", "a", "a", "a", "a")));
