@@ -96,11 +96,12 @@ public class Location implements Serializable {
         for(String wap: measures.keySet()) {
             if(hmms.get(wap) != null) {
                 max = hmms.get(wap).maxTrellisProbability;
-                partial = hmms.get(wap).forward(measures.get(wap));
+//                partial = hmms.get(wap).forward(measures.get(wap));
+                partial = hmms.get(wap).forwardScaled(measures.get(wap));
                 if(partial > max) hmms.get(wap).maxTrellisProbability = max = partial;
                 probability *= partial / max;
                 if(Double.isNaN(probability)){
-                    System.out.println("Unerflow");
+                    System.out.println("Underflow");
                     System.exit(0);
                 }
             }

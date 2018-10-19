@@ -190,7 +190,7 @@ public class Node<T, U> implements Serializable {
     }
 
 
-    //    void stepBackward() {
+//        void stepBackward() {
     void stepBackward(double sum) {
         beta /= sum;
         betaNext = beta;

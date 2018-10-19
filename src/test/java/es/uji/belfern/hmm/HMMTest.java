@@ -575,13 +575,13 @@ public class HMMTest {
         List<String> observations = Arrays.asList("a", "c", "a", "b", "a", "a", "b", "c", "b", "b", "c", "c");
 
 //        System.out.println(hmm);
-        HMM<String, String> hmm2 = hmm.EM(emissionSet, observations, 100);
-        System.out.println(hmm2.forwardScaled(Arrays.asList("a", "a", "b")));
-        System.out.println(hmm2.forwardScaled(Arrays.asList("a", "b", "b")));
-        System.out.println(hmm2.forwardScaled(Arrays.asList("a", "a", "b")));
-        System.out.println(hmm2.forwardScaled(Arrays.asList("b", "a", "b")));
+        HMM<String, String> hmm2 = hmm.EM(emissionSet, observations, 1);
+//        System.out.println(hmm2.forwardScaled(Arrays.asList("a", "a", "b")));
+//        System.out.println(hmm2.forwardScaled(Arrays.asList("a", "b", "b")));
+//        System.out.println(hmm2.forwardScaled(Arrays.asList("a", "a", "b")));
+//        System.out.println(hmm2.forwardScaled(Arrays.asList("b", "a", "b")));
 
-//        System.out.println(hmm2);
+        System.out.println(hmm2);
     }
 
     @Test

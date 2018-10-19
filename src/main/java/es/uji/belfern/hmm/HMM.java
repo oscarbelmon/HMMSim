@@ -143,52 +143,59 @@ public class HMM<T, U> implements Serializable {
     }
 
     void initializationForward(U symbol) {
+//        double kk = Math.random();
+//        double kk = 10;
         coso = new ArrayList<>();
         nodes.values()
                 .forEach(node -> {
+                    node.alfas = new ArrayList<>();
                     if (initialNodes.get(node) != null) {
-                        node.alfas = new ArrayList<>();
                         node.alfa = node.alfaPrevious = node.emitter.getSymbolProbability(symbol) * initialNodes.get(node);
                     } else {
                         node.alfa = node.alfaPrevious = 0;
                     }
-//                    node.stepForward();
+//                    node.stepForward(kk);
                 });
 
-        double sum = nodes.values().stream()
+        double kk = nodes.values().stream()
                 .mapToDouble(node -> node.alfa)
                 .sum();
 
 //        sum = 1.0;
-        coso.add(sum);
+        coso.add(kk);
+        System.out.println("Tam: " + (coso.size()-1) + ", kk: " + kk);
 
 //        nodes.values()
 //                .forEach(node -> node.stepForward());
 
         nodes.values()
-//                .forEach(node -> node.stepForward(sum));
-                .forEach(node -> node.stepForward(1.0));
+////                .forEach(node -> node.stepForward(sum));
+                .forEach(node -> node.stepForward(kk));
     }
 
     void recursionForward(List<U> symbols) {
         for (int i = 1; i < symbols.size(); i++) {
+//            double kk = Math.random();
+            double kk = 0;
             for (Node<T, U> node : nodes.values()) {
 //                System.out.println(symbols.get(i));
                 node.alfa = node.getAlfaProbabilityForSymbol(symbols.get(i));
 //                System.out.println("Node.alfa: " + node.alfa);
             }
-            double sum = 0;
+//            double sum = 0;
 
             for(Node<T, U> node: nodes.values()) {
-                sum += node.alfa;
+                kk += node.alfa;
             }
-            sum = 1;
+//            sum = 1;
+//            System.out.println("KK: " + kk);
+            coso.add(kk);
+            System.out.println("Tam: " + (coso.size()-1) + ", kk: " + kk);
 
 //            if(i == symbols.size() -1) sum = 1;
-            coso.add(sum);
             for (Node<T, U> node : nodes.values()) {
-//                node.stepForward();
-                node.stepForward(sum);
+                node.stepForward(kk);
+//                node.stepForward(sum);
             }
         }
     }
@@ -247,15 +254,12 @@ public class HMM<T, U> implements Serializable {
         for(int i = 0; i < numSymbols; i++) {
             product *= coso.get(i);
         }
+        return product;
 //        System.out.println(product);
-        return nodes.values().stream()
-                .mapToDouble(node -> node.alfa)
-                .sum() * product;
+//        return nodes.values().stream()
+//                .mapToDouble(node -> node.alfa)
+//                .sum() * product;
     }
-
-
-
-
 
 
     double backward(List<U> symbols) {
@@ -269,14 +273,13 @@ public class HMM<T, U> implements Serializable {
                 .forEach(node -> {
                     node.betas = new ArrayList<>();
                     node.beta = node.betaNext = 1;
-//                    node.beta = node.betaNext = 30;
                 });
 
 //        System.out.println("Pos: " + pos + ", " + (symbols.size() -1));
 //        System.out.println(coso.get(pos) + " --- " + coso.get(symbols.size() -1));
 //        System.out.println(coso);
+        System.out.println("Tam: " + pos + ", kk: " + coso.get(pos));
         nodes.values()
-//                .forEach(node -> node.stepBackward(coso.get(symbols.size() - 1)));
                 .forEach(node -> node.stepBackward(coso.get(pos)));
     }
 
@@ -284,12 +287,14 @@ public class HMM<T, U> implements Serializable {
         for (int i = symbols.size() - 1; i > 0; i--) {
             for (Node<T, U> node : nodes.values()) {
                 node.beta = node.getBetaProbabilityForSymbol(symbols.get(i));
-                node.beta = 0.7;
             }
 
             for (Node<T, U> node : nodes.values()) {
-                node.stepBackward(coso.get(i));
+                node.stepBackward(coso.get(i-1));
+//                node.stepBackward(2);
             }
+            System.out.println("Tam: " + (i-1) + ", kk: " + coso.get(i-1));
+
         }
         for (Node<T, U> node : nodes.values()) {
             Collections.reverse(node.getBetas());
