@@ -163,7 +163,7 @@ public class HMM<T, U> implements Serializable {
 
 //        sum = 1.0;
         coso.add(kk);
-        System.out.println("Tam: " + (coso.size()-1) + ", kk: " + kk);
+//        System.out.println("Tam: " + (coso.size()-1) + ", kk: " + kk);
 
 //        nodes.values()
 //                .forEach(node -> node.stepForward());
@@ -190,7 +190,7 @@ public class HMM<T, U> implements Serializable {
 //            sum = 1;
 //            System.out.println("KK: " + kk);
             coso.add(kk);
-            System.out.println("Tam: " + (coso.size()-1) + ", kk: " + kk);
+//            System.out.println("Tam: " + (coso.size()-1) + ", kk: " + kk);
 
 //            if(i == symbols.size() -1) sum = 1;
             for (Node<T, U> node : nodes.values()) {
@@ -202,13 +202,13 @@ public class HMM<T, U> implements Serializable {
 
     double terminationForward(int size) {
 //        System.out.println(coso);
-//        double product = 1;
-//        for(int i = 0; i < size; i ++) product *= coso.get(i); // Esto se puede sustituir por una suma de logaritmos.
+        double product = 1;
+        for(int i = 0; i < size; i ++) product *= coso.get(i); // Esto se puede sustituir por una suma de logaritmos.
 //        System.out.println(product);
-        return nodes.values().stream()
-                .mapToDouble(node -> node.alfa)
-                .sum();
-//        return product;
+//        return nodes.values().stream()
+//                .mapToDouble(node -> node.alfa)
+//                .sum();
+        return product;
     }
 
 
@@ -262,9 +262,15 @@ public class HMM<T, U> implements Serializable {
     }
 
 
-    double backward(List<U> symbols) {
+    double backwardTranssitions(List<U> symbols) {
         initializationBackward(symbols.get(symbols.size() - 1), symbols.size()-1); // The last symbol
-        recursionBackward(symbols);
+        recursionBackwardTranssitions(symbols);
+        return terminationBackward();
+    }
+
+    double backwardEmissions(List<U> symbols) {
+        initializationBackward(symbols.get(symbols.size() - 1), symbols.size()-1); // The last symbol
+        recursionBackwardEmissions(symbols);
         return terminationBackward();
     }
 
@@ -278,12 +284,12 @@ public class HMM<T, U> implements Serializable {
 //        System.out.println("Pos: " + pos + ", " + (symbols.size() -1));
 //        System.out.println(coso.get(pos) + " --- " + coso.get(symbols.size() -1));
 //        System.out.println(coso);
-        System.out.println("Tam: " + pos + ", kk: " + coso.get(pos));
+//        System.out.println("Tam: " + pos + ", kk: " + coso.get(pos));
         nodes.values()
                 .forEach(node -> node.stepBackward(coso.get(pos)));
     }
 
-    void recursionBackward(List<U> symbols) {
+    void recursionBackwardTranssitions(List<U> symbols) {
         for (int i = symbols.size() - 1; i > 0; i--) {
             for (Node<T, U> node : nodes.values()) {
                 node.beta = node.getBetaProbabilityForSymbol(symbols.get(i));
@@ -291,9 +297,25 @@ public class HMM<T, U> implements Serializable {
 
             for (Node<T, U> node : nodes.values()) {
                 node.stepBackward(coso.get(i-1));
-//                node.stepBackward(2);
             }
-            System.out.println("Tam: " + (i-1) + ", kk: " + coso.get(i-1));
+//            System.out.println("Tam: " + (i-1) + ", kk: " + coso.get(i-1));
+
+        }
+        for (Node<T, U> node : nodes.values()) {
+            Collections.reverse(node.getBetas());
+        }
+    }
+
+    void recursionBackwardEmissions(List<U> symbols) {
+        for (int i = symbols.size() - 1; i > 0; i--) {
+            for (Node<T, U> node : nodes.values()) {
+                node.beta = node.getBetaProbabilityForSymbol(symbols.get(i));
+            }
+
+            for (Node<T, U> node : nodes.values()) {
+                node.stepBackward(coso.get(i));
+            }
+//            System.out.println("Tam: " + (i-1) + ", kk: " + coso.get(i-1));
 
         }
         for (Node<T, U> node : nodes.values()) {
@@ -359,7 +381,7 @@ public class HMM<T, U> implements Serializable {
 //        setNodes(hmm);
         setTransitions(hmm);
         setInitialNodes(hmm);
-        hmm.coso = coso;
+//        hmm.coso = coso;
 
         return hmm;
     }
@@ -372,11 +394,13 @@ public class HMM<T, U> implements Serializable {
 //            System.out.println("Forward.");
             hmm.forward(observations);
 //            System.out.println("Backward.");
-            hmm.backward(observations);
+            hmm.backwardTranssitions(observations);
 
 //            System.out.println("Matrix estimation.");
             hmm.estimateMatrixA(observations);
 //            System.out.println(hmm.matrixA);
+
+            hmm.backwardEmissions(observations);
 
 //            System.out.println("Emitions estimation");
             hmm.estimateEmissions(observations);

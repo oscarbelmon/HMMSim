@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.CoreMatchers.*;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -343,7 +341,7 @@ public class HMMTest {
         hmm.addInitialNode(X, 0.3);
         hmm.addInitialNode(Y, 0.7);
 
-        hmm.backward(Arrays.asList("a", "a", "b"));
+        hmm.backwardTranssitions(Arrays.asList("a", "a", "b"));
 
         double[] expectedX = {0.202, 0.66, 1.0};
         assertArrayEquals(expectedX, ArrayUtils.toPrimitive(X.getBetas().toArray(new Double[0])), 0.001);
@@ -524,7 +522,7 @@ public class HMMTest {
 
         List<String> observations = Arrays.asList("a", "c", "a", "b", "a", "a", "b", "c", "b", "b", "c", "c");
         hmm.forward(observations);
-        hmm.backward(observations);
+        hmm.backwardTranssitions(observations);
 
         hmm.estimateMatrixA(observations);
         System.out.println(hmm.matrixA);
@@ -575,7 +573,7 @@ public class HMMTest {
         List<String> observations = Arrays.asList("a", "c", "a", "b", "a", "a", "b", "c", "b", "b", "c", "c");
 
 //        System.out.println(hmm);
-        HMM<String, String> hmm2 = hmm.EM(emissionSet, observations, 1);
+        HMM<String, String> hmm2 = hmm.EM(emissionSet, observations, 100);
 //        System.out.println(hmm2.forwardScaled(Arrays.asList("a", "a", "b")));
 //        System.out.println(hmm2.forwardScaled(Arrays.asList("a", "b", "b")));
 //        System.out.println(hmm2.forwardScaled(Arrays.asList("a", "a", "b")));
@@ -647,7 +645,7 @@ public class HMMTest {
 
         List<String> observations = Arrays.asList("a", "c", "a", "b", "a", "a", "b", "c", "b", "b", "c", "c");
         hmm.forward(observations);
-        hmm.backward(observations);
+        hmm.backwardTranssitions(observations);
 
         hmm.estimateMatrixA(observations);
         System.out.println(hmm.matrixA);
