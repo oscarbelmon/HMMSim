@@ -143,8 +143,6 @@ public class HMM<T, U> implements Serializable {
     }
 
     void initializationForward(U symbol) {
-//        double kk = Math.random();
-//        double kk = 10;
         coso = new ArrayList<>();
         nodes.values()
                 .forEach(node -> {
@@ -154,60 +152,41 @@ public class HMM<T, U> implements Serializable {
                     } else {
                         node.alfa = node.alfaPrevious = 0;
                     }
-//                    node.stepForward(kk);
                 });
 
         double kk = nodes.values().stream()
                 .mapToDouble(node -> node.alfa)
                 .sum();
 
-//        sum = 1.0;
         coso.add(kk);
-//        System.out.println("Tam: " + (coso.size()-1) + ", kk: " + kk);
-
-//        nodes.values()
-//                .forEach(node -> node.stepForward());
 
         nodes.values()
-////                .forEach(node -> node.stepForward(sum));
                 .forEach(node -> node.stepForward(kk));
     }
 
     void recursionForward(List<U> symbols) {
         for (int i = 1; i < symbols.size(); i++) {
-//            double kk = Math.random();
             double kk = 0;
             for (Node<T, U> node : nodes.values()) {
-//                System.out.println(symbols.get(i));
                 node.alfa = node.getAlfaProbabilityForSymbol(symbols.get(i));
-//                System.out.println("Node.alfa: " + node.alfa);
             }
-//            double sum = 0;
 
             for(Node<T, U> node: nodes.values()) {
                 kk += node.alfa;
             }
-//            sum = 1;
-//            System.out.println("KK: " + kk);
             coso.add(kk);
-//            System.out.println("Tam: " + (coso.size()-1) + ", kk: " + kk);
 
-//            if(i == symbols.size() -1) sum = 1;
             for (Node<T, U> node : nodes.values()) {
                 node.stepForward(kk);
-//                node.stepForward(sum);
             }
         }
     }
 
     double terminationForward(int size) {
-//        System.out.println(coso);
         double product = 1;
+
         for(int i = 0; i < size; i ++) product *= coso.get(i); // Esto se puede sustituir por una suma de logaritmos.
-//        System.out.println(product);
-//        return nodes.values().stream()
-//                .mapToDouble(node -> node.alfa)
-//                .sum();
+
         return product;
     }
 
@@ -222,43 +201,12 @@ public class HMM<T, U> implements Serializable {
         return result;
     }
 
-    void initializationForwardScaled(U symbol) {
-        nodes.values()
-                .forEach(node -> {
-                    if (initialNodes.get(node) != null) {
-                        node.alfas = new ArrayList<>();
-                        node.alfa = node.alfaPrevious = node.emitter.getSymbolProbability(symbol) * initialNodes.get(node);
-                    } else {
-                        node.alfa = node.alfaPrevious = 0;
-                    }
-                    node.stepForwardScaled();
-                });
-    }
-
-    void recursionForwardScaled(List<U> symbols) {
-        for (int i = 1; i < symbols.size(); i++) {
-            for (Node<T, U> node : nodes.values()) {
-//                System.out.println(symbols.get(i));
-                node.alfa = node.getAlfaProbabilityForSymbol(symbols.get(i));
-//                System.out.println("Node.alfa: " + node.alfa);
-            }
-            for (Node<T, U> node : nodes.values()) {
-                node.stepForwardScaled();
-            }
-        }
-    }
-
     double terminationForwardScaled(int numSymbols) {
         double product = 1;
-//        System.out.println(coso);
         for(int i = 0; i < numSymbols; i++) {
             product *= coso.get(i);
         }
         return product;
-//        System.out.println(product);
-//        return nodes.values().stream()
-//                .mapToDouble(node -> node.alfa)
-//                .sum() * product;
     }
 
 
@@ -281,46 +229,32 @@ public class HMM<T, U> implements Serializable {
                     node.beta = node.betaNext = 1;
                 });
 
-//        System.out.println("Pos: " + pos + ", " + (symbols.size() -1));
-//        System.out.println(coso.get(pos) + " --- " + coso.get(symbols.size() -1));
-//        System.out.println(coso);
-//        System.out.println("Tam: " + pos + ", kk: " + coso.get(pos));
         nodes.values()
                 .forEach(node -> node.stepBackward(coso.get(pos)));
     }
 
-    void recursionBackwardTranssitions(List<U> symbols) {
+    void recursionBackward(List<U> symbols, int shift) {
         for (int i = symbols.size() - 1; i > 0; i--) {
             for (Node<T, U> node : nodes.values()) {
                 node.beta = node.getBetaProbabilityForSymbol(symbols.get(i));
             }
 
             for (Node<T, U> node : nodes.values()) {
-                node.stepBackward(coso.get(i-1));
+                node.stepBackward(coso.get(i - shift));
             }
-//            System.out.println("Tam: " + (i-1) + ", kk: " + coso.get(i-1));
-
         }
         for (Node<T, U> node : nodes.values()) {
             Collections.reverse(node.getBetas());
         }
     }
 
+
+    void recursionBackwardTranssitions(List<U> symbols) {
+        recursionBackward(symbols, 1);
+    }
+
     void recursionBackwardEmissions(List<U> symbols) {
-        for (int i = symbols.size() - 1; i > 0; i--) {
-            for (Node<T, U> node : nodes.values()) {
-                node.beta = node.getBetaProbabilityForSymbol(symbols.get(i));
-            }
-
-            for (Node<T, U> node : nodes.values()) {
-                node.stepBackward(coso.get(i));
-            }
-//            System.out.println("Tam: " + (i-1) + ", kk: " + coso.get(i-1));
-
-        }
-        for (Node<T, U> node : nodes.values()) {
-            Collections.reverse(node.getBetas());
-        }
+        recursionBackward(symbols, 0);
     }
 
     double terminationBackward() {
@@ -337,10 +271,8 @@ public class HMM<T, U> implements Serializable {
             node = entry.getValue();
             emitter = new TabulatedProbabilityEmitter();
             for (U symbol : emissionSet) {
-//                System.out.println("Emission: " + matrixEmissions.get(node, symbol));
                 if(Double.isNaN(matrixEmissions.get(node, symbol))) ratio = 0;
                 else ratio = matrixEmissions.get(node, symbol);
-//                emitter.addEmission(symbol, matrixEmissions.get(node, symbol));
                 emitter.addEmission(symbol, ratio);
             }
             hmm.instanceNode(node.id, emitter);
@@ -355,10 +287,8 @@ public class HMM<T, U> implements Serializable {
             start = entryStart.getValue();
             for (Map.Entry<T, Node<T, U>> entryEnd : nodes.entrySet()) {
                 end = entryEnd.getValue();
-//                System.out.println("Transition: " + matrixA.get(start, end));
                 if(Double.isNaN(matrixA.get(start, end))) ratio = 0;
                 else ratio = matrixA.get(start, end);
-//                hmm.instanceEdge(start.id, end.id, matrixA.get(start, end));
                 hmm.instanceEdge(start.id, end.id, ratio);
             }
         }
@@ -371,17 +301,14 @@ public class HMM<T, U> implements Serializable {
             if (initialNodes.get(node) != null)
                 hmm.addInitialNode(hmm.nodes.get(node.id), initialNodes.get(node));
         }
-//        hmm.initialNodes = this.initialNodes;
     }
 
     private HMM iterate(List<U> emissionSet) {
         HMM hmm = new HMM(symbols);
 
         setEmissionsAndNodes(emissionSet, hmm);
-//        setNodes(hmm);
         setTransitions(hmm);
         setInitialNodes(hmm);
-//        hmm.coso = coso;
 
         return hmm;
     }
@@ -390,29 +317,16 @@ public class HMM<T, U> implements Serializable {
     public HMM<T, U> EM(List<U> emissionSet, List<U> observations, long iterations) {
         HMM hmm = this;
         for (int i = 0; i < iterations; i++) {
-//            System.out.println("Iteration: " + i);
-//            System.out.println("Forward.");
             hmm.forward(observations);
-//            System.out.println("Backward.");
             hmm.backwardTranssitions(observations);
-
-//            System.out.println("Matrix estimation.");
             hmm.estimateMatrixA(observations);
-//            System.out.println(hmm.matrixA);
-
             hmm.backwardEmissions(observations);
-
-//            System.out.println("Emitions estimation");
             hmm.estimateEmissions(observations);
-//            System.out.println(hmm.matrixEmissions);
-
-//            System.out.println("Iterate.");
             hmm = hmm.iterate(emissionSet);
         }
         return hmm;
     }
 
-    //    private double numEtha(Node<T, U> i, Node<T, U> j, U symbol) {
     private double numEtha(Node<T, U> i, Node<T, U> j, int pos, U symbol) {
         double alfa = i.getAlfas().get(pos);
         double aij = i.getProbabilityToNode(j);
@@ -420,14 +334,9 @@ public class HMM<T, U> implements Serializable {
         double beta = j.getBetas().get(pos + 1);
         double result = alfa * aij * emission * beta;
 
-//        if(result == 0) {
-//            System.out.println("Alfa: " + alfa + ", aif: " + aij + ", emission: " + emission + ", beta: " + beta);
-//        }
-
         return result;
     }
 
-    //    private double denEtha(Node<T, U> i, Node<T, U> j, U symbol) {
     private double denEtha(Node<T, U> i, Node<T, U> j, int symbolsSize) {
         double result = 0;
 
@@ -443,9 +352,7 @@ public class HMM<T, U> implements Serializable {
     double etha(Node<T, U> i, Node<T, U> j, int pos, U symbol, int symbolsSize) {
         double num = numEtha(i, j, pos, symbol);
         double den = denEtha(i, j, symbolsSize);
-//        double result = numEtha(i, j, pos, symbol) / denEtha(i, j, symbolsSize);
         double result = num / den;
-//        System.out.println("Num: " + num + ", den: " + den + ", res: " + result);
         ethaMatrix.put(i, j, result);
         return result;
     }
@@ -535,25 +442,6 @@ public class HMM<T, U> implements Serializable {
         }
     }
 
-    void matrixARandomInitialization() {
-        for (Map.Entry<T, Node<T, U>> entry : nodes.entrySet()) {
-            int size = entry.getValue().nodes.size();
-            double sum = 0;
-            double[] random = new double[size];
-            for (int i = 0; i < size; i++) {
-                random[i] = Math.random();
-                sum += random[i];
-            }
-            for (int i = 0; i < size; i++) {
-                random[i] /= sum;
-            }
-            int i = 0;
-            for (Node<T, U> toNode : entry.getValue().getNodes()) {
-                matrixA.put(entry.getValue(), toNode, random[i++]);
-            }
-        }
-    }
-
     @Override
     public String toString() {
         return "HMM{" +
@@ -596,51 +484,6 @@ public class HMM<T, U> implements Serializable {
 
         return entry.getKey();
 
-    }
-
-    public double maxProbability(int sequenceLength) {
-        List<U> sequence = new ArrayList<>();
-        double result;
-        final double maxInit = initialNodes.entrySet()
-                .stream()
-                .mapToDouble(entry -> entry.getValue())
-                .max()
-                .orElse(0);
-//        System.out.println("MaxInit: " + maxInit);
-        Node<T, U> current = initialNodes.entrySet()
-                .stream()
-                .filter(entry -> entry.getValue() >= maxInit)
-                .map(entry -> entry.getKey())
-                .findFirst()
-                .orElse(null);
-        sequence.add(current.emitter.getSymbolMaxProbability());
-
-        double emitterProbability = current.emitter.getMaxProbability();
-//        System.out.println("Emitter probability: " + emitterProbability);
-        result = maxInit * emitterProbability;
-//        result = 1;
-
-        Node<T, U> next;
-        for (int i = 0; i < sequenceLength - 1; i++) {
-            final double partial;
-            partial = current.nodes.entrySet()
-                    .stream()
-                    .mapToDouble(entry -> entry.getValue())
-                    .max()
-                    .orElse(0);
-            emitterProbability = current.emitter.getMaxProbability();
-            current = current.nodes.entrySet()
-                    .stream()
-                    .filter(entry -> entry.getValue() >= maxInit)
-                    .map(entry -> entry.getKey())
-                    .findFirst()
-                    .orElse(null);
-            sequence.add(current.emitter.getSymbolMaxProbability());
-            result *= partial * emitterProbability;
-        }
-//        System.out.println("Max probability: " + result);
-//        return result;
-        return forward(sequence);
     }
 
     public void findMaxTrellis(List<U> emissionSet, int size) {
