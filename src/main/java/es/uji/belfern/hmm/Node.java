@@ -112,26 +112,11 @@ public class Node<T, U> implements Serializable {
         double symbolProbability = emitter.getSymbolProbability(symbol);
 
         for(Edge<T,U> edge: incomingEdges.keySet()) {
-//            System.out.println(edge.start.alfaPrevious + " " + symbolProbability + " " + incomingEdges.get(edge));
                 result += edge.start.alfaPrevious * symbolProbability * incomingEdges.get(edge);
                 if(Double.isNaN(result)) {
                     System.out.println("Cachis");
                     System.exit(0);
                 }
-        }
-
-//        System.out.println("getAlfaProbabilityForSymbol " + id + " " + symbol + " " + result);
-
-//        return alfa = result;
-        return result;
-    }
-
-    double getAlfaMaxProbability() {
-        double result = 0;
-        double symbolMaxProbability = emitter.getMaxProbability();
-
-        for(Edge<T,U> edge: incomingEdges.keySet()) {
-            result += edge.start.alfaPreviousMax * symbolMaxProbability * incomingEdges.get(edge);
         }
 
         return result;
@@ -141,7 +126,6 @@ public class Node<T, U> implements Serializable {
         double result = 0;
 
         for(Edge<T, U> edge: edges.keySet()) {
-//            System.out.println(edge.end.betaNext);
             result += edge.end.betaNext * edge.end.emitter.getSymbolProbability(symbol) * edges.get(edge);
         }
 
@@ -170,27 +154,12 @@ public class Node<T, U> implements Serializable {
         return viterbi;
     }
 
-//    void stepForward() {
     void stepForward(double sum) {
         alfa /= sum;
         alfaPrevious = alfa;
         alfas.add(alfa);
     }
 
-//    void stepForwardMax(U symbol) {
-    void stepForwardMax() {
-        alfaPreviousMax = alfaMax;
-        alfasMax.add(alfaMax);
-//        maxSymbols.add(symbol);
-    }
-
-    void stepForwardScaled() {
-        alfaPrevious = alfa;
-        alfas.add(alfa);
-    }
-
-
-//        void stepBackward() {
     void stepBackward(double sum) {
         beta /= sum;
         betaNext = beta;
