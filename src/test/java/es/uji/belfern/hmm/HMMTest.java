@@ -569,6 +569,11 @@ public class HMMTest {
         hmm.addInitialNode(two, 0.4);
         hmm.addInitialNode(three, 0.5);
 
+//        System.out.println("Emission parameters: " + hmm.numberParametersEmissions());
+//        System.out.println("Transition parameters: " + hmm.numberParametersTransitions());
+//        System.out.println("Total: " + hmm.numberOfParameters());
+
+
         List<String> emissionSet = Arrays.asList("a", "b", "c");
         List<String> observations = Arrays.asList("a", "c", "a", "b", "a", "a", "b", "c", "b", "b", "c", "c");
 
@@ -580,6 +585,11 @@ public class HMMTest {
 //        System.out.println(hmm2.forwardScaled(Arrays.asList("b", "a", "b")));
 
         System.out.println(hmm2);
+        System.out.println("Emission parameters: " + hmm2.numberParametersEmissions());
+        System.out.println("Transition parameters: " + hmm2.numberParametersTransitions());
+        System.out.println("Total: " + hmm2.numberOfParameters());
+        System.out.println(hmm2.AIC(observations));
+        System.out.println(hmm2.BIC(observations));
     }
 
     @Test

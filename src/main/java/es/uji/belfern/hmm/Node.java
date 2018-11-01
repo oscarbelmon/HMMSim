@@ -187,6 +187,13 @@ public class Node<T, U> implements Serializable {
                 '}';
     }
 
+    public long noneTrivialEdges() {
+        return edges.values().stream()
+                .filter(a -> a !=0)
+                .filter(a -> a != 1)
+                .count();
+    }
+
     class Viterbi implements Serializable {
         final Node<T,U> node;
         final double probability;

@@ -1,5 +1,6 @@
 package es.uji.belfern.hmm;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -7,13 +8,13 @@ import java.util.stream.Collectors;
 public class TabulatedCSVProbabilityEmitter<T> implements Emitter<T> {
     private List<T> data;
     private Map<T, Long> histogram;
-    private double maxProbability = 0;
-    private T symbolMaxProbability;
+//    private double maxProbability = 0;
+//    private T symbolMaxProbability;
 
     public TabulatedCSVProbabilityEmitter(List<T> data) {
         this.data = data;
         processData();
-        findMax();
+//        findMax();
     }
 
     private void processData() {
@@ -24,20 +25,20 @@ public class TabulatedCSVProbabilityEmitter<T> implements Emitter<T> {
                 .forEach(e -> histogram.put(e, histogram.get(e)+1));
     }
 
-    private void findMax() {
-        double max = histogram.entrySet()
-                .stream()
-                .mapToDouble(entry -> entry.getValue())
-                .max()
-                .orElse(0);
-        symbolMaxProbability = histogram.entrySet()
-                .stream()
-                .filter(entry -> entry.getValue() >= max)
-                .findFirst()
-                .orElse(null)
-                .getKey();
-        maxProbability = (max + 1.0) / (data.size() + 1.0);
-    }
+//    private void findMax() {
+//        double max = histogram.entrySet()
+//                .stream()
+//                .mapToDouble(entry -> entry.getValue())
+//                .max()
+//                .orElse(0);
+//        symbolMaxProbability = histogram.entrySet()
+//                .stream()
+//                .filter(entry -> entry.getValue() >= max)
+//                .findFirst()
+//                .orElse(null)
+//                .getKey();
+//        maxProbability = (max + 1.0) / (data.size() + 1.0);
+//    }
 
     @Override
     public T emmit() {
@@ -54,14 +55,20 @@ public class TabulatedCSVProbabilityEmitter<T> implements Emitter<T> {
         return result;
     }
 
-    @Override
-    public double getMaxProbability() {
-        return maxProbability;
-    }
+//    @Override
+//    public double getMaxProbability() {
+//        return maxProbability;
+//    }
+
+//    @Override
+//    public T getSymbolMaxProbability() {
+//        return symbolMaxProbability;
+//    }
+
 
     @Override
-    public T getSymbolMaxProbability() {
-        return symbolMaxProbability;
+    public long size() {
+        return data.size();
     }
 
     @Override
