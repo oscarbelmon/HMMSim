@@ -16,12 +16,15 @@ public class Main {
     private static final String HEADER_CLASS_NAME = "label";
 
     public static void main(String[] args) {
-        if (args[0].equals("create")) {
+        if (args[0].equals("create")) { //[1] train_file [2] model_output_file [3] HMM_states [4] model_fit_iterations
             if (args.length != 5) System.out.println("Show usage.");
             else new Main().createHMM(args[1], args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]));
-        } else if (args[0].equals("evaluate")) {
-            if (args.length != 4) System.out.println("Show usage.");
-            new Main().evaluateHMM(args[1], args[2], Integer.parseInt(args[3]));
+        } else if (args[0].equals("evaluate")) { // [1] model_output_file [2] test_file [3] sample_size [4] shift_size
+            if (args.length != 5) System.out.println("Show usage.");
+            if ((Integer.parseInt(args[3]) < Integer.parseInt(args[4]))) System.out.println("Shift size can not be greater than Sample size");
+            else new Main().evaluateHMM(args[1], args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]));
+        } else {
+            System.out.println("Show usage.");
         }
     }
 
@@ -41,7 +44,7 @@ public class Main {
         }
     }
 
-    private void evaluateHMM(final String hmmFileName, final String testFileName, int step) {
+    private void evaluateHMM(final String hmmFileName, final String testFileName, int step, int shift) {
         try {
             Environment environment = Environment.readEnvironmentFromFile(hmmFileName);
             CSVReader csvReader = new CSVReader(testFileName, HEADER_CLASS_NAME);
@@ -64,7 +67,7 @@ public class Main {
                     for (String wap : waps) {
                         allMeasures.put(wap, csvReader.getDataLocationWAP(location, wap));
                     }
-                    for (int i = 0; i < allMeasures.get(waps.get(0)).size() - step; i += 1) {
+                    for (int i = 0; i < allMeasures.get(waps.get(0)).size() - step; i += shift) {
                         total++;
                         measures = new HashMap<>();
                         for (String wap : waps) {
