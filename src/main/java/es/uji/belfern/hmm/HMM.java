@@ -17,6 +17,7 @@ public class HMM<T, U> implements Serializable {
     List<Maximum> maximums = new ArrayList<>();
     public double maxTrellisProbability;
     List<Double> coso = new ArrayList<>();
+//    List<U> trainingData = null;
 
     public HMM(List<U> symbols) {
         nodes = new LinkedHashMap<>();
@@ -139,6 +140,7 @@ public class HMM<T, U> implements Serializable {
         initializationForward(symbols.get(0));
         recursionForward(symbols);
         double result = terminationForward(symbols.size());
+//        if(trainingData == null) trainingData = symbols;
         return result;
     }
 
@@ -494,6 +496,36 @@ public class HMM<T, U> implements Serializable {
         maxTrellisProbability = max.stream()
                 .max(Double::compareTo)
                 .orElse(1.0);
+    }
+
+    // -2*log L + 2 * p
+    public double AIC(List<U> symbols) {
+        return -2 * Math.log(probabilityOfTrainingData(symbols)) + 2 * numberOfParameters();
+    }
+
+    // -2*log L + p * Log T, T is number of observations
+    public double BIC(List<U> symbols) {
+        return -2 * Math.log(probabilityOfTrainingData(symbols)) + numberOfParameters() * Math.log(symbols.size());
+    }
+
+    long numberOfParameters() {
+        return numberParametersEmissions() + numberParametersTransitions();
+    }
+
+    long numberParametersEmissions() {
+        return nodes.values().stream()
+                .mapToLong(n ->n.emitter.size())
+                .sum();
+    }
+
+    long numberParametersTransitions() {
+        return nodes.values().stream()
+                .mapToLong(n -> n.noneTrivialEdges())
+                .sum();
+    }
+
+    double probabilityOfTrainingData(List<U> symbols) {
+        return forward(symbols);
     }
 
     class Maximum {

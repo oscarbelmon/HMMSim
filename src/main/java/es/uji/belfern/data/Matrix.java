@@ -28,25 +28,16 @@ public class Matrix<T, U, V> implements Serializable {
         return new ArrayList<>(matrix.keySet());
     }
 
-//    @Override
-//    public String toString() {
-//        return  matrix + "";
-//    }
-
-//    @Override
-//    public String toString() {
-//        StringBuffer sb = new StringBuffer();
-//
-//        List<T> rows = new ArrayList<>(matrix.keySet());
-//
-//        for (T row : rows) {
-//            sb.append(row);
-//            sb.append(matrix.get(row));
-//            sb.append("\n");
-//        }
-//
-//        return sb.toString();
-//    }
+    public long size() {
+        long rows = matrix.keySet().size();
+        System.out.println(matrix.keySet());
+        if (matrix.keySet().iterator().hasNext()) {
+            T element = matrix.keySet().iterator().next();
+            long columns = matrix.get(element).size();
+            System.out.println("Hola");
+            return rows * columns;
+        } else return 0;
+    }
 
     @Override
     public String toString() {

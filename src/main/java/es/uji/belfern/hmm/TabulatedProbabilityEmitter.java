@@ -8,7 +8,7 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
     private double accumulatedProbability = 0;
     private double minProbability = 1;
     private double maxProbability = 0;
-    private T symbolMaxProbability;
+//    private T symbolMaxProbability;
 
     public TabulatedProbabilityEmitter() {
     }
@@ -31,15 +31,15 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
         }
     }
 
-    @Override
-    public double getMaxProbability() {
-        return maxProbability;
-    }
+//    @Override
+//    public double getMaxProbability() {
+//        return maxProbability;
+//    }
 
-    @Override
-    public T getSymbolMaxProbability() {
-        return symbolMaxProbability;
-    }
+//    @Override
+//    public T getSymbolMaxProbability() {
+//        return symbolMaxProbability;
+//    }
 
     public void addEmission(T symbol, double probability) throws IllegalArgumentException{
         if(probability > 1 || probability < 0)
@@ -48,10 +48,10 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
         accumulatedProbability += probability;
         probabilities.put(symbol, new Probability<>(symbol, probability, accumulatedProbability));
         if(minProbability > probability) minProbability = probability;
-        if(probability > maxProbability) {
-            symbolMaxProbability = symbol;
-            maxProbability = probability;
-        }
+//        if(probability > maxProbability) {
+//            symbolMaxProbability = symbol;
+//            maxProbability = probability;
+//        }
     }
 
     @Override
@@ -59,6 +59,11 @@ public class TabulatedProbabilityEmitter<T> implements Emitter<T> {
         return "{" +
                 probabilities +
                 '}';
+    }
+
+    @Override
+    public long size() {
+        return probabilities.keySet().size();
     }
 
     private class Probability<U> implements Serializable {
