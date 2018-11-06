@@ -2,7 +2,10 @@ package es.uji.belfern.main;
 
 import es.uji.belfern.data.Matrix;
 import weka.classifiers.Classifier;
+import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.lazy.IBk;
+import weka.classifiers.trees.RandomForest;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
@@ -11,14 +14,18 @@ import weka.core.converters.CSVLoader;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Comparison {
     private static String knnOptions = "-K 1 -W 0 -A \"weka.core.neighboursearch.LinearNNSearch -A \\\"weka.core.EuclideanDistance -R first-last\\\"\"";
+    private static String rfOptions = "-I 100 -K 0 -S 1";
+    private static String mlpOptions = "-L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H a";
 
     private Instances training;
     private Instances test;
     private IBk knn = new IBk();
+    private NaiveBayes nb = new NaiveBayes();
+    private RandomForest rf = new RandomForest();
+    private MultilayerPerceptron mlp = new MultilayerPerceptron();
     Map<String, List<Instance>> instancesMap = new HashMap<>();
 
     public Comparison(final String trainingFileName, final String testFileName) {
@@ -32,51 +39,19 @@ public class Comparison {
     }
 
     void evaluateClassifiers(final int sampleSize, final int shift) {
-//        Map<String, Integer> results = new HashMap<>();
-        Instance instance;
-        String estimatedClass;
-        Matrix<String, String, Integer> confusion = new Matrix<>();
-        for (int row = 0; row < test.classAttribute().numValues(); row++) {
-            for (int column = 0; column < test.classAttribute().numValues(); column++) {
-                confusion.put(test.classAttribute().value(row), test.classAttribute().value(column), 0);
-            }
-        }
-        long total = 0, success = 0;
-
-        List<String> locations = new ArrayList<>();
-        for (int i = 0; i < test.classAttribute().numValues(); i++) {
-            locations.add(test.classAttribute().value(i));
-        }
-
-
-        try {
-            for (String location : locations) {
-                List<Instance> instances = instancesMap.get(location);
-                for (int i = 0; i < instances.size(); i++) {
-                    instance = instances.get(i);
-                    total++;
-                    estimatedClass = getEstimatedClass(instance, knn);
-                    if (estimatedClass.equals(location)) success++;
-                    int previous = 0;
-                    if (confusion.get(location, estimatedClass) != null)
-                        previous = confusion.get(location, estimatedClass);
-                    confusion.put(location, estimatedClass, previous + 1);
-
-                }
-
-            }
-            System.out.println("Total:" + total + ", success: " + success + " (" + (success * 100.0 / total) + "%)");
-            System.out.println(formatMatrix(confusion));
-            metrics(confusion, locations);
-
-        } catch (Exception e) {
-            System.out.println("Mal");
-        }
+        System.out.println("------------- KNN ------------");
+        evaluateClassifier(sampleSize, shift, knn);
+        System.out.println("------------- Random Forest ------------");
+        evaluateClassifier(sampleSize, shift, rf);
+        System.out.println("------------- Naive Bayes ------------");
+        evaluateClassifier(sampleSize, shift, nb);
+        System.out.println("------------- MLP ------------");
+        evaluateClassifier(sampleSize, shift, mlp);
     }
 
-    void evaluateClassifiers2(final int sampleSize, final int shift) {
-        Map<String, Integer> results;// = new HashMap<>();
-        int cnt = 0;
+    void evaluateClassifier(final int sampleSize, final int shift, Classifier classifier) {
+        Map<String, Integer> results;
+        int cnt;
         Instance instance;
         String estimatedClass;
         Matrix<String, String, Integer> confusion = new Matrix<>();
@@ -100,16 +75,15 @@ public class Comparison {
                     results = new HashMap<>();
                     for (int j = 0; j < sampleSize; j++) {
                         instance = instances.get(i + j);
-                        estimatedClass = getEstimatedClass(instance, knn);
+                        estimatedClass = getEstimatedClass(instance, classifier);
                         cnt = 1;
                         if(results.containsKey(estimatedClass)) {
-                            cnt = results.get(estimatedClass);
+                            cnt = 1 + results.get(estimatedClass);
                         }
                         results.put(estimatedClass, cnt);
                     }
                     total++;
                     estimatedClass = results.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey();
-                    System.out.println(location + " <--> " + estimatedClass);
                     if (estimatedClass.equals(location)) success++;
                     int previous = 0;
                     if (confusion.get(location, estimatedClass) != null)
@@ -133,11 +107,6 @@ public class Comparison {
         return instance.classAttribute().value((int) index);
     }
 
-    private String getActualClass(final Instance instance) {
-        int numAttributes = test.get(0).numAttributes();
-        return instance.classAttribute().value((int) instance.value(numAttributes));
-    }
-
     private void initializeDataSets(final String trainingFileName, final String testFileName) throws IOException {
         training = csvLoader(trainingFileName);
         training.setClassIndex(training.numAttributes() - 1);
@@ -154,12 +123,41 @@ public class Comparison {
 
     private void initializeClassifiers() {
         initializeKnn();
+        initializeRF();
+        initializeNaiveBayes();
+        initializeMLP();
     }
 
     private void initializeKnn() {
         try {
             knn.setOptions(Utils.splitOptions(knnOptions));
             knn.buildClassifier(training);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeRF() {
+        try {
+            rf.setOptions(Utils.splitOptions(rfOptions));
+            rf.buildClassifier(training);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeNaiveBayes() {
+        try {
+            nb.buildClassifier(training);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeMLP() {
+        try {
+            mlp.setOptions(Utils.splitOptions(mlpOptions));
+            mlp.buildClassifier(training);
         } catch (Exception e) {
             e.printStackTrace();
         }

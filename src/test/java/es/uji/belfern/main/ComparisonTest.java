@@ -15,12 +15,19 @@ public class ComparisonTest {
     @Test
     void evaluateClassifiersTest() {
         Comparison comparison = new Comparison("arturo_train_1.csv", "arturo_test.csv");
-        comparison.evaluateClassifiers(9, 9);
+        comparison.evaluateClassifiers(10, 10);
     }
 
     @Test
-    void evaluataClassifiers2Test() {
-        Comparison comparison = new Comparison("arturo_train_1.csv", "arturo_test.csv");
-        comparison.evaluateClassifiers2(3, 3);
+    void evaluateClassifiersEmilio2Test() {
+        Comparison comparison = new Comparison("emilio_train_2.csv", "emilio_test.csv");
+        comparison.evaluateClassifiers(5, 5);
     }
+
+    @Test
+    void evaluateClassifiersMarta1Test() {
+        Comparison comparison = new Comparison("marta_train_1.csv", "marta_test.csv");
+        comparison.evaluateClassifiers(10, 10);
+    }
+
 }

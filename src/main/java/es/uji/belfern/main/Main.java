@@ -19,10 +19,16 @@ public class Main {
         if (args[0].equals("create")) { //[1] train_file [2] model_output_file [3] HMM_states [4] model_fit_iterations
             if (args.length != 5) System.out.println("Show usage.");
             else new Main().createHMM(args[1], args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]));
-        } else if (args[0].equals("evaluate")) { // [1] model_output_file [2] test_file [3] sample_size [4] shift_size
+        } else if (args[0].equals("evaluate")) { // [1] model_file [2] test_file [3] sample_size [4] shift_size
             if (args.length != 5) System.out.println("Show usage.");
-            if ((Integer.parseInt(args[3]) < Integer.parseInt(args[4]))) System.out.println("Shift size can not be greater than Sample size");
+            else if ((Integer.parseInt(args[3]) < Integer.parseInt(args[4])))
+                System.out.println("Shift size can not be greater than Sample size");
             else new Main().evaluateHMM(args[1], args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]));
+        } else if (args[0].equals("compare")){ // [1] model_file; [2] train_file; [3] test_file; [4] sample_size; [5] shift_size
+            if (args.length != 6) System.out.println("Show usage.");
+            else if ((Integer.parseInt(args[4]) < Integer.parseInt(args[5])))
+                System.out.println("Shift size can not be greater than Sample size");
+            else new Main().compareModels(args[1], args[2], args[3], Integer.parseInt(args[4]), Integer.parseInt(args[5]));
         } else {
             System.out.println("Show usage.");
         }
@@ -90,6 +96,16 @@ public class Main {
         } catch (IOException e) {
             System.out.println("IO Error");
         }
+    }
+
+    private void compareModels(final String hmmFileName, final String trainFileName, final String testFileName, int step, int shift) {
+        System.out.println("TRAINING DATASET: " + trainFileName);
+        System.out.println("TEST DATASET: " + testFileName);
+        System.out.println("SAMPLE SIZE: " + step + "    SHIFT SIZE: " + shift);
+        System.out.println("------------- Hidden Markov ------------");
+        evaluateHMM(hmmFileName, testFileName, step, shift);
+        Comparison comparison = new Comparison(trainFileName, testFileName);
+        comparison.evaluateClassifiers(step, shift);
     }
 
     private void metrics(final Matrix<String, String, Integer> confusion, final List<String> locations) {
