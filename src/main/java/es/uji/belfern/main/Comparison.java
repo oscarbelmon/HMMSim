@@ -36,8 +36,8 @@ public class Comparison {
         Instance instance;
         String estimatedClass;
         Matrix<String, String, Integer> confusion = new Matrix<>();
-        for(int row = 0; row < test.classAttribute().numValues(); row++) {
-            for(int column = 0; column < test.classAttribute().numValues(); column++) {
+        for (int row = 0; row < test.classAttribute().numValues(); row++) {
+            for (int column = 0; column < test.classAttribute().numValues(); column++) {
                 confusion.put(test.classAttribute().value(row), test.classAttribute().value(column), 0);
             }
         }
@@ -50,13 +50,13 @@ public class Comparison {
 
 
         try {
-            for(String location: locations) {
+            for (String location : locations) {
                 List<Instance> instances = instancesMap.get(location);
-                for(int i = 0; i < instances.size(); i++) {
+                for (int i = 0; i < instances.size(); i++) {
                     instance = instances.get(i);
                     total++;
                     estimatedClass = getEstimatedClass(instance, knn);
-                    if(estimatedClass.equals(location)) success++;
+                    if (estimatedClass.equals(location)) success++;
                     int previous = 0;
                     if (confusion.get(location, estimatedClass) != null)
                         previous = confusion.get(location, estimatedClass);
@@ -75,12 +75,13 @@ public class Comparison {
     }
 
     void evaluateClassifiers2(final int sampleSize, final int shift) {
-//        Map<String, Integer> results = new HashMap<>();
+        Map<String, Integer> results;// = new HashMap<>();
+        int cnt = 0;
         Instance instance;
         String estimatedClass;
         Matrix<String, String, Integer> confusion = new Matrix<>();
-        for(int row = 0; row < test.classAttribute().numValues(); row++) {
-            for(int column = 0; column < test.classAttribute().numValues(); column++) {
+        for (int row = 0; row < test.classAttribute().numValues(); row++) {
+            for (int column = 0; column < test.classAttribute().numValues(); column++) {
                 confusion.put(test.classAttribute().value(row), test.classAttribute().value(column), 0);
             }
         }
@@ -93,33 +94,43 @@ public class Comparison {
 
 
         try {
-            for(String location: locations) {
+            for (String location : locations) {
                 List<Instance> instances = instancesMap.get(location);
-                for(int i = 0; i < instances.size(); i++) {
-                    instance = instances.get(i);
+                for (int i = 0; i < instances.size() - sampleSize; i += shift) {
+                    results = new HashMap<>();
+                    for (int j = 0; j < sampleSize; j++) {
+                        instance = instances.get(i + j);
+                        estimatedClass = getEstimatedClass(instance, knn);
+                        cnt = 1;
+                        if(results.containsKey(estimatedClass)) {
+                            cnt = results.get(estimatedClass);
+                        }
+                        results.put(estimatedClass, cnt);
+                    }
                     total++;
-                    estimatedClass = getEstimatedClass(instance, knn);
-                    if(estimatedClass.equals(location)) success++;
+                    estimatedClass = results.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey();
+                    System.out.println(location + " <--> " + estimatedClass);
+                    if (estimatedClass.equals(location)) success++;
                     int previous = 0;
                     if (confusion.get(location, estimatedClass) != null)
                         previous = confusion.get(location, estimatedClass);
                     confusion.put(location, estimatedClass, previous + 1);
-
                 }
-
             }
             System.out.println("Total:" + total + ", success: " + success + " (" + (success * 100.0 / total) + "%)");
             System.out.println(formatMatrix(confusion));
             metrics(confusion, locations);
 
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             System.out.println("Mal");
         }
+
     }
 
     private String getEstimatedClass(final Instance instance, final Classifier classifier) throws Exception {
-        int index = (int)classifier.classifyInstance(instance);
-        return instance.classAttribute().value((int)index);
+        int index = (int) classifier.classifyInstance(instance);
+        return instance.classAttribute().value((int) index);
     }
 
     private String getActualClass(final Instance instance) {
@@ -200,14 +211,14 @@ public class Comparison {
         Formatter f = new Formatter(sb, Locale.US);
 
         f.format("%12s", "");
-        for(String row: rows) {
+        for (String row : rows) {
             f.format("%12s", row);
         }
         f.format("\n");
 
-        for(String row: rows) {
+        for (String row : rows) {
             f.format("%12s", row);
-            for(String column: rows) {
+            for (String column : rows) {
                 f.format("%12d", matrix.get(row, column));
             }
             f.format("\n");
