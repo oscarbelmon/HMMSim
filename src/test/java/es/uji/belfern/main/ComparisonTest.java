@@ -13,9 +13,9 @@ public class ComparisonTest {
     }
 
     @Test
-    void evaluateClassifiersTest() {
+    void evaluateClassifiersArturo1Test() {
         Comparison comparison = new Comparison("arturo_train_1.csv", "arturo_test.csv");
-        comparison.evaluateClassifiers(10, 10);
+        comparison.evaluateClassifiers(1, 1);
     }
 
     @Test

@@ -73,7 +73,7 @@ public class Main {
                     for (String wap : waps) {
                         allMeasures.put(wap, csvReader.getDataLocationWAP(location, wap));
                     }
-                    for (int i = 0; i < allMeasures.get(waps.get(0)).size() - step; i += shift) {
+                    for (int i = 0; i <= allMeasures.get(waps.get(0)).size() - step; i += shift) {
                         total++;
                         measures = new HashMap<>();
                         for (String wap : waps) {

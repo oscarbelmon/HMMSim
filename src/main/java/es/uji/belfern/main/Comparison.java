@@ -71,7 +71,7 @@ public class Comparison {
         try {
             for (String location : locations) {
                 List<Instance> instances = instancesMap.get(location);
-                for (int i = 0; i < instances.size() - sampleSize; i += shift) {
+                for (int i = 0; i <= instances.size() - sampleSize; i += shift) {
                     results = new HashMap<>();
                     for (int j = 0; j < sampleSize; j++) {
                         instance = instances.get(i + j);
