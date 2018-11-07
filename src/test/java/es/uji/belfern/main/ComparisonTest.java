@@ -30,4 +30,10 @@ public class ComparisonTest {
         comparison.evaluateClassifiers(10, 10);
     }
 
+    @Test
+    void evaluateClassifiersMarta1TableTest() {
+        Comparison comparison = new Comparison("marta_train_1.csv", "marta_test.csv");
+        comparison.evaluateClassifiers(10, 10);
+    }
+
 }

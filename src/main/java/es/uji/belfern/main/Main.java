@@ -26,9 +26,9 @@ public class Main {
             else new Main().evaluateHMM(args[1], args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]));
         } else if (args[0].equals("compare")){ // [1] model_file; [2] train_file; [3] test_file; [4] sample_size; [5] shift_size
             if (args.length != 6) System.out.println("Show usage.");
-            else if ((Integer.parseInt(args[4]) < Integer.parseInt(args[5])))
-                System.out.println("Shift size can not be greater than Sample size");
-            else new Main().compareModels(args[1], args[2], args[3], Integer.parseInt(args[4]), Integer.parseInt(args[5]));
+//            else if ((Integer.parseInt(args[4]) < Integer.parseInt(args[5])))
+//                System.out.println("Shift size can not be greater than Sample size");
+            else new Main().compareModelsTable(args[1], args[2], args[3], Integer.parseInt(args[4]), Integer.parseInt(args[5]));
         } else {
             System.out.println("Show usage.");
         }
@@ -50,7 +50,8 @@ public class Main {
         }
     }
 
-    private void evaluateHMM(final String hmmFileName, final String testFileName, int step, int shift) {
+    private double evaluateHMM(final String hmmFileName, final String testFileName, int step, int shift) {
+        long total = 0, success = 0;
         try {
             Environment environment = Environment.readEnvironmentFromFile(hmmFileName);
             CSVReader csvReader = new CSVReader(testFileName, HEADER_CLASS_NAME);
@@ -66,7 +67,6 @@ public class Main {
                     confusion.put(row, column, 0);
                 }
             }
-            long total = 0, success = 0;
             String estimatedLocation = "";
             for (String location : locations) {
                 if (trainLocations.contains(location)) {
@@ -96,6 +96,7 @@ public class Main {
         } catch (IOException e) {
             System.out.println("IO Error");
         }
+        return success * 100.0 / total;
     }
 
     private void compareModels(final String hmmFileName, final String trainFileName, final String testFileName, int step, int shift) {
@@ -106,6 +107,32 @@ public class Main {
         evaluateHMM(hmmFileName, testFileName, step, shift);
         Comparison comparison = new Comparison(trainFileName, testFileName);
         comparison.evaluateClassifiers(step, shift);
+//        comparison.evaluateClassifiersProbability(step, shift);
+    }
+
+    private void compareModelsTable(final String hmmFileName, final String trainFileName, final String testFileName, int step, int shift) {
+        Map<Integer, List<Double>> table = new HashMap<>();
+        List<Double> row;
+        for(int i = step; i <= shift; i++) {
+//            row = new ArrayList<>();
+            System.out.println("TRAINING DATASET: " + trainFileName);
+            System.out.println("TEST DATASET: " + testFileName);
+            System.out.println("SAMPLE SIZE: " + i + "    SHIFT SIZE: " + i);
+            Comparison comparison = new Comparison(trainFileName, testFileName);
+//            row = comparison.evaluateClassifiers(i, i);
+            row = comparison.evaluateClassifiersProbability(i, i);
+            System.out.println("------------- Hidden Markov ------------");
+            row.add(0, evaluateHMM(hmmFileName, testFileName, i, i));
+            table.put(i, row);
+        }
+        System.out.println("Table: " + table);
+        for(Integer i: table.keySet()) {
+            System.out.print(i + ";");
+            for(Double d: table.get(i)) {
+                System.out.print(d + ";");
+            }
+            System.out.println("");
+        }
     }
 
     private void metrics(final Matrix<String, String, Integer> confusion, final List<String> locations) {

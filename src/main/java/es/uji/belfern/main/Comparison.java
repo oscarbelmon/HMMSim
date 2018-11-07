@@ -38,18 +38,34 @@ public class Comparison {
         }
     }
 
-    void evaluateClassifiers(final int sampleSize, final int shift) {
+    List<Double> evaluateClassifiers(final int sampleSize, final int shift) {
+        List<Double> results = new ArrayList<>();
         System.out.println("------------- KNN ------------");
-        evaluateClassifier(sampleSize, shift, knn);
+        results.add(evaluateClassifierVote(sampleSize, shift, knn));
         System.out.println("------------- Random Forest ------------");
-        evaluateClassifier(sampleSize, shift, rf);
+        results.add(evaluateClassifierVote(sampleSize, shift, rf));
         System.out.println("------------- Naive Bayes ------------");
-        evaluateClassifier(sampleSize, shift, nb);
+        results.add(evaluateClassifierVote(sampleSize, shift, nb));
         System.out.println("------------- MLP ------------");
-        evaluateClassifier(sampleSize, shift, mlp);
+        results.add(evaluateClassifierVote(sampleSize, shift, mlp));
+        return results;
     }
 
-    void evaluateClassifier(final int sampleSize, final int shift, Classifier classifier) {
+    List<Double> evaluateClassifiersProbability(final int sampleSize, final int shift) {
+        List<Double> results = new ArrayList<>();
+        System.out.println("------------- KNN ------------");
+        results.add(evaluateClassifierProbability(sampleSize, shift, knn));
+        System.out.println("------------- Random Forest ------------");
+        results.add(evaluateClassifierProbability(sampleSize, shift, rf));
+        System.out.println("------------- Naive Bayes ------------");
+        results.add(evaluateClassifierProbability(sampleSize, shift, nb));
+        System.out.println("------------- MLP ------------");
+        results.add(evaluateClassifierProbability(sampleSize, shift, mlp));
+        return results;
+    }
+
+    double evaluateClassifierVote(final int sampleSize, final int shift, Classifier classifier) {
+        long total = 0, success = 0;
         Map<String, Integer> results;
         int cnt;
         Instance instance;
@@ -60,7 +76,6 @@ public class Comparison {
                 confusion.put(test.classAttribute().value(row), test.classAttribute().value(column), 0);
             }
         }
-        long total = 0, success = 0;
 
         List<String> locations = new ArrayList<>();
         for (int i = 0; i < test.classAttribute().numValues(); i++) {
@@ -99,12 +114,77 @@ public class Comparison {
                 Exception e) {
             System.out.println("Mal");
         }
+        return success * 100.0 / total;
+    }
 
+    double evaluateClassifierProbability(final int sampleSize, final int shift, Classifier classifier) {
+        long total = 0, success = 0;
+        String estimatedClass;
+        Matrix<String, String, Integer> confusion = new Matrix<>();
+        for (int row = 0; row < test.classAttribute().numValues(); row++) {
+            for (int column = 0; column < test.classAttribute().numValues(); column++) {
+                confusion.put(test.classAttribute().value(row), test.classAttribute().value(column), 0);
+            }
+        }
+
+        List<String> locations = new ArrayList<>();
+        for (int i = 0; i < test.classAttribute().numValues(); i++) {
+            locations.add(test.classAttribute().value(i));
+        }
+
+
+        try {
+            for (String location : locations) {
+                List<Instance> instances = instancesMap.get(location);
+                for (int i = 0; i <= instances.size() - sampleSize; i += shift) {
+                    List<Instance> instanceList = new ArrayList<>();
+                    for(int j = 0; j < sampleSize; j++) {
+                        instanceList.add(instances.get(i + j));
+                    }
+                    estimatedClass = getEstimatedClassWithMaxProbability(instanceList, classifier, locations.size());
+                    total++;
+                    if (estimatedClass.equals(location)) success++;
+                    int previous = 0;
+                    if (confusion.get(location, estimatedClass) != null)
+                        previous = confusion.get(location, estimatedClass);
+                    confusion.put(location, estimatedClass, previous + 1);
+                }
+            }
+            System.out.println("Total:" + total + ", success: " + success + " (" + (success * 100.0 / total) + "%)");
+            System.out.println(formatMatrix(confusion));
+            metrics(confusion, locations);
+
+        } catch (
+                Exception e) {
+            System.out.println("Mal");
+        }
+        return success * 100.0 / total;
     }
 
     private String getEstimatedClass(final Instance instance, final Classifier classifier) throws Exception {
         int index = (int) classifier.classifyInstance(instance);
         return instance.classAttribute().value((int) index);
+    }
+
+    private String getEstimatedClassWithMaxProbability(final List<Instance> instances, final Classifier classifier, final int numberLocations) throws Exception {
+        double[] accumulated = new double[numberLocations];
+        for (int i = 0; i < accumulated.length; i++) accumulated[i] = 0;
+        double[] distribution;
+        for(Instance instance: instances) {
+            distribution = classifier.distributionForInstance(instance);
+            for(int i = 0; i < numberLocations; i++) {
+                accumulated[i] += distribution[i];
+            }
+        }
+        int index = 0;
+        double max = 0;
+        for(int i = 0; i < numberLocations; i++) {
+            if(accumulated[i] > max) {
+                max = accumulated[i];
+                index = i;
+            }
+        }
+        return instances.get(0).classAttribute().value(index);
     }
 
     private void initializeDataSets(final String trainingFileName, final String testFileName) throws IOException {
