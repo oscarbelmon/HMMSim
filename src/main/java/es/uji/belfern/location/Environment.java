@@ -1,5 +1,6 @@
 package es.uji.belfern.location;
 
+import es.uji.belfern.hmm.HMM;
 import es.uji.belfern.util.CSVReader;
 
 import java.io.*;
@@ -83,5 +84,9 @@ public class Environment implements Serializable {
 
     public List<String> getLocations() {
         return new ArrayList<>(locations.keySet());
+    }
+
+    public HMM getHMMWAPLocation(final String wap, final String location) {
+        return locations.get(location).getHMMWAP(wap);
     }
 }

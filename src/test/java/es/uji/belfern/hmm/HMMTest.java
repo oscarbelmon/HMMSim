@@ -1,9 +1,11 @@
 package es.uji.belfern.hmm;
 
+import es.uji.belfern.location.Environment;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -862,6 +864,20 @@ public class HMMTest {
 //
 //        System.out.println("a a a a a a -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a")));
 //        System.out.println("a a a a a b -->" + hmm.forward(Arrays.asList("a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "b")));
+
+    }
+
+    @Test
+    void generateTest() {
+        String hmmFileName = "arturo_wap01_banyo.bin";
+        try {
+            Environment environment = Environment.readEnvironmentFromFile(hmmFileName);
+            HMM hmm = environment.getHMMWAPLocation("WAP_0", "Baño");
+//            System.out.println(hmm);
+            System.out.println(hmm.generateSequence(800));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 

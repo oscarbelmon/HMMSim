@@ -87,7 +87,8 @@ public class Location implements Serializable {
                 .collect(Collectors.toList());
 
         HMM<String, Integer> hmmEstimated = hmm.EM(emissionSet, wapReadings, iterations);
-        hmmEstimated.findMaxTrellis(emissionSet, 5);
+//        hmmEstimated.findMaxTrellis(emissionSet, 5);
+        hmmEstimated.findMaxTrellis(wapReadings, 10);
         return hmmEstimated;
     }
 
@@ -107,5 +108,9 @@ public class Location implements Serializable {
             }
         }
         return probability;
+    }
+
+    public HMM<String, Integer> getHMMWAP(final String wap) {
+        return hmms.get(wap);
     }
 }
