@@ -17,8 +17,8 @@ public class Main {
 
     public static void main(String[] args) {
         if (args[0].equals("create")) { //[1] train_file [2] model_output_file [3] HMM_states [4] model_fit_iterations
-            if (args.length != 5) System.out.println("Show usage.");
-            else new Main().createHMM(args[1], args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]));
+            if (args.length != 6) System.out.println("Show usage.");
+            else new Main().createHMM(args[1], args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
         } else if (args[0].equals("evaluate")) { // [1] model_file [2] test_file [3] sample_size [4] shift_size
             if (args.length != 5) System.out.println("Show usage.");
             else if ((Integer.parseInt(args[3]) < Integer.parseInt(args[4])))
@@ -29,13 +29,100 @@ public class Main {
 //            else if ((Integer.parseInt(args[4]) < Integer.parseInt(args[5])))
 //                System.out.println("Shift size can not be greater than Sample size");
             else new Main().compareModelsTable(args[1], args[2], args[3], Integer.parseInt(args[4]), Integer.parseInt(args[5]));
+        } else if (args[0].equals("all")) {
+            if(args.length != 2) System.out.println("Show usage");
+            else new Main().all(args[1]);
         } else {
             System.out.println("Show usage.");
         }
     }
 
-    private void createHMM(String trainFileName, String hmmFileName, int nodes, int iterations) {
-        Environment environment = new Environment(trainFileName, HEADER_CLASS_NAME, nodes, iterations);
+    private void all(final String userName) {
+        String hbmFileName, trainFileName, testFileName;
+        for(int mode = 1; mode <= 3; mode++) {
+            Map<Integer, List<Double>> table = new HashMap<>();
+            List<Double> row;
+            for (int size = 1; size <= 20; size++) {
+                hbmFileName = userName + "_" + mode + "_2_5_" + size + ".bin";
+                trainFileName = userName + "_train_" + mode + ".csv";
+                testFileName = userName + "_test.csv";
+                System.out.println("TRAINING DATASET: " + trainFileName);
+                System.out.println("TEST DATASET: " + testFileName);
+                System.out.println("SAMPLE SIZE: " + size + "    SHIFT SIZE: " + size);
+                Comparison comparison = new Comparison(trainFileName, testFileName);
+                row = comparison.evaluateClassifiersProbability(size, size);
+                System.out.println("------------- Hidden Markov ------------");
+                row.add(0, evaluateHMM(hbmFileName, testFileName, size, size));
+                table.put(size, row);
+
+            }
+            System.out.println("Table: " + table);
+            for(Integer i: table.keySet()) {
+                System.out.print(i + ";");
+                for(Double d: table.get(i)) {
+                    System.out.print(d + ";");
+                }
+                System.out.println("");
+            }
+
+        }
+        Map<Integer, List<Double>> table = new HashMap<>();
+        List<Double> row;
+
+        for (int size = 1; size <= 20; size++) {
+            // emilio_1_2_5_10.bin
+            hbmFileName = userName + "_2_5_" + size + ".bin";
+            trainFileName = userName + "_train.csv";
+            testFileName = userName + "_test.csv";
+            System.out.println("TRAINING DATASET: " + trainFileName);
+            System.out.println("TEST DATASET: " + testFileName);
+            System.out.println("SAMPLE SIZE: " + size + "    SHIFT SIZE: " + size);
+            Comparison comparison = new Comparison(trainFileName, testFileName);
+            row = comparison.evaluateClassifiersProbability(size, size);
+            System.out.println("------------- Hidden Markov ------------");
+            row.add(0, evaluateHMM(hbmFileName, testFileName, size, size));
+            table.put(size, row);
+
+        }
+        System.out.println("Table: " + table);
+        for(Integer i: table.keySet()) {
+            System.out.print(i + ";");
+            for(Double d: table.get(i)) {
+                System.out.print(d + ";");
+            }
+            System.out.println("");
+        }
+
+    }
+
+    private void compareModelsTable(final String hmmFileName, final String trainFileName, final String testFileName, int size) {
+        Map<Integer, List<Double>> table = new HashMap<>();
+        List<Double> row;
+//        for(int i = size; i <= shift; i++) {
+//            row = new ArrayList<>();
+            System.out.println("TRAINING DATASET: " + trainFileName);
+            System.out.println("TEST DATASET: " + testFileName);
+            System.out.println("SAMPLE SIZE: " + size + "    SHIFT SIZE: " + size);
+            Comparison comparison = new Comparison(trainFileName, testFileName);
+//            row = comparison.evaluateClassifiers(i, i);
+            row = comparison.evaluateClassifiersProbability(size, size);
+            System.out.println("------------- Hidden Markov ------------");
+            row.add(0, evaluateHMM(hmmFileName, testFileName, size, size));
+            table.put(size, row);
+//        }
+        System.out.println("Table: " + table);
+        for(Integer i: table.keySet()) {
+            System.out.print(i + ";");
+            for(Double d: table.get(i)) {
+                System.out.print(d + ";");
+            }
+            System.out.println("");
+        }
+    }
+
+
+    private void createHMM(String trainFileName, String hmmFileName, int nodes, int iterations, int sampleSize) {
+        Environment environment = new Environment(trainFileName, HEADER_CLASS_NAME, nodes, iterations, sampleSize);
 
         try {
             FileOutputStream fos = new FileOutputStream(hmmFileName);

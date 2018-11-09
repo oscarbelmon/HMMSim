@@ -16,12 +16,14 @@ public class Location implements Serializable {
     private transient Map<String, List<Integer>> readings;
     private final int nodes;
     private final int iterations;
+    private final int sampleSize;
 
-    public Location(String locationName, Map<String, List<Integer>> readings, final int nodes, final int iterations) {
+    public Location(String locationName, Map<String, List<Integer>> readings, final int nodes, final int iterations, final int sampleSize) {
         this.locationName = locationName;
         this.readings = readings;
         this.nodes = nodes;
         this.iterations = iterations;
+        this.sampleSize = sampleSize;
         createHMMForAllWAP();
     }
 
@@ -88,7 +90,7 @@ public class Location implements Serializable {
 
         HMM<String, Integer> hmmEstimated = hmm.EM(emissionSet, wapReadings, iterations);
 //        hmmEstimated.findMaxTrellis(emissionSet, 5);
-        hmmEstimated.findMaxTrellis(wapReadings, 10);
+        hmmEstimated.findMaxTrellis(wapReadings, sampleSize);
         return hmmEstimated;
     }
 

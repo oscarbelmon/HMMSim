@@ -15,11 +15,11 @@ public class Environment implements Serializable {
     private transient String headerClassName;
     private transient CSVReader csvReader;
 
-    public Environment(String trainDataFile, String headerClassName, final int nodes, final int iterations) {
+    public Environment(String trainDataFile, String headerClassName, final int nodes, final int iterations, final int sampleSize) {
         this.trainDataFile = trainDataFile;
         this.headerClassName = headerClassName;
         readCSVData();
-        createLocations(nodes, iterations);
+        createLocations(nodes, iterations, sampleSize);
     }
 
     public static Environment readEnvironmentFromFile(String fileName) throws IOException {
@@ -40,18 +40,18 @@ public class Environment implements Serializable {
         throw new IOException("Something went wrong reading the file");
     }
 
-    private void createLocations(final int nodes, final int iterations) {
+    private void createLocations(final int nodes, final int iterations, final int sampleSize) {
         long start, end;
         for(String location: csvReader.getLocations()) {
             System.out.print("Location: " + location);
             start = System.currentTimeMillis();
-            locations.put(location, createLocation(location, nodes, iterations));
+            locations.put(location, createLocation(location, nodes, iterations, sampleSize));
             end = System.currentTimeMillis();
             System.out.println(", time: " + (end - start)/1000.0);
         }
     }
 
-    private Location createLocation(String locationName, final int nodes, final int iterations) {
+    private Location createLocation(String locationName, final int nodes, final int iterations, final int sampleSize) {
         List<String> waps = csvReader.getHeaderNames();
         List<Integer> readings;
         Map<String, List<Integer>> data = new HashMap<>();
@@ -59,7 +59,7 @@ public class Environment implements Serializable {
             readings = csvReader.getDataLocationWAP(locationName,wap);
             data.put(wap, readings);
         }
-        Location location = new Location(locationName, data, nodes, iterations);
+        Location location = new Location(locationName, data, nodes, iterations, sampleSize);
 
         return location;
     }
