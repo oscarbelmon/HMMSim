@@ -1,5 +1,6 @@
 package es.uji.belfern.hmm;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,10 @@ public class TabulatedCSVProbabilityEmitter<T> implements Emitter<T> {
         this.data = data;
         processData();
 //        findMax();
+    }
+
+    public List<T> symbols() {
+        return new ArrayList<>(histogram.keySet());
     }
 
     private void processData() {
@@ -51,6 +56,14 @@ public class TabulatedCSVProbabilityEmitter<T> implements Emitter<T> {
         double result = 1.0 / (data.size() + 1.0);
         if(histogram.containsKey(symbol)) {
             result = (histogram.get(symbol) + 1.0) / (data.size() + 1.0);
+        }
+        return result;
+    }
+
+    public double getSymbolProbabilityReal(T symbol) {
+        double result = 1.0 / (data.size());
+        if(histogram.containsKey(symbol)) {
+            result = ((double)histogram.get(symbol)) / (data.size());
         }
         return result;
     }
