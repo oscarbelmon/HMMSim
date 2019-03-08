@@ -3,6 +3,7 @@ package es.uji.belfern.hmm;
 import es.uji.belfern.location.Environment;
 import es.uji.belfern.statistics.KLDivergence;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.hamcrest.MatcherAssert.*;
@@ -888,11 +890,13 @@ public class HMMTest {
 
     @Test
     void generate2Test() {
-        String hmmFileName = "one_wap_5_iterations.bin";
+        String hmmFileName = "one_wap_50_iterations.bin";
+//        String hmmFileName = "one_wap_3nodes_50it_10size.bin";
         try {
             Environment environment = Environment.readEnvironmentFromFile(hmmFileName);
             HMM hmm = environment.getHMMWAPLocation("WAP_5", "label");
             System.out.println(hmm.generateSequence(1000));
+            System.out.println(hmm);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -921,7 +925,9 @@ public class HMMTest {
 
     @Test
     void KLdivergence2Test() {
-        String hmmFileName = "one_wap_50_iterations.bin";
+//        String hmmFileName = "one_wap_5_iterations.bin";
+        String hmmFileName = "one_wap_3nodes_50it_10size.bin";
+
         try {
             KLDivergence kl = null;
             double divergence, crossEntropy;
@@ -944,16 +950,59 @@ public class HMMTest {
             }
 
             if(kl != null) {
-                System.out.println("Entropy: " + -kl.entropyP());
+                System.out.println("Entropy: " + kl.entropyP());
                 System.out.println("Cross entropy: " + mCrossEntroy.getResult());
                 System.out.println("Sd cross entropy: " + sdCroosEntropy.getResult());
+                System.out.println("Entropy + KL-divergence: " + (kl.entropyP() + m.getResult()));
             }
-            System.out.println("Mean: " + m.getResult());
-            System.out.println("Sd: " + sd.getResult()/Math.sqrt(sd.getN()));
-            System.out.println(m.getResult()*100.0/-kl.entropyP());
+            System.out.println("Mean KL-divergence: " + m.getResult());
+            System.out.println("Sd KL-divergence: " + sd.getResult()/Math.sqrt(sd.getN()));
+            System.out.println(m.getResult()*100.0/kl.entropyP());
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    List<Integer> generateSampleNormal(final int size) {
+        NormalDistribution normal = new NormalDistribution(-58.15515516, 1.55027556);
+        List<Integer> simulated = new ArrayList<>();
+
+        for(int i = 0; i < 999; i++) {
+            simulated.add((int)normal.sample());
+        }
+
+        return simulated;
+    }
+
+    @Test
+    void normalTest() {
+        KLDivergence kl = null;
+        double divergence, crossEntropy;
+        StandardDeviation sd = new StandardDeviation();
+        StandardDeviation sdCroosEntropy = new StandardDeviation();
+        Mean mCrossEntroy = new Mean();
+        Mean m = new Mean();
+        TabulatedCSVProbabilityEmitter<Integer> real = new TabulatedCSVProbabilityEmitter<>(REAL);
+        for (int i = 0; i < 10000; i++) {
+            TabulatedCSVProbabilityEmitter<Integer> sim = new TabulatedCSVProbabilityEmitter<>(generateSampleNormal(999));
+            kl = new KLDivergence(real, sim);
+            divergence = kl.divergence();
+            m.increment(divergence);
+            sd.increment(divergence);
+            crossEntropy = -kl.crossEntropy();
+            mCrossEntroy.increment(crossEntropy);
+            sdCroosEntropy.increment(crossEntropy);
+        }
+
+        if (kl != null) {
+            System.out.println("Entropy: " + kl.entropyP());
+            System.out.println("Cross entropy: " + mCrossEntroy.getResult());
+            System.out.println("Sd cross entropy: " + sdCroosEntropy.getResult());
+            System.out.println("Entropy + KL-divergence: " + (kl.entropyP() + m.getResult()));
+        }
+        System.out.println("Mean KL-divergence: " + m.getResult());
+        System.out.println("Sd KL-divergence: " + sd.getResult() / Math.sqrt(sd.getN()));
+        System.out.println(m.getResult() * 100.0 / kl.entropyP());
     }
 
 }

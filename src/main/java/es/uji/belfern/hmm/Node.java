@@ -68,7 +68,7 @@ public class Node<T, U> implements Serializable {
         incomingNodes.put(node, ratio);
     }
 
-    // This returns the probability of the transition form 'this' node to node 'endNode'
+    // This returns the error of the transition form 'this' node to node 'endNode'
     double getProbabilityToNode(Node<T, U> endNode) {
         if(nodes.containsKey(endNode))
             return nodes.get(endNode);

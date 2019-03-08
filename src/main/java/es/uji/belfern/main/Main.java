@@ -8,15 +8,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.*;
 
 public class Main {
     private static final String HEADER_CLASS_NAME = "label";
 
     public static void main(String[] args) {
-        if (args[0].equals("create")) { //[1] train_file [2] model_output_file [3] HMM_states [4] model_fit_iterations
+        if (args[0].equals("create")) { //[1] train_file [2] model_output_file [3] HMM_states [4] model_fit_iterations [5] sample_size
             if (args.length != 6) System.out.println("Show usage.");
             else new Main().createHMM(args[1], args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
         } else if (args[0].equals("evaluate")) { // [1] model_file [2] test_file [3] sample_size [4] shift_size
@@ -154,7 +152,9 @@ public class Main {
                     confusion.put(row, column, 0);
                 }
             }
-            String estimatedLocation = "";
+//            String estimatedLocation = "";
+            Environment.Estimate estimatedLocation;
+            double error = 0;
             for (String location : locations) {
                 if (trainLocations.contains(location)) {
                     for (String wap : waps) {
@@ -167,17 +167,18 @@ public class Main {
                             measures.put(wap, allMeasures.get(wap).subList(i, i + step));
                         }
                         estimatedLocation = environment.estimateLocationProbability(measures);
-                        if (estimatedLocation.equals(location)) {
+                        if (estimatedLocation.label.equals(location)) {
                             success++;
+                            error += estimatedLocation.error;
                         }
                         int previous = 0;
-                        if (confusion.get(location, estimatedLocation) != null)
-                            previous = confusion.get(location, estimatedLocation);
-                        confusion.put(location, estimatedLocation, previous + 1);
+                        if (confusion.get(location, estimatedLocation.label) != null)
+                            previous = confusion.get(location, estimatedLocation.label);
+                        confusion.put(location, estimatedLocation.label, previous + 1);
                     }
                 }
             }
-            System.out.println("Total:" + total + ", success: " + success + " (" + (success * 100.0 / total) + "%)");
+            System.out.println("Total:" + total + ", success: " + success + " (" + (success * 100.0 / total) + "%)" + " error: " + error/success);
             System.out.println(formatMatrix(confusion));
             metrics(confusion, locations);
         } catch (IOException e) {

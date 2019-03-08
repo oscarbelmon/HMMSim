@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Environment implements Serializable {
     private Map<String, Location> locations = new HashMap<>();
@@ -68,18 +69,47 @@ public class Environment implements Serializable {
         csvReader = new CSVReader(trainDataFile, headerClassName);
     }
 
-    public String estimateLocationProbability(Map<String, List<Integer>> measures) {
+//    public String estimateLocationProbability(Map<String, List<Integer>> measures) {
+    public Estimate estimateLocationProbability(Map<String, List<Integer>> measures) {
         String estimatedLocation = "";
         double maximum = Integer.MIN_VALUE, current;
+        List<Double> estimated = new ArrayList<>();
+        int max_index = 0;
+        int index = 0;
         for(String location: locations.keySet()) {
             current = locations.get(location).estimateLocationProbability(measures);
             if(current > maximum) {
                 maximum = current;
                 estimatedLocation = location;
+                max_index = index;
+            }
+            estimated.add(current);
+            index++;
+        }
+
+//        System.out.println(estimated);
+//        System.out.println("---");
+        double module = Math.sqrt(estimated.stream()
+                .mapToDouble(e -> e * e)
+                .sum());
+        estimated = estimated.stream()
+                .mapToDouble(e -> e/module)
+                .boxed()
+                .collect(Collectors.toList());
+        double squared = 0;
+        System.out.println(estimated);
+//        System.out.println(module + ", " + estimated);
+        for(int i = 0; i < estimated.size(); i++) {
+            if(i == max_index) {
+                squared += (1 - estimated.get(i))*(1 - estimated.get(i));
+            } else {
+                squared += estimated.get(i) * estimated.get(i);
             }
         }
-//        System.out.println("---");
-        return estimatedLocation;
+//        return estimatedLocation;
+        System.out.println(Math.sqrt(squared));
+        return new Estimate(estimatedLocation, Math.sqrt(squared));
+//        return new Estimate(estimatedLocation, Math.sqrt(1));
     }
 
     public List<String> getLocations() {
@@ -88,5 +118,15 @@ public class Environment implements Serializable {
 
     public HMM getHMMWAPLocation(final String wap, final String location) {
         return locations.get(location).getHMMWAP(wap);
+    }
+
+    public class Estimate {
+        public final String label;
+        public final double error;
+
+        public Estimate(String label, double probability) {
+            this.label = label;
+            this.error = probability;
+        }
     }
 }
