@@ -111,7 +111,7 @@ public class EnvironmentTest {
                     for (String wap : waps) {
                         measures.put(wap, allMeasures.get(wap).subList(i, i + step));
                     }
-                    estimatedLocation = environment.estimateLocationProbability(measures);
+//                    estimatedLocation = environment.estimateLocationProbability(measures);
                     if (estimatedLocation.equals(location)) {
                         success++;
                     }

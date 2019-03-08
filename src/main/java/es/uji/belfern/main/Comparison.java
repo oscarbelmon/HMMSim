@@ -243,7 +243,7 @@ public class Comparison {
         }
     }
 
-    private Instances csvLoader(String fileName) throws IOException {
+    Instances csvLoader(String fileName) throws IOException {
         CSVLoader loader = new CSVLoader();
         loader.setSource(new File(fileName));
         return loader.getDataSet();
