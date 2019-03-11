@@ -1,6 +1,7 @@
 package es.uji.belfern.location;
 
 import es.uji.belfern.hmm.HMM;
+import es.uji.belfern.statistics.Estimate;
 import es.uji.belfern.util.CSVReader;
 
 import java.io.*;
@@ -97,18 +98,19 @@ public class Environment implements Serializable {
                 .boxed()
                 .collect(Collectors.toList());
         double squared = 0;
-        System.out.println(estimated);
+//        System.out.println(estimated);
 //        System.out.println(module + ", " + estimated);
         for(int i = 0; i < estimated.size(); i++) {
-            if(i == max_index) {
-                squared += (1 - estimated.get(i))*(1 - estimated.get(i));
-            } else {
+//            if(i == max_index) {
+//                squared += (1 - estimated.get(i))*(1 - estimated.get(i));
+//            } else {
                 squared += estimated.get(i) * estimated.get(i);
-            }
+//            }
         }
 //        return estimatedLocation;
-        System.out.println(Math.sqrt(squared));
-        return new Estimate(estimatedLocation, Math.sqrt(squared));
+//        System.out.println(Math.sqrt(squared));
+//        return new Estimate(estimatedLocation, Math.sqrt(squared));
+        return new Estimate(estimatedLocation, estimated.get(max_index));
 //        return new Estimate(estimatedLocation, Math.sqrt(1));
     }
 
@@ -120,13 +122,13 @@ public class Environment implements Serializable {
         return locations.get(location).getHMMWAP(wap);
     }
 
-    public class Estimate {
-        public final String label;
-        public final double error;
-
-        public Estimate(String label, double probability) {
-            this.label = label;
-            this.error = probability;
-        }
-    }
+//    public class Estimate {
+//        public final String label;
+//        public final double probability;
+//
+//        public Estimate(String label, double probability) {
+//            this.label = label;
+//            this.probability = probability;
+//        }
+//    }
 }

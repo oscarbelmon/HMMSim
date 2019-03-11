@@ -1,6 +1,8 @@
 package es.uji.belfern.main;
 
 import es.uji.belfern.data.Matrix;
+import es.uji.belfern.statistics.Estimate;
+import es.uji.belfern.util.ExperimentSerializer;
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.functions.MultilayerPerceptron;
@@ -27,9 +29,21 @@ public class Comparison {
     private RandomForest rf = new RandomForest();
     private MultilayerPerceptron mlp = new MultilayerPerceptron();
     Map<String, List<Instance>> instancesMap = new HashMap<>();
+    private final ExperimentSerializer serializer;
+
+//    private class ClassMaxProbability {
+//        String theClass;
+//        double probability;
+//
+//        ClassMaxProbability(final String theClass, double probability) {
+//            this.theClass = theClass;
+//            this.probability = probability;
+//        }
+//    }
 
     public Comparison(final String trainingFileName, final String testFileName) {
         super();
+        serializer = new ExperimentSerializer(trainingFileName, testFileName);
         try {
             initializeDataSets(trainingFileName, testFileName);
             initializeClassifiers();
@@ -141,7 +155,8 @@ public class Comparison {
                     for(int j = 0; j < sampleSize; j++) {
                         instanceList.add(instances.get(i + j));
                     }
-                    estimatedClass = getEstimatedClassWithMaxProbability(instanceList, classifier, locations.size());
+//                    estimatedClass = getEstimatedClassWithMaxProbability(instanceList, classifier, locations.size()).theClass;
+                    estimatedClass = getEstimatedClassWithMaxProbability(instanceList, classifier, locations.size()).label;
                     total++;
                     if (estimatedClass.equals(location)) success++;
                     int previous = 0;
@@ -154,8 +169,7 @@ public class Comparison {
             System.out.println(formatMatrix(confusion));
             metrics(confusion, locations);
 
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             System.out.println("Mal");
         }
         return success * 100.0 / total;
@@ -166,7 +180,9 @@ public class Comparison {
         return instance.classAttribute().value((int) index);
     }
 
-    private String getEstimatedClassWithMaxProbability(final List<Instance> instances, final Classifier classifier, final int numberLocations) throws Exception {
+//    private String getEstimatedClassWithMaxProbability(final List<Instance> instances, final Classifier classifier, final int numberLocations) throws Exception {
+//    private ClassMaxProbability getEstimatedClassWithMaxProbability(final List<Instance> instances, final Classifier classifier, final int numberLocations) throws Exception {
+    private Estimate getEstimatedClassWithMaxProbability(final List<Instance> instances, final Classifier classifier, final int numberLocations) throws Exception {
         double[] accumulated = new double[numberLocations];
         for (int i = 0; i < accumulated.length; i++) accumulated[i] = 0;
         double[] distribution;
@@ -184,7 +200,9 @@ public class Comparison {
                 index = i;
             }
         }
-        return instances.get(0).classAttribute().value(index);
+//        return instances.get(0).classAttribute().value(index);
+//        return new ClassMaxProbability(instances.get(0).classAttribute().value(index), max);
+        return new Estimate(instances.get(0).classAttribute().value(index), max);
     }
 
     private void initializeDataSets(final String trainingFileName, final String testFileName) throws IOException {

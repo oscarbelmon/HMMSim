@@ -2,6 +2,7 @@ package es.uji.belfern.main;
 
 import es.uji.belfern.data.Matrix;
 import es.uji.belfern.location.Environment;
+import es.uji.belfern.statistics.Estimate;
 import es.uji.belfern.util.CSVReader;
 
 import java.io.FileNotFoundException;
@@ -153,7 +154,7 @@ public class Main {
                 }
             }
 //            String estimatedLocation = "";
-            Environment.Estimate estimatedLocation;
+            Estimate estimatedLocation;
             double error = 0;
             for (String location : locations) {
                 if (trainLocations.contains(location)) {
@@ -169,7 +170,7 @@ public class Main {
                         estimatedLocation = environment.estimateLocationProbability(measures);
                         if (estimatedLocation.label.equals(location)) {
                             success++;
-                            error += estimatedLocation.error;
+                            error += estimatedLocation.probability;
                         }
                         int previous = 0;
                         if (confusion.get(location, estimatedLocation.label) != null)
@@ -178,7 +179,7 @@ public class Main {
                     }
                 }
             }
-            System.out.println("Total:" + total + ", success: " + success + " (" + (success * 100.0 / total) + "%)" + " error: " + error/success);
+            System.out.println("Total:" + total + ", success: " + success + " (" + (success * 100.0 / total) + "%)" + " probability: " + error/success);
             System.out.println(formatMatrix(confusion));
             metrics(confusion, locations);
         } catch (IOException e) {
