@@ -29,11 +29,12 @@ public class Ensemble {
     public static void main(String[] args) {
 //        new Ensemble().go(train);
 //        new Ensemble().go2(train, test);
-        for(int i = 0; i < 15000; i += 500) {
-            init = i;
-            new Ensemble().batchClassifiersWeka(train, test);
-            new Ensemble().batchClassifierHMM(hmmFile, test);
-        }
+//        for (int i = 0; i < 15000; i += 500) {
+//            init = i;
+//            new Ensemble().batchClassifiersWeka(train, test);
+//            new Ensemble().batchClassifierHMM(hmmFile, test);
+//        }
+        new Ensemble().batchClassifier(hmmFile, train, test);
     }
 
     private void go2(final String trainFileName, final String testFileName) {
@@ -79,7 +80,7 @@ public class Ensemble {
 
             allInstances.numClasses();
 
-            for(int i = 0; i < allInstances.numClasses(); i++) {
+            for (int i = 0; i < allInstances.numClasses(); i++) {
                 statistics.put(i, new DescriptiveStatistics());
             }
 
@@ -87,23 +88,23 @@ public class Ensemble {
             int size = allInstances.size();
             Instances train, test;
             IBk knn = new IBk();
-            for(int i = 0; i < 1000; i++) {
+            for (int i = 0; i < 1000; i++) {
                 System.out.println(i);
                 resampledInstances = allInstances.resample(new RandomVariates());
 
                 train = new Instances(resampledInstances, 0, size / 4);
-                test = new Instances(resampledInstances, size / 4, 3 *size / 4);
+                test = new Instances(resampledInstances, size / 4, 3 * size / 4);
 
                 knn.setOptions(Utils.splitOptions(knnOptions));
                 knn.buildClassifier(train);
 
                 Evaluation evaluation = new Evaluation(train);
                 evaluation.evaluateModel(knn, test);
-                for(int j = 0; j < allInstances.numClasses(); j++) {
+                for (int j = 0; j < allInstances.numClasses(); j++) {
                     statistics.get(j).addValue(evaluation.precision(j));
                 }
             }
-            for(int i = 0; i < allInstances.numClasses(); i++) {
+            for (int i = 0; i < allInstances.numClasses(); i++) {
                 System.out.println(allInstances.classAttribute().value(i));
                 System.out.println(statistics.get(i).getMean());
                 System.out.println(statistics.get(i).getStandardDeviation());
@@ -135,12 +136,12 @@ public class Ensemble {
             BatchClassifier classifier = new BatchClassifierWeka(knn);
             List<Instance> instances = new ArrayList<>();
 
-            for(int i = init; i < init + 10; i++) {
+            for (int i = init; i < init + 10; i++) {
                 instances.add(test.instance(i));
             }
-            System.out.println(instances.get(0).attribute(instances.get(0).numAttributes() - 1).value((int)instances.get(0).classValue()));
+            System.out.println(instances.get(0).attribute(instances.get(0).numAttributes() - 1).value((int) instances.get(0).classValue()));
             System.out.println(classifier.estimate(instances));
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
@@ -158,10 +159,48 @@ public class Ensemble {
             test.setClassIndex(test.numAttributes() - 1);
 
             List<Instance> instances = new ArrayList<>();
-            for(int i = init; i < init + 10; i++) {
+            for (int i = init; i < init + 10; i++) {
                 instances.add(test.instance(i));
             }
             System.out.println(classifier.estimate(instances));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void batchClassifier(final String hmmFileName, final String trainFileName, final String testFileName) {
+        try {
+            Environment environment = Environment.readEnvironmentFromFile(hmmFileName);
+            BatchClassifier hmmClassifier = new BatchClassifierHMM(environment);
+
+            CSVLoader trainLoader = new CSVLoader();
+            trainLoader.setSource(new File(trainFileName));
+            Instances train = trainLoader.getDataSet();
+            train.setClassIndex(train.numAttributes() - 1);
+
+            CSVLoader testLoader = new CSVLoader();
+            testLoader.setSource(new File(testFileName));
+            Instances test = testLoader.getDataSet();
+            test.setClassIndex(test.numAttributes() - 1);
+
+            IBk knn = new IBk();
+            knn.setOptions(Utils.splitOptions(knnOptions));
+            knn.buildClassifier(train);
+
+            BatchClassifier wekaClassifier = new BatchClassifierWeka(knn);
+            List<Instance> instances = new ArrayList<>();
+
+            for(int j = 0; j < test.numInstances(); j += 5) {
+                for (int i = init; i < init + 5; i++) {
+                    instances.add(test.instance(i));
+                }
+                System.out.println(instances.get(0).attribute(instances.get(0).numAttributes() - 1).value((int) instances.get(0).classValue()));
+                System.out.println(hmmClassifier.estimate(instances));
+                System.out.println(wekaClassifier.estimate(instances));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {

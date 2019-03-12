@@ -98,19 +98,18 @@ public class Environment implements Serializable {
                 .boxed()
                 .collect(Collectors.toList());
         double squared = 0;
-//        System.out.println(estimated);
+        System.out.println(estimated);
 //        System.out.println(module + ", " + estimated);
         for(int i = 0; i < estimated.size(); i++) {
-//            if(i == max_index) {
-//                squared += (1 - estimated.get(i))*(1 - estimated.get(i));
-//            } else {
+            if(i == max_index) {
+                squared += (1 - estimated.get(i))*(1 - estimated.get(i));
+            } else {
                 squared += estimated.get(i) * estimated.get(i);
-//            }
+            }
         }
 //        return estimatedLocation;
-//        System.out.println(Math.sqrt(squared));
-//        return new Estimate(estimatedLocation, Math.sqrt(squared));
-        return new Estimate(estimatedLocation, estimated.get(max_index));
+        System.out.println(Math.sqrt(squared));
+        return new Estimate(estimatedLocation, Math.sqrt(squared));
 //        return new Estimate(estimatedLocation, Math.sqrt(1));
     }
 

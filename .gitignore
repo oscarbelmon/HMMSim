@@ -3,3 +3,4 @@ target/
 *.iml
 src/main/java/main/
 *.bin
+src/main/resources/
