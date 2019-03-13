@@ -97,7 +97,7 @@ public class Environment implements Serializable {
                 .boxed()
                 .collect(Collectors.toList());
         double squared = 0;
-        System.out.println(estimated);
+//        System.out.println(estimated);
 //        System.out.println(module + ", " + estimated);
         for(int i = 0; i < estimated.size(); i++) {
             if(i == max_index) {
@@ -107,7 +107,7 @@ public class Environment implements Serializable {
             }
         }
 //        return estimatedLocation;
-        System.out.println(Math.sqrt(squared));
+//        System.out.println(Math.sqrt(squared));
         return new Estimate(estimatedLocation, Math.sqrt(squared));
 //        return new Estimate(estimatedLocation, Math.sqrt(1));
     }
