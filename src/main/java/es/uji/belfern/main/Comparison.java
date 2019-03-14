@@ -29,7 +29,7 @@ public class Comparison {
     private RandomForest rf = new RandomForest();
     private MultilayerPerceptron mlp = new MultilayerPerceptron();
     Map<String, List<Instance>> instancesMap = new HashMap<>();
-    private final ExperimentSerializer serializer;
+//    private final ExperimentSerializer serializer;
 
 //    private class ClassMaxProbability {
 //        String theClass;
@@ -43,7 +43,7 @@ public class Comparison {
 
     public Comparison(final String trainingFileName, final String testFileName) {
         super();
-        serializer = new ExperimentSerializer(trainingFileName, testFileName);
+//        serializer = new ExperimentSerializer(trainingFileName, testFileName);
         try {
             initializeDataSets(trainingFileName, testFileName);
             initializeClassifiers();

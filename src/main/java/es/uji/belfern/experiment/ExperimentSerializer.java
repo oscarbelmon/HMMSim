@@ -6,15 +6,17 @@ import com.google.gson.GsonBuilder;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ExperimentSerializer {
     private final String trainFileName;
     private final String testFileName;
+    private final int batchSize;
     private List<String> algorithms = new ArrayList<>();
     private List<String> classes = new ArrayList<>();
-    private List<Results> results = new ArrayList<>();
-    private transient Results currentResults;
+    private ResultSet resultSets = new ResultSet();
 
     public static class Result {
         public final String algorithm;
@@ -28,16 +30,22 @@ public class ExperimentSerializer {
         }
     }
 
-    public static class Results {
-        public final String realClass;
-        List<Result> results = new ArrayList<>();
-
-        public Results(final String realClass) {
-            this.realClass = realClass;
-        }
+    public static class AlgorithmsResults {
+        List<Result> algorithmResults = new ArrayList<>();
 
         public void addResult(final Result result) {
-            results.add(result);
+            algorithmResults.add(result);
+        }
+    }
+
+    public static class ResultSet {
+        Map<String, List<AlgorithmsResults>> results = new HashMap<>();
+
+        public void addResult(final String className, final AlgorithmsResults results) {
+            if(this.results.containsKey(className) == false) {
+                this.results.put(className, new ArrayList<>());
+            }
+            this.results.get(className).add(results);
         }
     }
 
@@ -57,9 +65,10 @@ public class ExperimentSerializer {
         return classes;
     }
 
-    public ExperimentSerializer(final String trainFileName, final String testFileName) {
+    public ExperimentSerializer(final String trainFileName, final String testFileName, final int batchSize) {
         this.trainFileName = trainFileName;
         this.testFileName = testFileName;
+        this.batchSize = batchSize;
     }
 
     public ExperimentSerializer withAlgorithms(final List<String> algorithms) {
@@ -72,13 +81,8 @@ public class ExperimentSerializer {
         return this;
     }
 
-    public void newResults(final String className) {
-        currentResults = new Results(className);
-        results.add(currentResults);
-    }
-
-    public void addResult(final Result result) {
-        currentResults.addResult(result);
+    public void addResult(final String className, final AlgorithmsResults result) {
+        resultSets.addResult(className, result);
     }
 
     public String toJson() {

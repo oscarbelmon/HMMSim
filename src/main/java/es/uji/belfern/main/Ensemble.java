@@ -9,6 +9,7 @@ import es.uji.belfern.experiment.ExperimentSerializer;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import weka.classifiers.Evaluation;
 import weka.classifiers.lazy.IBk;
+import weka.classifiers.trees.RandomForest;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.RandomVariates;
@@ -22,10 +23,11 @@ import java.util.*;
 
 public class Ensemble {
     private static final String knnOptions = "-K 1 -W 0 -A \"weka.core.neighboursearch.LinearNNSearch -A \\\"weka.core.EuclideanDistance -R first-last\\\"\"";
+    private static String rfOptions = "-I 100 -K 0 -S 1";
     private static final String train = "src/main/resources/arturo_train_1.csv";
     private static final String test = "src/main/resources/arturo_test.csv";
     private static final String hmmFile = "src/main/resources/arturo_coso.bin";
-    private static final String jsonFileName = "src/main/resources/data.json";
+    private static final String jsonFileName = "src/main/resources/data2.json";
 //    private static final String test = "src/main/resources/arturo_test.csv";
 
     static int init = 0;
@@ -38,8 +40,8 @@ public class Ensemble {
 //            new Ensemble().batchClassifiersWeka(train, test);
 //            new Ensemble().batchClassifierHMM(hmmFile, test);
 //        }
-//        new Ensemble().batchClassifier(hmmFile, train, test);
-        new Ensemble().loadExperimenter();
+        new Ensemble().batchClassifier(hmmFile, train, test);
+//        new Ensemble().loadExperimenter();
     }
 
     private void go2(final String trainFileName, final String testFileName) {
@@ -178,9 +180,10 @@ public class Ensemble {
 
     private void batchClassifier(final String hmmFileName, final String trainFileName, final String testFileName) {
         try {
-            ExperimentSerializer serializer = new ExperimentSerializer(train, test)
+            int batchSize = 10;
+            ExperimentSerializer serializer = new ExperimentSerializer(train, test, batchSize)
                     .withClasses(Arrays.asList("Baño", "Cocina", "Comedor", "Despacho", "Dormitorio"))
-                    .withAlgorithms(Arrays.asList("hmm","knn"));
+                    .withAlgorithms(Arrays.asList("hmm","knn", "rf"));
 
 
             Environment environment = Environment.readEnvironmentFromFile(hmmFileName);
@@ -200,24 +203,35 @@ public class Ensemble {
             knn.setOptions(Utils.splitOptions(knnOptions));
             knn.buildClassifier(train);
 
-            BatchClassifier wekaClassifier = new BatchClassifierWeka(knn);
+
+            RandomForest rf = new RandomForest();
+            rf.setOptions(Utils.splitOptions(rfOptions));
+            rf.buildClassifier(train);
+
+            BatchClassifier knnClassifier = new BatchClassifierWeka(knn);
+            BatchClassifier rfClassifier = new BatchClassifierWeka(rf);
             List<Instance> instances;
-            Estimate hmmEstimate, knnEstimate;
+            Estimate hmmEstimate, knnEstimate, rfEstimate;
             String realClass;
-            for(int j = 0; j < test.numInstances()-10; j += 10) {
+            ExperimentSerializer.AlgorithmsResults algorithmsResults;
+            for(int j = 0; j < test.numInstances()-batchSize; j += batchSize) {
+                algorithmsResults = new ExperimentSerializer.AlgorithmsResults();
                 instances = new ArrayList<>();
-                for (int i = j; i < j+10; i++) {
+                for (int i = j; i < j + batchSize; i++) {
                     instances.add(test.instance(i));
                 }
                 realClass = instances.get(0).attribute(instances.get(0).numAttributes() - 1).value((int) instances.get(0).classValue());
-                serializer.newResults(realClass);
                 hmmEstimate = hmmClassifier.estimate(instances);
-                knnEstimate = wekaClassifier.estimate(instances);
+                knnEstimate = knnClassifier.estimate(instances);
+                rfEstimate = rfClassifier.estimate(instances);
 //                System.out.println(instances.get(0).attribute(instances.get(0).numAttributes() - 1).value((int) instances.get(0).classValue()));
 //                System.out.println(hmmClassifier.estimate(instances));
 //                System.out.println(wekaClassifier.estimate(instances));
-                serializer.addResult(new ExperimentSerializer.Result("hmm", hmmEstimate.label, hmmEstimate.probability));
-                serializer.addResult(new ExperimentSerializer.Result("knn", knnEstimate.label, knnEstimate.probability));
+
+                algorithmsResults.addResult(new ExperimentSerializer.Result("hmm", hmmEstimate.label, hmmEstimate.probability));
+                algorithmsResults.addResult(new ExperimentSerializer.Result("knn", knnEstimate.label, knnEstimate.probability));
+                algorithmsResults.addResult(new ExperimentSerializer.Result("rf", rfEstimate.label, rfEstimate.probability));
+                serializer.addResult(realClass, algorithmsResults);
             }
 //            System.out.println(serializer.toJson());
             Path path = Paths.get(jsonFileName);
@@ -236,7 +250,7 @@ public class Ensemble {
         try {
             serializer = ExperimentSerializer.fromJson(jsonFileName);
             System.out.println(serializer.toJson());
-            System.out.println(serializer);
+//            System.out.println(serializer);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
