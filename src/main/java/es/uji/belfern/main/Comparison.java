@@ -2,7 +2,7 @@ package es.uji.belfern.main;
 
 import es.uji.belfern.data.Matrix;
 import es.uji.belfern.statistics.Estimate;
-import es.uji.belfern.util.ExperimentSerializer;
+import es.uji.belfern.experiment.ExperimentSerializer;
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.functions.MultilayerPerceptron;

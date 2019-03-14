@@ -70,7 +70,6 @@ public class Environment implements Serializable {
         csvReader = new CSVReader(trainDataFile, headerClassName);
     }
 
-//    public String estimateLocationProbability(Map<String, List<Integer>> measures) {
     public Estimate estimateLocationProbability(Map<String, List<Integer>> measures) {
         String estimatedLocation = "";
         double maximum = Integer.MIN_VALUE, current;
@@ -88,29 +87,31 @@ public class Environment implements Serializable {
             index++;
         }
 
-//        System.out.println(estimated);
-//        System.out.println("---");
-        double module = Math.sqrt(estimated.stream()
-                .mapToDouble(e -> e * e)
-                .sum());
-        estimated = estimated.stream()
-                .mapToDouble(e -> e/module)
-                .boxed()
-                .collect(Collectors.toList());
-        double squared = 0;
-//        System.out.println(estimated);
-//        System.out.println(module + ", " + estimated);
-        for(int i = 0; i < estimated.size(); i++) {
-            if(i == max_index) {
-                squared += (1 - estimated.get(i))*(1 - estimated.get(i));
-            } else {
-                squared += estimated.get(i) * estimated.get(i);
-            }
+//        double module = Math.sqrt(estimated.stream()
+//                .mapToDouble(e -> e * e)
+//                .sum());
+        double module = estimated.stream()
+                .mapToDouble(e -> e)
+                .sum();
+//        System.out.println("Module: " + module);
+        if(module != 0) {
+            estimated = estimated.stream()
+                    .mapToDouble(e -> e / module)
+                    .boxed()
+                    .collect(Collectors.toList());
         }
-//        return estimatedLocation;
-//        System.out.println(Math.sqrt(squared));
-        return new Estimate(estimatedLocation, Math.sqrt(squared));
-//        return new Estimate(estimatedLocation, Math.sqrt(1));
+//        double squared = 0;
+        // todo El siguiente fragmento de código no es útil. Debo borrarlo.
+//        for(int i = 0; i < estimated.size(); i++) {
+//            if(i == max_index) {
+//                squared += (1 - estimated.get(i))*(1 - estimated.get(i));
+//            } else {
+//                squared += estimated.get(i) * estimated.get(i);
+//            }
+//        }
+//        double max = estimated.get(max_index);
+//        if(max == Double.POSITIVE_INFINITY) max = 1.0;
+        return new Estimate(estimatedLocation, estimated.get(max_index));
     }
 
     public List<String> getLocations() {
@@ -120,14 +121,4 @@ public class Environment implements Serializable {
     public HMM getHMMWAPLocation(final String wap, final String location) {
         return locations.get(location).getHMMWAP(wap);
     }
-
-//    public class Estimate {
-//        public final String label;
-//        public final double probability;
-//
-//        public Estimate(String label, double probability) {
-//            this.label = label;
-//            this.probability = probability;
-//        }
-//    }
 }
