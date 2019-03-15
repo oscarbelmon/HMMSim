@@ -208,18 +208,19 @@ public class Main {
             Comparison comparison = new Comparison(trainFileName, testFileName);
 //            row = comparison.evaluateClassifiers(i, i);
             row = comparison.evaluateClassifiersProbability(i, i);
-            System.out.println("------------- Hidden Markov ------------");
-            row.add(0, evaluateHMM(hmmFileName, testFileName, i, i));
-            table.put(i, row);
+            comparison.storeExperiments();
+//            System.out.println("------------- Hidden Markov ------------");
+//            row.add(0, evaluateHMM(hmmFileName, testFileName, i, i));
+//            table.put(i, row);
         }
-        System.out.println("Table: " + table);
-        for(Integer i: table.keySet()) {
-            System.out.print(i + ";");
-            for(Double d: table.get(i)) {
-                System.out.print(d + ";");
-            }
-            System.out.println("");
-        }
+//        System.out.println("Table: " + table);
+//        for(Integer i: table.keySet()) {
+//            System.out.print(i + ";");
+//            for(Double d: table.get(i)) {
+//                System.out.print(d + ";");
+//            }
+//            System.out.println("");
+//        }
     }
 
     private void metrics(final Matrix<String, String, Integer> confusion, final List<String> locations) {

@@ -1,6 +1,9 @@
 package es.uji.belfern.main;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import es.uji.belfern.data.Matrix;
+import es.uji.belfern.experiment.Experiment;
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.functions.MultilayerPerceptron;
@@ -11,8 +14,7 @@ import weka.core.Instances;
 import weka.core.Utils;
 import weka.core.converters.CSVLoader;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class Comparison {
@@ -26,17 +28,52 @@ public class Comparison {
     private NaiveBayes nb = new NaiveBayes();
     private RandomForest rf = new RandomForest();
     private MultilayerPerceptron mlp = new MultilayerPerceptron();
+    private final List<String> experimentNames = Arrays.asList("KNN", "NB", "RF", "MLP", "HMM");
     Map<String, List<Instance>> instancesMap = new HashMap<>();
+    Map<String, Experiment> experimentMap = new HashMap<>();
+
+    private class ClassWithPeobability {
+        final String className;
+        final double probability;
+
+        public ClassWithPeobability(String className, double probability) {
+            this.className = className;
+            this.probability = probability;
+        }
+    }
 
     public Comparison(final String trainingFileName, final String testFileName) {
         super();
+        initializeExperiments(trainingFileName, testFileName);
+    }
+
+    private void initializeExperiments(final String trainingFileName, final String testFileName) {
         try {
             initializeDataSets(trainingFileName, testFileName);
             initializeClassifiers();
+            createExperiments(trainingFileName, testFileName);
+            storeExperiments();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    public void storeExperiments() {
+        Gson gson = new GsonBuilder().create();
+        try(Writer writer = new OutputStreamWriter(new FileOutputStream("Output.json") , "UTF-8")) {
+//            System.out.println(gson.toJson(experimentMap.get("KNN")));
+            gson.toJson(experimentMap.get("KNN"), writer);
+        } catch (IOException e) {
+
+        }
+    }
+
+    private void createExperiments(final String trainingFileName, final String testFileName) {
+        for(String experimentName: experimentNames) {
+            experimentMap.put(experimentName, new Experiment(experimentName, trainingFileName, testFileName));
+        }
+    }
+
 
     List<Double> evaluateClassifiers(final int sampleSize, final int shift) {
         List<Double> results = new ArrayList<>();
@@ -54,13 +91,13 @@ public class Comparison {
     List<Double> evaluateClassifiersProbability(final int sampleSize, final int shift) {
         List<Double> results = new ArrayList<>();
         System.out.println("------------- KNN ------------");
-        results.add(evaluateClassifierProbability(sampleSize, shift, knn));
+        results.add(evaluateClassifierProbability(sampleSize, shift, knn, "KNN"));
         System.out.println("------------- Random Forest ------------");
-        results.add(evaluateClassifierProbability(sampleSize, shift, rf));
+        results.add(evaluateClassifierProbability(sampleSize, shift, rf, "RF"));
         System.out.println("------------- Naive Bayes ------------");
-        results.add(evaluateClassifierProbability(sampleSize, shift, nb));
+        results.add(evaluateClassifierProbability(sampleSize, shift, nb, "NB"));
         System.out.println("------------- MLP ------------");
-        results.add(evaluateClassifierProbability(sampleSize, shift, mlp));
+        results.add(evaluateClassifierProbability(sampleSize, shift, mlp, "MLP"));
         return results;
     }
 
@@ -117,7 +154,7 @@ public class Comparison {
         return success * 100.0 / total;
     }
 
-    double evaluateClassifierProbability(final int sampleSize, final int shift, Classifier classifier) {
+    double evaluateClassifierProbability(final int sampleSize, final int shift, Classifier classifier, final String algorithmName) {
         long total = 0, success = 0;
         String estimatedClass;
         Matrix<String, String, Integer> confusion = new Matrix<>();
@@ -134,6 +171,7 @@ public class Comparison {
 
 
         try {
+            ClassWithPeobability estimated;
             for (String location : locations) {
                 List<Instance> instances = instancesMap.get(location);
                 for (int i = 0; i <= instances.size() - sampleSize; i += shift) {
@@ -141,7 +179,10 @@ public class Comparison {
                     for(int j = 0; j < sampleSize; j++) {
                         instanceList.add(instances.get(i + j));
                     }
-                    estimatedClass = getEstimatedClassWithMaxProbability(instanceList, classifier, locations.size());
+                    estimated = getEstimatedClassWithMaxProbability(instanceList, classifier, locations.size());
+                    estimatedClass = estimated.className;
+                    experimentMap.get(algorithmName).addSampleResult(new Experiment.SampleResult(i, location, estimated.className, estimated.probability));
+//                    estimatedClass = getEstimatedClassWithMaxProbability(instanceList, classifier, locations.size());
                     total++;
                     if (estimatedClass.equals(location)) success++;
                     int previous = 0;
@@ -166,7 +207,8 @@ public class Comparison {
         return instance.classAttribute().value((int) index);
     }
 
-    private String getEstimatedClassWithMaxProbability(final List<Instance> instances, final Classifier classifier, final int numberLocations) throws Exception {
+//    private String getEstimatedClassWithMaxProbability(final List<Instance> instances, final Classifier classifier, final int numberLocations) throws Exception {
+    private ClassWithPeobability getEstimatedClassWithMaxProbability(final List<Instance> instances, final Classifier classifier, final int numberLocations) throws Exception {
         double[] accumulated = new double[numberLocations];
         for (int i = 0; i < accumulated.length; i++) accumulated[i] = 0;
         double[] distribution;
@@ -184,7 +226,8 @@ public class Comparison {
                 index = i;
             }
         }
-        return instances.get(0).classAttribute().value(index);
+        return new ClassWithPeobability(instances.get(0).classAttribute().value(index), max/instances.size());
+//        return instances.get(0).classAttribute().value(index);
     }
 
     private void initializeDataSets(final String trainingFileName, final String testFileName) throws IOException {
