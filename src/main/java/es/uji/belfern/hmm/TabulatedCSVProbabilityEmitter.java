@@ -22,6 +22,17 @@ public class TabulatedCSVProbabilityEmitter<T> implements Emitter<T> {
         return new ArrayList<>(histogram.keySet());
     }
 
+    public List<Double> density() {
+        double sum = histogram.values().stream()
+                .mapToDouble(Long::doubleValue)
+                .sum();
+
+        return histogram.values().stream()
+                .mapToDouble(v -> v/sum)
+                .boxed()
+                .collect(Collectors.toList());
+    }
+
     private void processData() {
         histogram = data.stream()
                 .collect(Collectors.toMap(e -> e, e -> 0L, (oldValud, newValue) -> newValue));

@@ -25,11 +25,11 @@ public class KLDivergence {
     public double entropyP() {
         double entropy = 0;
 
-        for(Integer symbol: p.symbols()) {
-            entropy += p.getSymbolProbabilityReal(symbol) * Math.log(p.getSymbolProbabilityReal(symbol));
-        }
+        entropy = p.density().stream()
+                .mapToDouble(e -> e * Math.log(e))
+                .sum();
 
-        return entropy;
+        return -LOG2E * entropy;
     }
 
     public double crossEntropy() {
@@ -39,6 +39,6 @@ public class KLDivergence {
             cross += p.getSymbolProbabilityReal(symbol) * Math.log(q.getSymbolProbabilityReal(symbol));
         }
 
-        return cross;
+        return LOG2E * cross;
     }
 }
