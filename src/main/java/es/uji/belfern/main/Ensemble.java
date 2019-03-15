@@ -27,10 +27,10 @@ public class Ensemble {
     private static final String knnOptions = "-K 1 -W 0 -A \"weka.core.neighboursearch.LinearNNSearch -A \\\"weka.core.EuclideanDistance -R first-last\\\"\"";
     private static String rfOptions = "-I 100 -K 0 -S 1";
     private static String mlpOptions = "-L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H a";
-    private static final String train = "src/main/resources/arturo_train.csv";
-    private static final String test = "src/main/resources/arturo_test.csv";
-    private static final String hmmFile = "src/main/resources/arturo_ensemble.bin";
-    private static final String jsonFileName = "src/main/resources/data_arturo_ensemble.json";
+    private static final String train = "src/main/resources/marta_train.csv";
+    private static final String test = "src/main/resources/marta_test.csv";
+    private static final String hmmFile = "src/main/resources/marta_ensemble.bin";
+    private static final String jsonFileName = "src/main/resources/data_marta_ensemble.json";
 //    private static final String test = "src/main/resources/arturo_test.csv";
 
     static int init = 0;
@@ -43,8 +43,9 @@ public class Ensemble {
 //            new Ensemble().batchClassifiersWeka(train, test);
 //            new Ensemble().batchClassifierHMM(hmmFile, test);
 //        }
-        new Ensemble().batchClassifier(hmmFile, train, test);
-//        new Ensemble().loadExperimenter();
+//        new Ensemble().batchClassifier(hmmFile, train, test);
+//        new Ensemble().confutionMatrix();
+        new Ensemble().coso();
     }
 
     private void go2(final String trainFileName, final String testFileName) {
@@ -186,7 +187,7 @@ public class Ensemble {
             int batchSize = 10;
             ExperimentSerializer serializer = new ExperimentSerializer(train, test, batchSize)
                     .withClasses(Arrays.asList("Baño", "Cocina", "Comedor", "Despacho", "Dormitorio"))
-                    .withAlgorithms(Arrays.asList("hmm","knn", "rf", "mlp"));
+                    .withAlgorithms(Arrays.asList("hmm", "knn", "rf", "mlp", "nb"));
 
 
             Environment environment = Environment.readEnvironmentFromFile(hmmFileName);
@@ -226,7 +227,7 @@ public class Ensemble {
             Estimate hmmEstimate, knnEstimate, rfEstimate, mlpEstimate, nbEstimate;
             String realClass;
             ExperimentSerializer.AlgorithmsResults algorithmsResults;
-            for(int j = 0; j < test.numInstances()-batchSize; j += batchSize) {
+            for (int j = 0; j < test.numInstances() - batchSize; j += batchSize) {
                 algorithmsResults = new ExperimentSerializer.AlgorithmsResults();
                 instances = new ArrayList<>();
                 for (int i = j; i < j + batchSize; i++) {
@@ -238,9 +239,6 @@ public class Ensemble {
                 rfEstimate = rfClassifier.estimate(instances);
                 mlpEstimate = mlpClassifier.estimate(instances);
                 nbEstimate = nbClassifier.estimate(instances);
-//                System.out.println(instances.get(0).attribute(instances.get(0).numAttributes() - 1).value((int) instances.get(0).classValue()));
-//                System.out.println(hmmClassifier.estimate(instances));
-//                System.out.println(wekaClassifier.estimate(instances));
 
                 algorithmsResults.addResult(new ExperimentSerializer.Result("hmm", hmmEstimate.label, hmmEstimate.probability));
                 algorithmsResults.addResult(new ExperimentSerializer.Result("knn", knnEstimate.label, knnEstimate.probability));
@@ -249,7 +247,6 @@ public class Ensemble {
                 algorithmsResults.addResult(new ExperimentSerializer.Result("nb", nbEstimate.label, nbEstimate.probability));
                 serializer.addResult(realClass, algorithmsResults);
             }
-//            System.out.println(serializer.toJson());
             Path path = Paths.get(jsonFileName);
             FileWriter fw = new FileWriter(path.toFile());
             fw.write(serializer.toJson());
@@ -261,12 +258,65 @@ public class Ensemble {
         }
     }
 
-    private void loadExperimenter() {
+    private void confutionMatrix() {
         ExperimentSerializer serializer = null;
         try {
             serializer = ExperimentSerializer.fromJson(jsonFileName);
-            System.out.println(serializer.toJson());
-//            System.out.println(serializer);
+
+            Map<String, Integer> resultados = new HashMap<>();
+            for (String className : serializer.getClasses()) {
+                System.out.println(className);
+                for (int i = 0; i < serializer.numResultsForClass(className); i++) {
+                    ExperimentSerializer.Result results = serializer.forClassAndAlgorithmGetResultAt(className, "knn", i);
+                    if (resultados.containsKey(results.className) == false) {
+                        resultados.put(results.className, 0);
+                    }
+                    int previous = resultados.get(results.className);
+                    resultados.put(results.className, previous + 1);
+                }
+
+                System.out.println(resultados);
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void coso() {
+        ExperimentSerializer serializer = null;
+        try {
+            serializer = ExperimentSerializer.fromJson(jsonFileName);
+
+            Map<String, Integer> map;
+            for (String className : serializer.getClasses()) {
+//                System.out.println(className);
+                int ok = 0, not = 0;
+                for (int i = 0; i < serializer.numResultsForClass(className); i++) {
+                    map = serializer.forClassGetEstimatesAt(className, i, Arrays.asList("mlp", "knn", "nb", "rf", "hmm"));
+//                    map = serializer.forClassGetEstimatesAt(className, i, Arrays.asList("knn", "nb", "rf", "hmm"));
+//                    map = serializer.forClassGetEstimatesAt(className, i, Arrays.asList("mlp", "nb", "rf", "hmm"));
+//                    map = serializer.forClassGetEstimatesAt(className, i, Arrays.asList("mlp", "knn", "rf", "hmm"));
+//                    map = serializer.forClassGetEstimatesAt(className, i, Arrays.asList("mlp", "knn", "nb", "hmm"));
+//                    map = serializer.forClassGetEstimatesAt(className, i, Arrays.asList("mlp", "knn", "nb", "rf"));
+                    if (className.equals(map.entrySet()
+                            .stream()
+                            .max(Comparator.comparingInt(Map.Entry::getValue))
+                            .get()
+                            .getKey())) {
+                        ok++;
+                    } else {
+                        not++;
+                    }
+
+                }
+//                System.out.println("Success: " + ok);
+//                System.out.println("Not success: " + not);
+                System.out.print(" & " + ok + " (" + String.format(Locale.US, "%.2f", ok*100.0/(ok+not)) + "\\%)");
+            }
+            System.out.println(" \\\\");
+
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

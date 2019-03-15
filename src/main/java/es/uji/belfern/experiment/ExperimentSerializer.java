@@ -31,10 +31,27 @@ public class ExperimentSerializer {
     }
 
     public static class AlgorithmsResults {
-        List<Result> algorithmResults = new ArrayList<>();
+//        List<Result> algorithmResults = new ArrayList<>();
+        Map<String, Result> algorithmResults = new HashMap<>();
 
         public void addResult(final Result result) {
-            algorithmResults.add(result);
+//            algorithmResults.add(result);
+            algorithmResults.put(result.algorithm, result);
+        }
+
+        public Map<String, Integer> estimatedClasses(final List<String> algorithms) {
+            Map<String, Integer> results = new HashMap<>();
+            int previous;
+            for(Result result: algorithmResults.values()) {
+                if(algorithms.contains(result.algorithm)) {
+                    if (results.containsKey(result.className) == false) {
+                        results.put(result.className, 0);
+                    }
+                    previous = results.get(result.className);
+                    results.put(result.className, previous + 1);
+                }
+            }
+            return results;
         }
     }
 
@@ -47,6 +64,18 @@ public class ExperimentSerializer {
             }
             this.results.get(className).add(results);
         }
+    }
+
+    public long numResultsForClass(final String className) {
+        return resultSets.results.get(className).size();
+    }
+
+    public Result forClassAndAlgorithmGetResultAt(final String className, final String algorithmName, final int index) {
+        return resultSets.results.get(className).get(index).algorithmResults.get(algorithmName);
+    }
+
+    public Map<String, Integer> forClassGetEstimatesAt(final String className, final int index, final List<String> algorithms) {
+        return resultSets.results.get(className).get(index).estimatedClasses(algorithms);
     }
 
     public String getTrainFileName() {
