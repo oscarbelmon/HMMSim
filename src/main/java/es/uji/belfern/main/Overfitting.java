@@ -142,7 +142,7 @@ public class Overfitting {
         return DIRECTORY +  user + "_test.csv";
     }
 
-    private void confutionMatrix() {
+    private void confusionMatrix() {
         ExperimentSerializer serializer = null;
         int succes = 0, total = 0;
         try {
@@ -150,7 +150,6 @@ public class Overfitting {
 
             Map<String, Integer> resultados = new HashMap<>();
             for (String className : serializer.getClasses()) {
-//                System.out.println(className);
                 for (int i = 0; i < serializer.numResultsForClass(className); i++) {
                     ExperimentSerializer.Result results = serializer.forClassAndAlgorithmGetResultAt(className, "hmm", i);
                     if (resultados.containsKey(results.className) == false) {
@@ -163,10 +162,9 @@ public class Overfitting {
                     int previous = resultados.get(results.className);
                     resultados.put(results.className, previous + 1);
                 }
-//                System.out.println(resultados);
             }
 //            System.out.println("Success: " + succes + ",  Total: " + total);
-            System.out.println(succes);
+            System.out.println(succes*100.0/total);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -178,7 +176,7 @@ public class Overfitting {
             for(int iterations = 5; iterations < 51; iterations += 5) {
                 withJsonFileName(createResultsFileName(user, iterations));
 //                System.out.println("Creating: " + createResultsFileName(user, iterations));
-                confutionMatrix();
+                confusionMatrix();
             }
             System.out.println("\n");
         }
