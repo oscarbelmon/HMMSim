@@ -30,7 +30,7 @@ public class Ensemble {
     private static final String train = "src/main/resources/emilio_train.csv";
     private static final String test = "src/main/resources/emilio_test.csv";
     private static final String hmmFile = "src/main/resources/emilio_ensemble.bin";
-    private static final String jsonFileName = "src/main/resources/emilio_marta_ensemble.json";
+    private static final String jsonFileName = "src/main/resources/emilio_ensemble.json";
 
     static int init = 0;
 
@@ -55,7 +55,7 @@ public class Ensemble {
         try {
             int batchSize = 10;
             ExperimentSerializer serializer = new ExperimentSerializer(train, test, batchSize)
-                    .withClasses(Arrays.asList("Baño", "Cocina", "Comedor", "Despacho", "Dormitorio"))
+                    .withClasses(Arrays.asList("Baño", "Cocina", "Comedor", "Despacho", "Dormitorio", "Salón"))
                     .withAlgorithms(Arrays.asList("hmm", "knn", "rf", "mlp", "nb"));
 
 
